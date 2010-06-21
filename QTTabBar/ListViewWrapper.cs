@@ -134,6 +134,12 @@ namespace QTTabBarLib {
             return true;
         }
 
+        private void CallbackSelChanged() {
+            if(SelectionChanged != null) {
+                SelectionChanged();
+            }
+        }
+
         private bool ContainerController_MessageCaptured(ref System.Windows.Forms.Message msg) {
             if(msg.Msg == WM.PARENTNOTIFY && PInvoke.LoWord((int)msg.WParam) == WM.CREATE) {
                 string name = GetWindowClassName(msg.LParam);
@@ -919,7 +925,7 @@ namespace QTTabBarLib {
             if(hwndEnumResult == IntPtr.Zero) {
                 return;
             }
-
+            
             ListViewController = new NativeWindowController(hwndEnumResult);
             ListViewController.MessageCaptured += new NativeWindowController.MessageEventHandler(ListViewController_MessageCaptured);
 
@@ -940,6 +946,13 @@ namespace QTTabBarLib {
                     }
                 }
                 PInvoke.SendMessage(ListViewController.Handle, LVM.SETEXTENDEDLISTVIEWSTYLE, (IntPtr)mask, (IntPtr)flags);
+            }
+            else {
+                //using(IDLWrapper wrapper = new IDLWrapper(ShellMethods.ShellGetPath(this.ShellBrowser))) {
+                //    if(wrapper.IsFileSystem) {
+                        AutoMan.RegisterSelChangedEvent(ListViewController.Handle, CallbackSelChanged);
+                //    }
+                //}
             }
 
             this.fTrackMouseEvent = false;
