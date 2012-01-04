@@ -64,7 +64,7 @@ namespace QTTabBarLib {
         private HookProc hookProc_Msg_ShellTrayWnd;
         private IntPtr hwndListView;
         private IntPtr hwndShellTray;
-        private static IContextMenu2 iContextMenu2;
+        private static ShellContextMenu shellContextMenu = new ShellContextMenu();
         private int iHookTimeout;
         private int iMainMenuShownCount;
         private TitleMenuItem labelGroupTitle;
@@ -329,9 +329,9 @@ namespace QTTabBarLib {
         }
 
         public override void CloseDW(uint dwReserved) {
-            if(iContextMenu2 != null) {
-                Marshal.ReleaseComObject(iContextMenu2);
-                iContextMenu2 = null;
+            if(shellContextMenu != null) {
+                shellContextMenu.Dispose();
+                shellContextMenu = null;
             }
             if(ShellBrowser != null) {
                 ShellBrowser.Dispose();
@@ -679,7 +679,7 @@ namespace QTTabBarLib {
             }
             bool fCanRemove = clickedItem.Genre != MenuGenre.Application;
             using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                e.HRESULT = ShellMethods.PopUpSystemContextMenu(wrapper, pnt, ref iContextMenu2, ((DropDownMenuReorderable)sender).Handle, fCanRemove);
+                e.HRESULT = shellContextMenu.Open(wrapper, pnt, ((DropDownMenuReorderable)sender).Handle, fCanRemove);
             }
             if(e.HRESULT != 0xffff) {
                 return;
@@ -752,7 +752,7 @@ namespace QTTabBarLib {
         }
 
         private void groupsMenuItem_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            GroupsManager.RefreshGroupMenuesOnReorderFinished(groupsMenuItem.DropDownItems);
+            GroupsManager.HandleReorder(groupsMenuItem.DropDownItems);
         }
 
         private bool HandleKEYDOWN(IntPtr wParam, bool fRepeat) {
@@ -807,6 +807,7 @@ namespace QTTabBarLib {
                 }
             }
             else {
+                #if false // todo
                 if(((ConfigValues[2] & 8) == 0) && QTUtility.dicUserAppShortcutKeys.ContainsKey(key)) {
                     if(fRepeat) {
                         goto Label_02D8;
@@ -817,10 +818,10 @@ namespace QTTabBarLib {
                                 where wrapper.Available && wrapper.HasPath && wrapper.IsFileSystem
                                 select wrapper.ToAddress()).ToArray();
                         if(list2.Length == 0) return false;
-                        AppLauncher launcher = new AppLauncher(list2, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+                        AppsManager launcher = new AppsManager(list2, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
                         launcher.ReplaceTokens_WorkingDir(mia);
                         launcher.ReplaceTokens_Arguments(mia);
-                        AppLauncher.Execute(mia, IntPtr.Zero);
+                        AppsManager.Execute(mia, IntPtr.Zero);
                         return true;
                     }
                     catch(Exception exception) {
@@ -830,7 +831,7 @@ namespace QTTabBarLib {
                         mia.RestoreOriginalArgs();
                     }
                 }
-#if false // todo
+
                 if(!fRepeat && QTUtility.dicGroupShortcutKeys.ContainsKey(key)) {
                     Thread thread = new Thread(OpenGroup);
                     thread.SetApartmentState(ApartmentState.STA);
@@ -1184,7 +1185,7 @@ namespace QTTabBarLib {
 #endif
                 }
                 if((ConfigValues[2] & 0x20) == 0) {
-                    UserappItemsList = MenuUtility.CreateAppLauncherItems(Handle, (ConfigValues[1] & 2) == 0, dropDownMenues_ItemRightClicked, subMenuItems_DoubleClick, true);
+                    UserappItemsList = MenuUtility.CreateAppLauncherItems(Handle, ShellBrowser, (ConfigValues[1] & 2) == 0, dropDownMenues_ItemRightClicked, subMenuItems_DoubleClick, true);
                 }
                 bool flag = false;
                 bool flag2 = false;
@@ -1685,7 +1686,7 @@ namespace QTTabBarLib {
 
         private void subDirTip_MenuItemRightClicked(object sender, ItemRightClickedEventArgs e) {
             using(IDLWrapper wrapper = new IDLWrapper(((QMenuItem)e.ClickedItem).Path)) {
-                e.HRESULT = ShellMethods.PopUpSystemContextMenu(wrapper, e.IsKey ? e.Point : MousePosition, ref iContextMenu2, ((SubDirTipForm)sender).Handle, false);
+                e.HRESULT = shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle, false);
             }
         }
 
@@ -1739,7 +1740,13 @@ namespace QTTabBarLib {
 
         private void subDirTip_MultipleMenuItemsRightClicked(object sender, ItemRightClickedEventArgs e) {
             List<string> executedDirectories = ((SubDirTipForm)sender).ExecutedDirectories;
-            e.HRESULT = ShellMethods.PopUpSystemContextMenu(executedDirectories, e.IsKey ? e.Point : MousePosition, ref iContextMenu2, ((SubDirTipForm)sender).Handle);
+            // TODO: Replace ExecutedDirectories with ExecutedIDLs.
+            List<byte[]> executedIDLs = executedDirectories.Select(path => {
+                using(IDLWrapper wrapper = new IDLWrapper(path)) {
+                    return wrapper.IDL;
+                }
+            }).ToList();
+            e.HRESULT = shellContextMenu.Open(executedIDLs, e.IsKey ? e.Point : MousePosition, ((SubDirTipForm)sender).Handle);
         }
 
         private static void subMenuItems_DoubleClick(object sender, EventArgs e) {
@@ -1783,8 +1790,12 @@ namespace QTTabBarLib {
         }
 
         private void userAppsMenuItem_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            QTUtility.RefreshUserappMenuesOnReorderFinished(userAppsMenuItem.DropDownItems);
-            QTUtility.fRequiredRefresh_App = true;
+            AppsManager.SetUserAppsFromNestedStructure(
+                    userAppsMenuItem.DropDownItems.Cast<QMenuItem>(),
+                    item => item.MenuItemArguments.App,
+                    item => item.MenuItemArguments.App.IsFolder
+                        ? item.DropDown.Items.Cast<QMenuItem>()
+                        : null);
         }
 
         protected override void WndProc(ref Message m) {
@@ -1839,12 +1850,7 @@ namespace QTTabBarLib {
                         base.WndProc(ref m);
                         return;
                     }
-                    if((iContextMenu2 != null) && (m.HWnd == Handle)) {
-                        try {
-                            iContextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam);
-                        }
-                        catch {
-                        }
+                    if(m.HWnd == Handle && shellContextMenu.TryHandleMenuMsg(m.Msg, m.WParam, m.LParam)) {
                         return;
                     }
                     int windowThreadProcessId = PInvoke.GetWindowThreadProcessId(m.WParam, out num3);

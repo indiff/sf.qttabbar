@@ -32,18 +32,17 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal static class QTUtility {
-        internal static Version BetaRevision = new Version(0, 3);
+        internal static readonly Version BetaRevision = new Version(0, 3);
         internal static PathList ClosedTabHistoryList = new PathList(0x10);
         internal static byte[] ConfigValues;
         internal static string CreateWindowTMPGroup = string.Empty;
         internal static string CreateWindowTMPPath = string.Empty;
-        internal static Version CurrentVersion = new Version(1, 5, 0, 0);
+        internal static readonly Version CurrentVersion = new Version(1, 5, 0, 0);
         internal static Dictionary<string, string> DisplayNameCacheDic = new Dictionary<string, string>();
         internal static PathList ExecutedPathsList = new PathList(0x10);
         internal static bool fExplorerPrevented;
         internal const int FLAG_KEYENABLED = 0x100000;
         internal static bool fIsDevelopmentVersion = true;  // <----------------- Change me before releasing!
-        internal static bool fRequiredRefresh_App;
         internal static bool fRestoreFolderTree;
         internal static bool fSingleClick;
         internal static int iIconUnderLineVal;
@@ -78,13 +77,11 @@ namespace QTTabBarLib {
         internal static readonly char[] SEPARATOR_CHAR = new char[] { ';' };
         internal const string SEPARATOR_PATH_HASH_SESSION = "*?*?*";
         internal static Dictionary<string, int[]> dicPluginShortcutKeys = new Dictionary<string, int[]>();
-        internal static Dictionary<int, MenuItemArguments> dicUserAppShortcutKeys = new Dictionary<int, MenuItemArguments>();
         internal static Font StartUpTabFont;
         internal static Dictionary<string, string[]> TextResourcesDic;
         internal static List<byte[]> TMPIDLList = new List<byte[]>();
         internal static List<string> TMPPathList = new List<string>();
         internal static byte[] TMPTargetIDL;
-        internal static Dictionary<string, string[]> UserAppsDic = new Dictionary<string, string[]>();
         internal static byte WindowAlpha = 0xff;
 
         static QTUtility() {
@@ -106,8 +103,9 @@ namespace QTTabBarLib {
                 ImageListGlobal = new ImageList { ColorDepth = ColorDepth.Depth32Bit };
                 ImageListGlobal.Images.Add("folder", GetIcon(string.Empty, false));
 
-                // Load groups
+                // Load groups/apps
                 GroupsManager.LoadGroups();
+                AppsManager.LoadApps();
 
                 using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                     if(key != null) {
@@ -147,7 +145,6 @@ namespace QTTabBarLib {
                         }
                     }
                 }
-                RefreshUserAppDic(true);
                 if(!IsXP) {
                     PATH_SEARCHFOLDER = "::{9343812E-1C37-4A49-A12E-4B2D810D956B}";
                     PATH_MYNETWORK = "::{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}";
@@ -524,83 +521,6 @@ namespace QTTabBarLib {
                     }
                     else {
                         LockedTabsToRestoreList.Clear();
-                    }
-                }
-            }
-        }
-
-        public static void RefreshUserAppDic(bool fCheckShortcuts) {
-            UserAppsDic.Clear();
-            using(RegistryKey key = Registry.CurrentUser.OpenSubKey(RegConst.Root + @"UserApps", false)) {
-                if(key != null) {
-                    foreach(string str in key.GetValueNames()) {
-                        if(str.Length > 0) {
-                            string[] strArray = QTUtility2.ReadRegBinary<string>(str, key);
-                            if((strArray != null) && ((strArray.Length == 3) || (strArray.Length == 4))) {
-                                int num;
-                                UserAppsDic.Add(str, strArray);
-                                if((strArray.Length == 4) && int.TryParse(strArray[3], out num)) {
-                                    dicUserAppShortcutKeys[num] = new MenuItemArguments(strArray[0], strArray[1], strArray[2], num, MenuGenre.Application);
-                                }
-                            }
-                            else {
-                                using(RegistryKey key2 = key.OpenSubKey(str, false)) {
-                                    if(key2 != null) {
-                                        UserAppsDic.Add(str, null);
-                                        if(fCheckShortcuts) {
-                                            RefreshUserAppShortcutKeyDic(key2);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void RefreshUserappMenuesOnReorderFinished(ToolStripItemCollection itemsList) {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"UserApps")) {
-                foreach(string str in key.GetValueNames()) {
-                    key.DeleteValue(str, false);
-                }
-                int num = 1;
-                string[] array = new string[] { "separator", string.Empty, string.Empty };
-                foreach(ToolStripItem item in itemsList) {
-                    string[] strArray2;
-                    if(item.Text.Length == 0) {
-                        QTUtility2.WriteRegBinary(array, "Separator" + num++, key);
-                        continue;
-                    }
-                    if(UserAppsDic.TryGetValue(item.Name, out strArray2)) {
-                        if((strArray2 == null) || (strArray2.Length == 0)) {
-                            key.SetValue(item.Name, new byte[0]);
-                            continue;
-                        }
-                        QTUtility2.WriteRegBinary(strArray2, item.Name, key);
-                    }
-                }
-            }
-        }
-
-        private static void RefreshUserAppShortcutKeyDic(RegistryKey rk) {
-            if(rk != null) {
-                foreach(string str in rk.GetValueNames()) {
-                    if(str.Length > 0) {
-                        string[] strArray = QTUtility2.ReadRegBinary<string>(str, rk);
-                        if((strArray != null) && (strArray.Length == 4)) {
-                            int num;
-                            if(int.TryParse(strArray[3], out num)) {
-                                dicUserAppShortcutKeys[num] = new MenuItemArguments(strArray[0], strArray[1], strArray[2], num, MenuGenre.Application);
-                            }
-                        }
-                        else {
-                            using(RegistryKey key = rk.OpenSubKey(str, false)) {
-                                if(key != null) {
-                                    RefreshUserAppShortcutKeyDic(key);
-                                }
-                            }
-                        }
                     }
                 }
             }

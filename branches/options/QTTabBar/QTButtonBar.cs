@@ -84,14 +84,13 @@ namespace QTTabBarLib {
         private IntPtr ExplorerHandle;
         private bool fRearranging;
         private bool fSearchBoxInputStart;
-        private IContextMenu2 iContextMenu2;
+        private ShellContextMenu shellContextMenu = new ShellContextMenu();
         private const int INTERVAL_REARRANGE = 300;
         private const int INTERVAL_SEARCHSTART = 250;
         private int iPluginCreatingIndex;
         private int iSearchResultCount = -1;
         private List<ToolStripItem> lstPluginCustomItem = new List<ToolStripItem>();
         private List<IntPtr> lstPUITEMIDCHILD = new List<IntPtr>();
-        private List<QMenuItem> lstTokenedItems = new List<QMenuItem>();
         private DropDownMenuBase NavDropDown;
         private PluginManager pluginManager;
         private ToolStripSearchBox searchBox;
@@ -144,45 +143,14 @@ namespace QTTabBarLib {
         }
 
         private void AddUserAppItems() {
-            if((QTUtility.UserAppsDic.Count > 0) && (ddmrUserAppButton != null)) {
-                if(QTUtility.fRequiredRefresh_App) {
-                    SyncButtonBarBroadCast_ClearApps();
-                }
-                if(ddmrUserAppButton.Items.Count == 0) {
-                    lstTokenedItems.Clear();
-                    List<ToolStripItem> lstItems = MenuUtility.CreateAppLauncherItems(Handle, !Config.BBar.LockDropDownButtons, ddmr45_ItemRightClicked, userAppsSubDir_DoubleCliced, false);
-                    QTTabBarClass tabBar = InstanceManager.GetTabBar(ExplorerHandle);
-                    if(tabBar != null) {
-                        Address[] addressArray;
-                        string str2;
-                        string path;
-                        using(IDLWrapper wrapper = tabBar.GetCurrentPIDL()) {
-                            path = wrapper.Path;
-                        }
-                        if(tabBar.TryGetSelection(out addressArray, out str2, false)) {
-                            ReplaceTokens(lstItems, new AppLauncher(addressArray, path), true);
-                        }
-                    }
-                    ddmrUserAppButton.AddItemsRange(lstItems.ToArray(), "u");
-                }
-                else if(lstTokenedItems.Count > 0) {
-                    foreach(QMenuItem item in lstTokenedItems) {
-                        item.MenuItemArguments.RestoreOriginalArgs();
-                    }
-                    QTTabBarClass class3 = InstanceManager.GetTabBar(ExplorerHandle);
-                    if(class3 != null) {
-                        using(IDLWrapper wrapper = class3.GetCurrentPIDL()) {
-                            Address[] addressArray2;
-                            string str4;
-                            string pathCurrent = wrapper.Path;
-                            if(class3.TryGetSelection(out addressArray2, out str4, false)) {
-                                ToolStripItem[] itemArray = lstTokenedItems.ToArray();
-                                ReplaceTokens(itemArray, new AppLauncher(addressArray2, pathCurrent), false);
-                            }
-                        }
-                    }
-                }
-            }
+            if(ddmrUserAppButton == null) return;
+            // todo: the button bar should have its *own* ShellBrowserEx!
+            QTTabBarClass tabBar = InstanceManager.GetTabBar(ExplorerHandle);
+            if(tabBar == null) return;
+            ddmrUserAppButton.ItemsClear();
+            List<ToolStripItem> lstItems = MenuUtility.CreateAppLauncherItems(Handle, tabBar.GetShellBrowser(),
+                    !Config.BBar.LockDropDownButtons, ddmr45_ItemRightClicked, userAppsSubDir_DoubleClicked, false);
+            ddmrUserAppButton.AddItemsRange(lstItems.ToArray(), "u");
         }
 
         private void AsyncComplete(IAsyncResult ar) {
@@ -246,9 +214,9 @@ namespace QTTabBarLib {
                     pluginManager.Close(true);
                     pluginManager = null;
                 }
-                if(iContextMenu2 != null) {
-                    Marshal.FinalReleaseComObject(iContextMenu2);
-                    iContextMenu2 = null;
+                if(shellContextMenu != null) {
+                    shellContextMenu.Dispose();
+                    shellContextMenu = null;
                 }
                 foreach(IntPtr ptr in lstPUITEMIDCHILD) {
                     if(ptr != IntPtr.Zero) {
@@ -356,7 +324,7 @@ namespace QTTabBarLib {
                         ddmrUserAppButton.Closed += dropDownButtons_DropDown_Closed;
                     }
                     button.DropDown = ddmrUserAppButton;
-                    button.Enabled = QTUtility.UserAppsDic.Count > 0;
+                    button.Enabled = AppsManager.UserApps.Any();
                     break;
             }
             button.DropDownOpening += dropDownButtons_DropDownOpening;
@@ -597,7 +565,7 @@ namespace QTTabBarLib {
             if(clickedItem != null) {
                 bool fCanRemove = sender == ddmrRecentlyClosed;
                 using(IDLWrapper wrapper = new IDLWrapper(clickedItem.Path)) {
-                    e.HRESULT = ShellMethods.PopUpSystemContextMenu(wrapper, e.IsKey ? e.Point : MousePosition, ref iContextMenu2, ((DropDownMenuReorderable)sender).Handle, fCanRemove);
+                    e.HRESULT = shellContextMenu.Open(wrapper, e.IsKey ? e.Point : MousePosition, ((DropDownMenuReorderable)sender).Handle, fCanRemove);
                 }
                 if(fCanRemove && (e.HRESULT == 0xffff)) {
                     QTUtility.ClosedTabHistoryList.Remove(clickedItem.Path);
@@ -682,8 +650,8 @@ namespace QTTabBarLib {
                         return;
 
                     case 5:
-                        if((clickedItem != null) && (clickedItem.Target == MenuTarget.File)) {
-                            AppLauncher.Execute(clickedItem.MenuItemArguments, ExplorerHandle);
+                        if(clickedItem != null && clickedItem.Target == MenuTarget.File) {
+                            AppsManager.Execute(clickedItem.MenuItemArguments.App, clickedItem.MenuItemArguments.ShellBrowser);
                         }
                         return;
                 }
@@ -694,13 +662,17 @@ namespace QTTabBarLib {
             DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
             switch(((int)reorderable.OwnerItem.Tag)) {
                 case 3:
-                    GroupsManager.RefreshGroupMenuesOnReorderFinished(reorderable.Items);
+                    GroupsManager.HandleReorder(reorderable.Items);
                     break;
 
                 case 5:
-                    QTUtility.RefreshUserappMenuesOnReorderFinished(reorderable.Items);
-                    QTUtility.fRequiredRefresh_App = true;
-                    break;
+                    AppsManager.SetUserAppsFromNestedStructure(
+                            reorderable.Items.Cast<QMenuItem>(),
+                            item => item.MenuItemArguments.App,
+                            item => item.MenuItemArguments.App.IsFolder
+                                ? item.DropDown.Items.Cast<QMenuItem>()
+                                : null); 
+                     break;
             }
             QTTabBarClass.SyncTaskBarMenu();
         }
@@ -1037,49 +1009,6 @@ namespace QTTabBarLib {
             }
         }
 
-        private void ReplaceTokens(IEnumerable lstItems, AppLauncher al, bool fInitialize) {
-            foreach(ToolStripItem item in lstItems) {
-                QMenuItem item2 = item as QMenuItem;
-                if(item2 != null) {
-                    MenuItemArguments menuItemArguments = item2.MenuItemArguments;
-                    if(menuItemArguments != null) {
-                        if(menuItemArguments.Target == MenuTarget.File) {
-                            string name = item.Name;
-                            if(al.ReplaceTokens_WorkingDir(menuItemArguments)) {
-                                name = name + "*";
-                            }
-                            int num = al.ReplaceTokens_Arguments(menuItemArguments);
-                            if(num > 0) {
-                                if((num == 1) && (al.iSelItemsCount == 1)) {
-                                    name = name + " - " + Path.GetFileName(al.strSelObjs.Trim(new char[] { '"' }));
-                                }
-                                else if((num == 2) && (al.iSelFileCount == 1)) {
-                                    name = name + " - " + Path.GetFileName(al.strSelFiles.Trim(new char[] { '"' }));
-                                }
-                                else if((num == 4) && (al.iSelDirsCount == 1)) {
-                                    name = name + " - " + Path.GetFileName(al.strSelDirs.Trim(new char[] { '"' }));
-                                }
-                                else if(num == 8) {
-                                    name = name + " - Current folder";
-                                }
-                                else if(num != 10) {
-                                    name = name + " - *";
-                                }
-                            }
-                            if(fInitialize && AppLauncher.IsTokened(menuItemArguments)) {
-                                lstTokenedItems.Add(item2);
-                            }
-                            item.Text = name;
-                            continue;
-                        }
-                        if((menuItemArguments.Target == MenuTarget.VirtualFolder) && item2.HasDropDownItems) {
-                            ReplaceTokens(item2.DropDownItems, al, fInitialize);
-                        }
-                    }
-                }
-            }
-        }
-
         private void searchBox_ErasingText(object sender, CancelEventArgs e) {
             e.Cancel = lstPUITEMIDCHILD.Count != 0;
         }
@@ -1293,17 +1222,6 @@ namespace QTTabBarLib {
             if(!fShow) {
                 using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                     key.SetValue("BreakButtonBar", BandHasBreak() ? 1 : 0);
-                }
-            }
-        }
-
-        private void SyncButtonBarBroadCast_ClearApps() {
-            QTUtility.fRequiredRefresh_App = false;
-            ClearUserAppsMenu();
-            IntPtr dwData = (IntPtr)0x2000000;
-            foreach(IntPtr ptr2 in InstanceManager.ButtonBarHandles()) {
-                if((ptr2 != Handle) && PInvoke.IsWindow(ptr2)) {
-                    QTUtility2.SendCOPYDATASTRUCT(ptr2, (IntPtr)1, "fromBBBC", dwData);
                 }
             }
         }
@@ -1587,7 +1505,7 @@ namespace QTTabBarLib {
             }
         }
 
-        private void userAppsSubDir_DoubleCliced(object sender, EventArgs e) {
+        private void userAppsSubDir_DoubleClicked(object sender, EventArgs e) {
             ddmrUserAppButton.Close();
             string path = ((QMenuItem)sender).Path;
             IntPtr dwData = (ModifierKeys != Keys.Control) ? IntPtr.Zero : ((IntPtr)1);
@@ -1601,15 +1519,10 @@ namespace QTTabBarLib {
                 case WM.INITMENUPOPUP:
                 case WM.DRAWITEM:
                 case WM.MEASUREITEM:
-                    if((iContextMenu2 == null) || !(m.HWnd == Handle)) {
-                        goto Label_08F8;
+                    if(m.HWnd == Handle && shellContextMenu.TryHandleMenuMsg(m.Msg, m.WParam, m.LParam)) {
+                        return;
                     }
-                    try {
-                        iContextMenu2.HandleMenuMsg(m.Msg, m.WParam, m.LParam);
-                    }
-                    catch {
-                    }
-                    return;
+                    goto Label_08F8;
 
                 case WM.DROPFILES:
                     PInvoke.SendMessage(InstanceManager.GetTabBarHandle(ExplorerHandle), 0x233, m.WParam, IntPtr.Zero);

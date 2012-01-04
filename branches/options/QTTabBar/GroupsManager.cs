@@ -15,7 +15,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -123,7 +122,7 @@ namespace QTTabBarLib {
             return true;
         }
 
-        public static void RefreshGroupMenuesOnReorderFinished(ToolStripItemCollection itemsList) {
+        public static void HandleReorder(ToolStripItemCollection itemsList) {
             Groups = itemsList.Cast<ToolStripItem>().Select(item => groupDict[item.Text]);
             SaveGroups();
         }

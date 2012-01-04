@@ -99,7 +99,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppLauncher.cs" />
+    <Compile Include="AppsManager.cs" />
     <Compile Include="AutoLoader.cs" />
     <Compile Include="Automation\AutomationElement.cs" />
     <Compile Include="Automation\AutomationElementFactory.cs" />
@@ -107,6 +107,7 @@
     <Compile Include="BreadcrumbBar.cs" />
     <Compile Include="AbstractListView.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="ShellContextMenu.cs" />
     <Compile Include="EditableHeader.xaml.cs">
       <DependentUpon>EditableHeader.xaml</DependentUpon>
     </Compile>
@@ -285,9 +286,6 @@
     </Compile>
     <Compile Include="NativeWindowController.cs" />
     <Compile Include="NavigationCompleteCallback.cs" />
-    <Compile Include="OptionsDialog_OLD.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="PathData.cs" />
     <Compile Include="PathList.cs" />
     <Compile Include="Plugin.cs" />

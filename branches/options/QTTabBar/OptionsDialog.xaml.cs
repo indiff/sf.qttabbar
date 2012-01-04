@@ -415,6 +415,7 @@ namespace QTTabBarLib {
             CommitPlugins(out assemblies);
             CommitButtonBar();
             CommitGroups();
+            CommitApps();
             bool fButtonBarNeedsRefresh = Config.BBar.LargeButtons != workingConfig.bbar.LargeButtons;
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(workingConfig);
             ConfigManager.WriteConfig();
@@ -967,11 +968,20 @@ namespace QTTabBarLib {
         #region ---------- Applications ----------
 
         private void InitializeApps() {
-            tvwApps.ItemsSource = CurrentApps = new ParentedCollection<AppEntry>();
+            var root = AppsManager.BuildNestedStructure(
+                    app => new AppEntry(app),
+                    (folderName, children) => new AppEntry(folderName, children));
+
+            tvwApps.ItemsSource = CurrentApps = new ParentedCollection<AppEntry>(root);
         }
 
         private void CommitApps() {
-            // todo
+            AppsManager.SetUserAppsFromNestedStructure(
+                    CurrentApps,
+                    entry => entry.IsFolder 
+                        ? new UserApp(entry.Name) 
+                        : new UserApp(entry.Name, entry.Path, entry.Args, entry.WorkingDir, entry.ShortcutKey),
+                    entry => entry.Children);
         }
 
         private static IEnumerable<AppEntry> FlattenAppList(IEnumerable<AppEntry> AppRoot) {
@@ -996,7 +1006,7 @@ namespace QTTabBarLib {
             AppEntry sel = tvwApps.SelectedItem as AppEntry;
             IList list = sel == null ? CurrentApps : sel.IsFolder ? sel.Children : sel.ParentList;
             int idx = sel == null ? 0 : list.IndexOf(sel) + 1;
-            AppEntry entry = new AppEntry(false, path);
+            AppEntry entry = new AppEntry(System.IO.Path.GetFileName(path), path);
             list.Insert(idx, entry);
             if(sel != null && sel.IsFolder) sel.IsExpanded = true;
             tvwApps.Focus();
@@ -1007,7 +1017,7 @@ namespace QTTabBarLib {
             AppEntry sel = tvwApps.SelectedItem as AppEntry;
             IList list = sel == null ? CurrentApps : sel.IsFolder ? sel.Children : sel.ParentList;
             int idx = sel == null ? 0 : list.IndexOf(sel) + 1;
-            AppEntry entry = new AppEntry(true, "New Folder");
+            AppEntry entry = new AppEntry("New Folder", new AppEntry[0]);
             list.Insert(idx, entry);
             if(sel != null && sel.IsFolder) sel.IsExpanded = true;
             tvwApps.Focus();
@@ -1827,15 +1837,22 @@ namespace QTTabBarLib {
                 }
             }
 
-            public AppEntry(bool folder, string nameOrPath) {
-                if(folder) {
-                    Name = nameOrPath;
-                    Children = new ParentedCollection<AppEntry>();    
-                }
-                else {
-                    Path = nameOrPath;
-                    Name = System.IO.Path.GetFileNameWithoutExtension(Path);
-                }
+            public AppEntry(string folderName, IEnumerable<AppEntry> children) {
+                Name = folderName;
+                Children = new ParentedCollection<AppEntry>(children);    
+            }
+
+            public AppEntry(string name, string path) {
+                Path = path;
+                Name = name;
+            }
+
+            public AppEntry(UserApp app) {
+                Path = app.Path;
+                Name = app.Name;
+                Args = app.Args;
+                WorkingDir = app.WorkingDir;
+                ShortcutKey = app.ShortcutKey;
             }
         }
 
