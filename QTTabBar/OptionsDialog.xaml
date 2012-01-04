@@ -248,8 +248,8 @@
                     VerticalAlignment="Top"
                     Width="48"
                     Height="48">
-                    <Image 
-                        Opacity="{Binding Path=Opacity}" 
+                    <Image
+                        Opacity="{Binding Path=Opacity}"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Stretch="None"
@@ -2228,7 +2228,7 @@
                                 <ContextMenu>
                                     <MenuItem
                                         Header="The following keywords are replaced with double-quoted path strings at runtime."
-                                        IsEnabled="False"/> 
+                                        IsEnabled="False"/>
                                     <Separator/>
                                     <MenuItem
                                         Click="miArgVars_Click"
@@ -2281,6 +2281,23 @@
                                         Header="The following keywords are replaced with double-quoted path strings at runtime."
                                         IsEnabled="False"/>
                                     <Separator/>
+                                    <MenuItem
+                                        Click="miWorkingVars_Click"
+                                        IsEnabled="False"
+                                        Header="%f% - Selected files."
+                                        Tag="%f%"/>
+                                    <MenuItem
+                                        Click="miWorkingVars_Click"
+                                        Header="%d% - Selected folders."
+                                        Tag="%d%"/>
+                                    <MenuItem
+                                        Click="miWorkingVars_Click"
+                                        Header="%s% - Selected files and folders."
+                                        Tag="%s%"/>
+                                    <MenuItem
+                                        Click="miWorkingVars_Click"
+                                        Header="%c% - Current folder."
+                                        Tag="%c%"/>
                                     <MenuItem
                                         Click="miWorkingVars_Click"
                                         Header="%cd% - Current folder if no selection, otherwise selected folder."

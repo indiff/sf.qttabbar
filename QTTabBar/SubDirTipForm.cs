@@ -220,11 +220,11 @@ namespace QTTabBarLib {
                                 bool flag6 = (attributes2 & FileAttributes.ReadOnly) != 0;
                                 bool flag7 = (attributes2 & FileAttributes.Hidden) != 0;
                                 if((!flag5 || flag2) && (!flag7 || flag3)) {
-                                    bool flag4;
-                                    string title = QTUtility2.MakeNameEllipsis(name, out flag4);
+                                    bool fTruncated;
+                                    string title = QTUtility2.MakeNameEllipsis(name, out fTruncated);
                                     QMenuItem item = CreateDirectoryItem(info, title, flag5 || flag6, false);
                                     if(item != null) {
-                                        if(flag4) {
+                                        if(fTruncated) {
                                             item.OriginalTitle = name;
                                         }
                                         if((pathChild != null) && (item.Path == pathChild)) {
@@ -243,7 +243,7 @@ namespace QTTabBarLib {
                                         ex.Path = path;
                                         ex.Name = name;
                                         ex.Extension = Path.GetExtension(path).ToLower();
-                                        if(flag4) {
+                                        if(fTruncated) {
                                             ex.OriginalTitle = name;
                                         }
                                         ex.MouseMove += tsmi_Files_MouseMove;
@@ -278,7 +278,7 @@ namespace QTTabBarLib {
                         bool flag9 = (attributes3 & FileAttributes.Hidden) != 0;
                         if((!flag8 || flag2) && (!flag9 || flag3)) {
                             string fileNameWithoutExtension;
-                            bool flag10;
+                            bool fTruncated;
                             string lnkPath = info2.FullName;
                             string str8 = lnkPath;
                             string ext = info2.Extension.ToLower();
@@ -287,14 +287,14 @@ namespace QTTabBarLib {
                                 if(!string.IsNullOrEmpty(linkTargetPath)) {
                                     DirectoryInfo diSub = new DirectoryInfo(linkTargetPath);
                                     if(diSub.Exists) {
-                                        string str12 = QTUtility2.MakeNameEllipsis(Path.GetFileNameWithoutExtension(info2.Name), out flag10);
+                                        string str12 = QTUtility2.MakeNameEllipsis(Path.GetFileNameWithoutExtension(info2.Name), out fTruncated);
                                         QMenuItem item2 = CreateDirectoryItem(diSub, str12, false, true);
                                         if(item2 != null) {
                                             item2.Path = lnkPath;
                                             item2.TargetPath = linkTargetPath;
                                             item2.Name = info2.Name;
                                             item2.Extension = ext;
-                                            if(flag10) {
+                                            if(fTruncated) {
                                                 item2.OriginalTitle = info2.Name;
                                             }
                                             item2.HasIcon = true;
@@ -312,13 +312,13 @@ namespace QTTabBarLib {
                             else {
                                 fileNameWithoutExtension = info2.Name;
                             }
-                            ToolStripMenuItemEx ex2 = new ToolStripMenuItemEx(QTUtility2.MakeNameEllipsis(fileNameWithoutExtension, out flag10));
+                            ToolStripMenuItemEx ex2 = new ToolStripMenuItemEx(QTUtility2.MakeNameEllipsis(fileNameWithoutExtension, out fTruncated));
                             ex2.ThumbnailIndex = num2++;
                             ex2.ThumbnailPath = str8;
                             ex2.Path = lnkPath;
                             ex2.Name = info2.Name;
                             ex2.Extension = ext;
-                            if(flag10) {
+                            if(fTruncated) {
                                 ex2.OriginalTitle = fileNameWithoutExtension;
                             }
                             ex2.Exists = true;
@@ -371,11 +371,11 @@ namespace QTTabBarLib {
                             uint rgfInOut = 0x60000000;
                             IntPtr[] apidl = new IntPtr[] { ptr3 };
                             if(shellFolder.GetAttributesOf(1, apidl, ref rgfInOut) == 0) {
-                                bool flag4;
+                                bool fTruncated;
                                 bool flag2 = (rgfInOut & 0x20000000) == 0x20000000;
                                 bool flag3 = (rgfInOut & 0x40000000) == 0x40000000;
                                 string name = ShellMethods.GetDisplayName(shellFolder, ptr3, true);
-                                string title = QTUtility2.MakeNameEllipsis(name, out flag4);
+                                string title = QTUtility2.MakeNameEllipsis(name, out fTruncated);
                                 if(flag3 && !flag2) {
                                     ToolStripMenuItemEx ex = new ToolStripMenuItemEx(title);
                                     ex.ThumbnailIndex = num2++;
@@ -383,7 +383,7 @@ namespace QTTabBarLib {
                                     ex.Path = str;
                                     ex.Name = name;
                                     ex.Extension = Path.GetExtension(str).ToLower();
-                                    if(flag4) {
+                                    if(fTruncated) {
                                         ex.OriginalTitle = name;
                                     }
                                     ex.Exists = true;

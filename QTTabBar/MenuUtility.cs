@@ -27,13 +27,14 @@ using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
     internal static class MenuUtility {
+        // TODO: this is absent from Quizo's sources.  Figure out why.
         private static void AddChildrenOnOpening(DirectoryMenuItem parentItem) {
-            bool flag;
+            bool fTruncated;
             DirectoryInfo info = new DirectoryInfo(parentItem.Path);
             EventPack eventPack = parentItem.EventPack;
             foreach(DirectoryInfo info2 in info.GetDirectories()
                     .Where(info2 => (info2.Attributes & FileAttributes.Hidden) == 0)) {
-                string text = QTUtility2.MakeNameEllipsis(info2.Name, out flag);
+                string text = QTUtility2.MakeNameEllipsis(info2.Name, out fTruncated);
                 DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null);
                 reorderable.MessageParent = eventPack.MessageParentHandle;
                 reorderable.ItemRightClicked += eventPack.ItemRightClickEventHandler;
@@ -42,8 +43,8 @@ namespace QTTabBarLib {
                 item.SetImageReservationKey(info2.FullName, null);
                 item.Path = info2.FullName;
                 item.EventPack = eventPack;
-                item.ModifiiedDate = info2.LastWriteTime;
-                if(flag) {
+                item.ModifiedDate = info2.LastWriteTime;
+                if(fTruncated) {
                     item.ToolTipText = info2.Name;
                 }
                 item.DropDown = reorderable;
@@ -69,39 +70,24 @@ namespace QTTabBarLib {
                         break;
                 }
                 string str4 = fileNameWithoutExtension;
-                QMenuItem item2 = new QMenuItem(QTUtility2.MakeNameEllipsis(fileNameWithoutExtension, out flag), MenuTarget.File, MenuGenre.Application);
+                QMenuItem item2 = new QMenuItem(QTUtility2.MakeNameEllipsis(fileNameWithoutExtension, out fTruncated), MenuTarget.File, MenuGenre.Application);
                 item2.Path = info3.FullName;
                 item2.SetImageReservationKey(info3.FullName, ext);
                 item2.MouseMove += qmi_File_MouseMove;
-                if(flag) {
+                if(fTruncated) {
                     item2.ToolTipText = str4;
                 }
                 parentItem.DropDownItems.Add(item2);
             }
         }
 
-        public static List<ToolStripItem> CreateAppLauncherItems(IntPtr hwndParent, bool fReorderEnabled, ItemRightClickedEventHandler rightClickHandler, EventHandler dirDoubleClickEvent, bool fFromTaskBar) {
-            QTUtility.RefreshUserAppDic(false);
-            List<ToolStripItem> list = new List<ToolStripItem>();
+        public static List<ToolStripItem> CreateAppLauncherItems(IntPtr hwndParent, ShellBrowserEx shellBrowser, bool fReorderEnabled, ItemRightClickedEventHandler rightClickHandler, EventHandler dirDoubleClickEvent, bool fFromTaskBar) {
+            // todo: refresh?
             EventPack ep = new EventPack(hwndParent, rightClickHandler, dirDoubleClickEvent, fFromTaskBar);
-            foreach(string str in QTUtility.UserAppsDic.Keys) {
-                string[] appVals = QTUtility.UserAppsDic[str];
-                if(appVals != null) {
-                    list.Add(CreateMenuItem_AppLauncher(str, appVals, ep));
-                }
-                else {
-                    using(RegistryKey key = Registry.CurrentUser.OpenSubKey(RegConst.Root + @"UserApps\" + str, false)) {
-                        if(key != null) {
-                            ToolStripItem item = CreateMenuItem_AppLauncher_Virtual(str, fReorderEnabled, key, ep);
-                            if(item != null) {
-                                list.Add(item);
-                            }
-                        }
-                        continue;
-                    }
-                }
-            }
-            return list;
+            return AppsManager.BuildNestedStructure(
+                    userApp => CreateMenuItem_AppLauncher(userApp, ep, shellBrowser),
+                    (folderName, children) => CreateMenuItem_AppLauncher_Virtual(
+                        folderName, children, fReorderEnabled, ep)).ToList();
         }
 
         public static void CreateGroupItems(ToolStripDropDownItem dropDownItem) {
@@ -112,18 +98,16 @@ namespace QTTabBarLib {
             dropDown.ItemsClear();
             const string key = "groups";
             foreach(Group group in GroupsManager.Groups) {
-                if(group.Paths.Count != 0 && QTUtility2.PathExists(group.Paths[0])) {
-                    QMenuItem item = new QMenuItem(group.Name, MenuGenre.Group);
-                    item.SetImageReservationKey(group.Paths[0], null);
-                    dropDown.AddItem(item, key);
-                    if(group.Startup) {
-                        if(QTUtility.StartUpTabFont == null) {
-                            // todo, I don't like this here.
-                            QTUtility.StartUpTabFont = new Font(item.Font, FontStyle.Underline);
-                        }
-                        item.Font = QTUtility.StartUpTabFont;
-                    }
+                if(group.Paths.Count == 0 || !QTUtility2.PathExists(group.Paths[0])) continue;
+                QMenuItem item = new QMenuItem(group.Name, MenuGenre.Group);
+                item.SetImageReservationKey(group.Paths[0], null);
+                dropDown.AddItem(item, key);
+                if(!group.Startup) continue;
+                if(QTUtility.StartUpTabFont == null) {
+                    // todo, I don't like this here.
+                    QTUtility.StartUpTabFont = new Font(item.Font, FontStyle.Underline);
                 }
+                item.Font = QTUtility.StartUpTabFont;
             }
             dropDownItem.Enabled = dropDown.Items.Count > 0;
         }
@@ -140,157 +124,123 @@ namespace QTTabBarLib {
             return item;
         }
 
-        private static ToolStripItem CreateMenuItem_AppLauncher(string key, string[] appVals, EventPack ep) {
-            string name = appVals[0];
+        private static ToolStripItem CreateMenuItem_AppLauncher(UserApp app, EventPack ep, ShellBrowserEx shellBrowser) {
+            string path = app.Path;
             try {
-                name = Environment.ExpandEnvironmentVariables(name);
+                path = Environment.ExpandEnvironmentVariables(path);
             }
             catch {
             }
-            MenuItemArguments mia = new MenuItemArguments(name, appVals[1], appVals[2], 0, MenuGenre.Application);
-            if((appVals[0].Length == 0) || appVals[0].PathEquals("separator")) {
-                ToolStripSeparator separator = new ToolStripSeparator();
-                separator.Name = "appSep";
-                return separator;
-            }
-            if(appVals.Length == 4) {
-                int.TryParse(appVals[3], out mia.KeyShortcut);
-            }
-            if((name.StartsWith(@"\\") || name.StartsWith("::")) || !Directory.Exists(name)) {
+            MenuItemArguments mia = new MenuItemArguments(app, shellBrowser, MenuGenre.Application);
+            if(path.StartsWith(@"\\") || path.StartsWith("::") || !Directory.Exists(path)) {
                 mia.Target = MenuTarget.File;
-                QMenuItem item = new QMenuItem(key, mia);
-                item.Name = key;
-                item.SetImageReservationKey(name, Path.GetExtension(name));
+                QMenuItem item = new QMenuItem(app.Name, mia) { Name = app.Name };
+                item.SetImageReservationKey(path, Path.GetExtension(path));
                 item.MouseMove += qmi_File_MouseMove;
-                if(!ep.FromTaskBar && (mia.KeyShortcut > 0x100000)) {
-                    int num = mia.KeyShortcut & -1048577;
-                    item.ShortcutKeyDisplayString = QTUtility2.MakeKeyString((Keys)num).Replace(" ", string.Empty);
+                if(!ep.FromTaskBar && app.ShortcutKey != Keys.None) {
+                    item.ShortcutKeyDisplayString = QTUtility2.MakeKeyString(app.ShortcutKey).Replace(" ", string.Empty);
                 }
                 return item;
             }
-            mia.Target = MenuTarget.Folder;
-            DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null);
-            reorderable.MessageParent = ep.MessageParentHandle;
-            reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
-            reorderable.ImageList = QTUtility.ImageListGlobal;
-            DirectoryMenuItem item2 = new DirectoryMenuItem(key);
-            item2.SetImageReservationKey(name, null);
-            item2.Name = key;
-            item2.Path = name;
-            item2.MenuItemArguments = mia;
-            item2.EventPack = ep;
-            item2.ModifiiedDate = Directory.GetLastWriteTime(name);
-            item2.DropDown = reorderable;
-            item2.DoubleClickEnabled = true;
-            item2.DropDownItems.Add(new ToolStripMenuItem());
-            item2.DropDownItemClicked += realDirectory_DropDownItemClicked;
-            item2.DropDownOpening += realDirectory_DropDownOpening;
-            item2.DoubleClick += ep.DirDoubleClickEventHandler;
-            return item2;
+            else {
+                mia.Target = MenuTarget.Folder;
+                DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null) {
+                    MessageParent = ep.MessageParentHandle,
+                    ImageList = QTUtility.ImageListGlobal
+                };
+                reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
+                DirectoryMenuItem item = new DirectoryMenuItem(app.Name) {
+                    Name = app.Name,
+                    Path = path,
+                    MenuItemArguments = mia,
+                    EventPack = ep,
+                    ModifiedDate = Directory.GetLastWriteTime(path),
+                    DropDown = reorderable,
+                    DoubleClickEnabled = true
+                };
+                item.DropDownItems.Add(new ToolStripMenuItem());
+                item.DropDownItemClicked += realDirectory_DropDownItemClicked;
+                item.DropDownOpening += realDirectory_DropDownOpening;
+                item.DoubleClick += ep.DirDoubleClickEventHandler;
+                item.SetImageReservationKey(path, null);
+                return item;
+            }
         }
 
-        private static ToolStripItem CreateMenuItem_AppLauncher_Virtual(string key, bool fReorderEnabled, RegistryKey rkSub, EventPack ep) {
-            string[] valueNames = rkSub.GetValueNames();
-            if((valueNames != null) && (valueNames.Length > 0)) {
-                List<ToolStripItem> list = new List<ToolStripItem>();
-                foreach(string str in valueNames) {
-                    string[] appVals = QTUtility2.ReadRegBinary<string>(str, rkSub);
-                    if(appVals != null) {
-                        if((appVals.Length == 3) || (appVals.Length == 4)) {
-                            list.Add(CreateMenuItem_AppLauncher(str, appVals, ep));
-                        }
-                    }
-                    else {
-                        using(RegistryKey key2 = rkSub.OpenSubKey(str, false)) {
-                            if(key2 != null) {
-                                ToolStripItem item = CreateMenuItem_AppLauncher_Virtual(str, fReorderEnabled, key2, ep);
-                                if(item != null) {
-                                    list.Add(item);
-                                }
-                            }
-                        }
-                    }
-                }
-                if(list.Count > 0) {
-                    QMenuItem item2 = new QMenuItem(key, new MenuItemArguments(key, MenuTarget.VirtualFolder, MenuGenre.Application));
-                    item2.ImageKey = "folder";
-                    item2.Name = key;
-                    DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null);
-                    reorderable.ReorderEnabled = fReorderEnabled;
-                    reorderable.MessageParent = ep.MessageParentHandle;
-                    reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
-                    reorderable.ImageList = QTUtility.ImageListGlobal;
-                    reorderable.AddItemsRange(list.ToArray(), "userappItem");
-                    reorderable.ItemClicked += virtualDirectory_DropDownItemClicked;
-                    reorderable.ReorderFinished += virtualDirectory_ReorderFinished;
-                    string name = rkSub.Name;
-                    reorderable.Name = name.Substring(name.IndexOf(RegConst.Root + @"UserApps\"));
-                    item2.DropDown = reorderable;
-                    return item2;
-                }
-            }
-            return null;
+        private static ToolStripItem CreateMenuItem_AppLauncher_Virtual(string name, ToolStripItem[] items, bool fReorderEnabled, EventPack ep) {
+            if(items.Length == 0) return null;
+            MenuItemArguments mia = new MenuItemArguments(name, MenuTarget.VirtualFolder, MenuGenre.Application)
+            { App = new UserApp(name) };
+            DropDownMenuReorderable reorderable = new DropDownMenuReorderable(null) {
+                ReorderEnabled = fReorderEnabled,
+                MessageParent = ep.MessageParentHandle,
+                ImageList = QTUtility.ImageListGlobal
+            };
+            reorderable.AddItemsRange(items, "userappItem");
+            reorderable.ItemRightClicked += ep.ItemRightClickEventHandler;
+            reorderable.ItemClicked += virtualDirectory_DropDownItemClicked;
+            reorderable.ReorderFinished += virtualDirectory_ReorderFinished;
+            return new QMenuItem(name, mia) {
+                ImageKey = "folder",
+                Name = name,
+                DropDown = reorderable
+            };
         }
 
         public static List<ToolStripItem> CreateRecentFilesItems() {
-            List<ToolStripItem> list = new List<ToolStripItem>();
-            List<string> list2 = new List<string>();
+            List<ToolStripItem> ret = new List<ToolStripItem>();
+            List<string> toRemove = new List<string>();
             if(QTUtility.ExecutedPathsList.Count > 0) {
-                for(int i = QTUtility.ExecutedPathsList.Count - 1; i >= 0; i--) {
-                    string path = QTUtility.ExecutedPathsList[i];
+                foreach(string path in QTUtility.ExecutedPathsList.Reverse()) {
                     if(QTUtility2.IsNetworkPath(path) || File.Exists(path)) {
-                        bool flag;
-                        QMenuItem item = new QMenuItem(QTUtility2.MakeNameEllipsis(Path.GetFileName(path), out flag), MenuGenre.RecentFile);
+                        QMenuItem item = new QMenuItem(QTUtility2.MakeNameEllipsis(Path.GetFileName(path)), MenuGenre.RecentFile);
                         item.Path = item.ToolTipText = path;
                         item.SetImageReservationKey(path, Path.GetExtension(path));
-                        list.Add(item);
+                        ret.Add(item);
                     }
                     else {
-                        list2.Add(path);
-                    }
+                        toRemove.Add(path);
+                    }   
                 }
             }
-            foreach(string str2 in list2) {
-                QTUtility.ExecutedPathsList.Remove(str2);
+            foreach(string str in toRemove) {
+                QTUtility.ExecutedPathsList.Remove(str);
             }
-            return list;
+            return ret;
         }
 
         public static List<ToolStripItem> CreateUndoClosedItems(ToolStripDropDownItem dropDownItem) {
-            List<ToolStripItem> list = new List<ToolStripItem>();
-            string[] strArray = QTUtility.ClosedTabHistoryList.ToArray();
-            bool flag = dropDownItem != null;
-            if(flag) {
+            List<ToolStripItem> ret = new List<ToolStripItem>();
+            string[] reversedLog = QTUtility.ClosedTabHistoryList.Reverse().ToArray();
+            if(dropDownItem != null) {
                 while(dropDownItem.DropDownItems.Count > 0) {
                     dropDownItem.DropDownItems[0].Dispose();
                 }
             }
-            if(strArray.Length > 0) {
-                if(flag) {
+            if(reversedLog.Length > 0) {
+                if(dropDownItem != null) {
                     dropDownItem.Enabled = true;
                 }
-                for(int i = strArray.Length - 1; i >= 0; i--) {
-                    if(strArray[i].Length > 0) {
-                        if(!QTUtility2.PathExists(strArray[i])) {
-                            QTUtility.ClosedTabHistoryList.Remove(strArray[i]);
+                foreach(string entry in reversedLog) {
+                    if(entry.Length <= 0) continue;
+                    if(!QTUtility2.PathExists(entry)) {
+                        QTUtility.ClosedTabHistoryList.Remove(entry);
+                    }
+                    else {
+                        QMenuItem item = CreateMenuItem(new MenuItemArguments(entry, MenuTarget.Folder, MenuGenre.History));
+                        if(dropDownItem != null) {
+                            dropDownItem.DropDownItems.Add(item);
                         }
                         else {
-                            QMenuItem item = CreateMenuItem(new MenuItemArguments(strArray[i], MenuTarget.Folder, MenuGenre.History));
-                            if(flag) {
-                                dropDownItem.DropDownItems.Add(item);
-                            }
-                            else {
-                                list.Add(item);
-                            }
+                            ret.Add(item);
                         }
                     }
                 }
-                return list;
             }
-            if(flag) {
+            else if(dropDownItem != null) {
                 dropDownItem.Enabled = false;
             }
-            return list;
+            return ret;
         }
 
         public static void GroupMenu_ItemRightClicked(object sender, ItemRightClickedEventArgs e) {
@@ -305,22 +255,19 @@ namespace QTTabBarLib {
         }
 
         private static void qmi_File_MouseMove(object sender, MouseEventArgs e) {
-            if(Config.ShowTooltips) {
-                QMenuItem item = (QMenuItem)sender;
-                if((item.ToolTipText == null) && !string.IsNullOrEmpty(item.Path)) {
-                    string str = item.Path.StartsWith("::") ? item.Text : Path.GetFileName(item.Path);
-                    string shellInfoTipText = ShellMethods.GetShellInfoTipText(item.Path, false);
-                    if(shellInfoTipText != null) {
-                        if(str == null) {
-                            str = shellInfoTipText;
-                        }
-                        else {
-                            str = str + "\r\n" + shellInfoTipText;
-                        }
-                    }
-                    item.ToolTipText = str;
+            QMenuItem item = (QMenuItem)sender;
+            if(!Config.ShowTooltips || item.ToolTipText != null || string.IsNullOrEmpty(item.Path)) return;
+            string str = item.Path.StartsWith("::") ? item.Text : Path.GetFileName(item.Path);
+            string shellInfoTipText = ShellMethods.GetShellInfoTipText(item.Path, false);
+            if(shellInfoTipText != null) {
+                if(str == null) {
+                    str = shellInfoTipText;
+                }
+                else {
+                    str = str + "\r\n" + shellInfoTipText;
                 }
             }
+            item.ToolTipText = str;
         }
 
         private static void realDirectory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
@@ -348,9 +295,9 @@ namespace QTTabBarLib {
             }
             else {
                 DateTime lastWriteTime = Directory.GetLastWriteTime(parentItem.Path);
-                if(parentItem.ModifiiedDate != lastWriteTime) {
+                if(parentItem.ModifiedDate != lastWriteTime) {
                     parentItem.DropDown.SuspendLayout();
-                    parentItem.ModifiiedDate = lastWriteTime;
+                    parentItem.ModifiedDate = lastWriteTime;
                     while(parentItem.DropDownItems.Count > 0) {
                         parentItem.DropDownItems[0].Dispose();
                     }
@@ -432,44 +379,26 @@ namespace QTTabBarLib {
 
         private static void virtualDirectory_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             QMenuItem clickedItem = e.ClickedItem as QMenuItem;
-            if((clickedItem != null) && (clickedItem.Target == MenuTarget.File)) {
-                if(!clickedItem.MenuItemArguments.TokenReplaced) {
-                    AppLauncher.ReplaceAllTokens(clickedItem.MenuItemArguments, string.Empty);
-                }
-                AppLauncher.Execute(clickedItem.MenuItemArguments, IntPtr.Zero);
-            }
+            if(clickedItem == null || clickedItem.Target != MenuTarget.File) return;
+            MenuItemArguments mia = clickedItem.MenuItemArguments;
+            AppsManager.Execute(mia.App, mia.ShellBrowser);
         }
 
         private static void virtualDirectory_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
             DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(reorderable.Name)) {
-                if(key != null) {
-                    foreach(string str in key.GetValueNames()) {
-                        key.DeleteValue(str, false);
-                    }
-                    int num = 1;
-                    string[] array = new string[] { "separator", string.Empty, string.Empty };
-                    foreach(ToolStripItem item in reorderable.Items) {
-                        if(item is ToolStripSeparator) {
-                            QTUtility2.WriteRegBinary(array, "Separator" + num++, key);
-                        }
-                        else {
-                            QMenuItem item2 = item as QMenuItem;
-                            if(item2 != null) {
-                                MenuItemArguments menuItemArguments = item2.MenuItemArguments;
-                                if(menuItemArguments.Target == MenuTarget.VirtualFolder) {
-                                    key.SetValue(item.Name, new byte[0]);
-                                    continue;
-                                }
-                                string[] strArray2 = new string[] { menuItemArguments.Path, menuItemArguments.OriginalArgument, menuItemArguments.OriginalWorkingDirectory, menuItemArguments.KeyShortcut.ToString() };
-                                QTUtility2.WriteRegBinary(strArray2, item.Name, key);
-                            }
-                        }
-                    }
-                    QTUtility.fRequiredRefresh_App = true;
-                    QTTabBarClass.SyncTaskBarMenu();
-                }
+            ToolStrip root = reorderable;
+            while(true) {
+                ToolStrip next = (root as ToolStripDropDownMenu).OwnerItem.Owner;
+                if(!(next is ToolStripDropDownMenu)) break;
+                root = next;
             }
+
+            AppsManager.SetUserAppsFromNestedStructure(
+                    root.Items.Cast<QMenuItem>(),
+                    item => item.MenuItemArguments.App,
+                    item => item.MenuItemArguments.App.IsFolder 
+                        ? item.DropDown.Items.Cast<QMenuItem>()
+                        : null);
         }
     }
 }

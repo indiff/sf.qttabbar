@@ -62,6 +62,10 @@ namespace QTTabBarLib {
             }
         }
 
+        public static string Enquote(this string s) {
+            return "\"" + s + "\"";
+        }
+
         public static int GET_X_LPARAM(IntPtr lParam) {
             return (short)(((int)lParam) & 0xffff);
         }
@@ -95,6 +99,11 @@ namespace QTTabBarLib {
             QTUtility.TMPPathList.Clear();
             QTUtility.TMPIDLList.Clear();
             QTUtility.TMPTargetIDL = null;
+        }
+        
+        public static bool IsExecutable(string ext) {
+            const string EXTS = ".COM|.EXE|.BAT|.CMD|.VBS|.VBE|.JS|.JSE|.WSF|.WSH|.MSC|.LNK";
+            return ext != null && ext.Length > 2 && -1 != EXTS.IndexOf(ext.ToUpper());
         }
 
         public static bool IsNetworkPath(string path) {
@@ -204,6 +213,11 @@ namespace QTTabBarLib {
         public static Color MakeModColor(Color clr) {
             float num = 0.875f;
             return Color.FromArgb(((int)((0xff - clr.R) * num)) + clr.R, ((int)((0xff - clr.G) * num)) + clr.G, ((int)((0xff - clr.B) * num)) + clr.B);
+        }
+
+        public static string MakeNameEllipsis(string name) {
+            bool dummy;
+            return MakeNameEllipsis(name, out dummy);
         }
 
         public static string MakeNameEllipsis(string name, out bool fTruncated) {
