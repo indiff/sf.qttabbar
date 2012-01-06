@@ -148,6 +148,7 @@ namespace QTTabBarLib {
         SortTabsByActive,
         
         // Mouse-only from here on down
+        Nothing,
         UpOneLevel,
         Refresh,
         Paste,

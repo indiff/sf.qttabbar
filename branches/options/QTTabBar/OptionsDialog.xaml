@@ -116,7 +116,7 @@
                 <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_Selected}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
                 <TextBlock
                     Margin="10,1"
-                    Text="{Binding Header}" 
+                    Text="{Binding Path=Header}" 
                     VerticalAlignment="Center"/>
             </Grid>
         </DataTemplate>
@@ -129,7 +129,7 @@
                 <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_Hot}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
                 <TextBlock
                     Margin="10,1"
-                    Text="{Binding Header}" 
+                    Text="{Binding Path=Header}" 
                     VerticalAlignment="Center"/>
             </Grid>
         </DataTemplate>
@@ -1724,10 +1724,11 @@
                 DataContext="{Binding Path=mouse}"
                 Header="Mouse"
                 Width="0">
-                <StackPanel
-                    Margin="14,5,10,0"
-                    Orientation="Vertical">
+                <DockPanel
+                    LastChildFill="True"
+                    Margin="14,5,10,16">
                     <StackPanel
+                        DockPanel.Dock="Top"
                         Margin="0,0,0,4"
                         Orientation="Horizontal">
                         <Image
@@ -1739,110 +1740,129 @@
                             VerticalAlignment="Bottom"/>
                     </StackPanel>
                     <StackPanel
-                        Margin="13,1,0,1"
-                        Orientation="Horizontal">
+                        DockPanel.Dock="Bottom"
+                        Margin="0,10,0,0"
+                        Orientation="Vertical">
                         <Label
-                            Content="Target:"
-                            Height="16"
-                            Margin="0,0,15,0"
-                            Padding="0"/>
-                        <ComboBox x:Name="cmbMouseTarget"
-                            DisplayMemberPath="Value"
-                            Height="23"
-                            SelectedValuePath="Key"
-                            SelectionChanged="cmbMouseTarget_SelectionChanged"
-                            Width="120"/>
+                            Content="Other mouse options"
+                            Style="{StaticResource SectionHeaderStyle}"/>
+                        <CheckBox
+                            Content="Mouse wheel scrolls the window under the mouse"
+                            Margin="13,0,1,0"/>
                     </StackPanel>
-                    <StackPanel
-                        Margin="0,10,0,1"
-                        Orientation="Horizontal">
-                        <ComboBox x:Name="cmbMouseModifiers"
-                            DisplayMemberPath="Value"
-                            Height="23"
-                            SelectedValuePath="Key"
-                            VerticalAlignment="Center"
-                            Width="70"
-                            Margin="0,0,10,0">
-                        </ComboBox>
-                        <ComboBox x:Name="cmbMouseButtons"
-                            DisplayMemberPath="Value"
-                            Height="23"
-                            SelectedValuePath="Key"
-                            VerticalAlignment="Center"
-                            Width="100">
-                        </ComboBox>
-                        <Label
-                            Content="="
-                            Margin="8,0"
-                            Padding="0"
-                            VerticalAlignment="Center"/>
-                        <ComboBox x:Name="cmbMouseAction"
-                            DisplayMemberPath="Value"
-                            Height="23"
-                            SelectedValuePath="Key"
-                            VerticalAlignment="Center"
-                            Width="180"/>
-                        <Button x:Name="btnMouseActionAdd"
-                            Click="btnMouseActionAdd_Click"
-                            Content="Add"
-                            Height="23"
-                            Margin="20,0,0,0"
-                            Width="50">
-                            <Button.Resources>
-                                <Style TargetType="{x:Type Button}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ElementName=cmbMouseAction, Path=SelectedIndex}" Value="-1">
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=cmbMouseButtons, Path=SelectedIndex}" Value="-1">
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=cmbMouseTarget, Path=SelectedIndex}" Value="-1">
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
+                    <TextBlock 
+                        Text="To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key."
+                        TextWrapping="Wrap"
+                        DockPanel.Dock="Top"
+                        Margin="5,10,5,15"/>
                     <ListView x:Name="lvwMouseBindings"
-                        Height="330"
                         BorderThickness="1.000001"
-                        Margin="0,10">
+                        KeyDown="lvwMouseBindings_KeyDown"
+                        SelectionMode="Single">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Height" Value="20"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
                         <ListView.GroupStyle>
-                            <GroupStyle HeaderTemplate="{StaticResource WinFormsGroupStyle}"/>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel LastChildFill="True">
+                                            <Grid
+                                                DockPanel.Dock="Left"
+                                                Margin="4,1">
+                                                <Rectangle x:Name="rctAddMouseAction"
+                                                    MouseDown="rctAddMouseAction_MouseDown"
+                                                    Fill="LightGray"
+                                                    Stroke="Gray"
+                                                    StrokeThickness="1"
+                                                    Height="16"
+                                                    Width="16"
+                                                    Tag="{Binding Path=Name}"/>
+                                                <TextBlock
+                                                    MouseDown="rctAddMouseAction_MouseDown"
+                                                    Tag="{Binding Path=Name}"
+                                                    Text="+"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Top"/>
+                                            </Grid>
+                                            <TextBlock 
+                                                DockPanel.Dock="Left"
+                                                Foreground="MediumBlue"
+                                                Margin="2, 1, 4, 4"
+                                                Text="{Binding Path=Name}"/>
+                                            <Border
+                                                BorderBrush="LightGray"
+                                                BorderThickness="1"
+                                                Height="1"
+                                                Margin="0,0,10,0"
+                                                SnapsToDevicePixels="True"/>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
                         </ListView.GroupStyle>
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Mouse Chord" Width="170">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock
-                                                    Foreground="#FF000000"
-                                                    Text="{Binding Path=GestureText}"/>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Action" Width="310">
+                                <GridViewColumn Header="Mouse Chord" Width="240">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock
                                                 Foreground="#FF000000"
-                                                Text="{Binding Path=ActionText}"
-                                                TextAlignment="Center"/>
+                                                Text="{Binding Path=GestureText}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Action" Width="240">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid HorizontalAlignment="Stretch">
+                                                <TextBlock x:Name="txtMouseAction"
+                                                    Foreground="#FF000000"
+                                                    Padding="4,0,0,0"
+                                                    Text="{Binding Path=ActionText}"
+                                                    TextAlignment="Left"/>
+                                                <ComboBox x:Name="cmbInlineMouseAction"
+                                                    DisplayMemberPath="Value"
+                                                    Height="22"
+                                                    HorizontalAlignment="Stretch"
+                                                    ItemsSource="{Binding Path=ComboBoxItems}"
+                                                    IsDropDownOpen="{Binding Path=IsEditing, Mode=TwoWay}"
+                                                    Margin="0,-3"
+                                                    SelectedValue="{Binding Path=Action, Mode=TwoWay}"
+                                                    SelectedValuePath="Key"
+                                                    Visibility="Collapsed"/>
+                                            </Grid>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsEditing}" Value="True">
+                                                    <Setter 
+                                                        TargetName="cmbInlineMouseAction" 
+                                                        Property="Visibility"
+                                                        Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ElementName=txtMouseAction, Path=IsMouseOver}" Value="True">
+                                                    <Setter 
+                                                        TargetName="cmbInlineMouseAction" 
+                                                        Property="Visibility"
+                                                        Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ElementName=cmbInlineMouseAction, Path=IsMouseOver}" Value="True">
+                                                    <Setter 
+                                                        TargetName="cmbInlineMouseAction" 
+                                                        Property="Visibility"
+                                                        Value="Visible"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>
-                    <Label
-                        Content="Other mouse options"
-                        Style="{StaticResource SectionHeaderStyle}"/>
-                    <CheckBox
-                        Content="Mouse wheel scrolls the window under the mouse"
-                        Margin="13,0,1,0"/>
-                </StackPanel>
+                </DockPanel>
             </TabItem>
 
             <!-- =============    KEYS    ============= -->
@@ -1867,7 +1887,7 @@
                         Text="Select an action from the list and press the key gesture you would like to bind to it.&#x0a;Press Escape to clear the binding." 
                         TextWrapping="Wrap"
                         DockPanel.Dock="Top"
-                        Margin="5,10,5,5"/>
+                        Margin="5,10,5,15"/>
                     <ListView x:Name="lvwHotkeys"
                         PreviewKeyDown="lvwHotkeys_PreviewKeyDown"
                         TextInput="lvwHotkeys_TextInput"

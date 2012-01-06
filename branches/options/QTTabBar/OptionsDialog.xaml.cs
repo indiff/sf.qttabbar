@@ -34,6 +34,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using QTPlugin;
 using QTTabBarLib.Interop;
 using Image = System.Drawing.Image;
@@ -67,6 +68,7 @@ namespace QTTabBarLib {
 
         // Mouse stuff
         private ObservableCollection<MouseEntry> MouseBindings;
+        private DispatcherTimer mouseTimer;
 
         // Tooltips stuff
         private ObservableCollection<FileTypeEntry> TextFileTypes;
@@ -76,6 +78,7 @@ namespace QTTabBarLib {
         private ParentedCollection<GroupEntry> CurrentGroups;
         private ParentedCollection<AppEntry> CurrentApps;
 
+        // Keys stuff
         private List<HotkeyEntry> HotkeyEntries;
 
         // todo: localize all of these
@@ -113,6 +116,7 @@ namespace QTTabBarLib {
         };
         private readonly static Dictionary<BindAction, string> MouseActionItems
                 = new Dictionary<BindAction, string> {
+            {BindAction.Nothing,                "Do nothing"},
             {BindAction.GoBack,                 "Go back"},
             {BindAction.GoForward,              "Go forward"},
             {BindAction.GoFirst,                "Go to back to start"},
@@ -214,12 +218,16 @@ namespace QTTabBarLib {
         private readonly static Dictionary<MouseTarget, Dictionary<BindAction, string>> MouseTargetActions
                 = new Dictionary<MouseTarget, Dictionary<BindAction, string>> {
             {MouseTarget.Anywhere, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.GoBack,
+                BindAction.GoFirst,
                 BindAction.GoForward,
+                BindAction.GoLast,
                 BindAction.NextTab,
                 BindAction.PreviousTab
             }.ToDictionary(k => k, k => MouseActionItems[k])},
             {MouseTarget.Tab, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.CloseTab,
                 BindAction.CloseAllButThis,
                 BindAction.UpOneLevelTab,
@@ -232,6 +240,7 @@ namespace QTTabBarLib {
                 BindAction.ShowTabSubfolderMenu,
             }.ToDictionary(k => k, k => MouseActionItems[k])},
             {MouseTarget.TabBarBackground, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.NewTab,
                 BindAction.NewWindow,
                 BindAction.UpOneLevel,
@@ -249,6 +258,7 @@ namespace QTTabBarLib {
                 BindAction.SortTabsByActive,
             }.ToDictionary(k => k, k => MouseActionItems[k])},
             {MouseTarget.FolderLink, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.ItemOpenInNewTab,
                 BindAction.ItemOpenInNewTabNoSel,
                 BindAction.ItemOpenInNewWindow,
@@ -257,6 +267,7 @@ namespace QTTabBarLib {
                 BindAction.CopyItemName,
             }.ToDictionary(k => k, k => MouseActionItems[k])},
             {MouseTarget.ExplorerItem, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.ItemOpenInNewTab,
                 BindAction.ItemOpenInNewTabNoSel,
                 BindAction.ItemOpenInNewWindow,
@@ -269,6 +280,7 @@ namespace QTTabBarLib {
                 BindAction.ChecksumItem,
             }.ToDictionary(k => k, k => MouseActionItems[k])},
             {MouseTarget.ExplorerBackground, new BindAction[] {
+                BindAction.Nothing,
                 BindAction.BrowseFolder,
                 BindAction.NewFolder,
                 BindAction.NewFile,
@@ -636,58 +648,118 @@ namespace QTTabBarLib {
             }
             ICollectionView view = CollectionViewSource.GetDefaultView(MouseBindings);
             PropertyGroupDescription groupDescription = new PropertyGroupDescription("TargetText");
+            foreach(MouseTarget target in Enum.GetValues(typeof(MouseTarget))) {
+                groupDescription.GroupNames.Add(MouseTargetItems[target]);
+            }
             view.GroupDescriptions.Add(groupDescription);
             lvwMouseBindings.ItemsSource = view;
-
-            cmbMouseModifiers.ItemsSource = MouseModifierItems;
-            cmbMouseTarget.ItemsSource = MouseTargetItems;
-            cmbMouseTarget.SelectedIndex = 0;
-            cmbMouseModifiers.SelectedIndex = 0;
-            cmbMouseButtons.SelectedIndex = 0;
         }
 
         private void CommitMouse() {
             workingConfig.mouse.GlobalMouseActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.Anywhere)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.Anywhere)
                     .ToDictionary(e => e.Chord, e => e.Action);
             workingConfig.mouse.MarginActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.ExplorerBackground)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.ExplorerBackground)
                     .ToDictionary(e => e.Chord, e => e.Action);
             workingConfig.mouse.ItemActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.ExplorerItem)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.ExplorerItem)
                     .ToDictionary(e => e.Chord, e => e.Action);
             workingConfig.mouse.LinkActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.FolderLink)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.FolderLink)
                     .ToDictionary(e => e.Chord, e => e.Action);
             workingConfig.mouse.TabActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.Tab)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.Tab)
                     .ToDictionary(e => e.Chord, e => e.Action);
             workingConfig.mouse.BarActions = MouseBindings
-                    .Where(e => e.Target == MouseTarget.TabBarBackground)
+                    .Where(e => e.Action != BindAction.Nothing && e.Target == MouseTarget.TabBarBackground)
                     .ToDictionary(e => e.Chord, e => e.Action);
         }
 
-        private void cmbMouseTarget_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            var v = (KeyValuePair<MouseTarget, string>)e.AddedItems[0];
-            cmbMouseAction.ItemsSource = MouseTargetActions[v.Key];
-            cmbMouseButtons.ItemsSource = MouseTargetButtons[v.Key];
-            cmbMouseButtons.SelectedIndex = 0;
-        }
+        private static Dictionary<MouseButton, MouseChord> mouseButtonMappings =
+                new Dictionary<MouseButton, MouseChord> {
+                    { MouseButton.Left, MouseChord.Left },
+                    { MouseButton.Right, MouseChord.Right },
+                    { MouseButton.Middle, MouseChord.Middle },
+                    { MouseButton.XButton1, MouseChord.X1 },
+                    { MouseButton.XButton2, MouseChord.X2 }
+        };
 
-        private void btnMouseActionAdd_Click(object sender, RoutedEventArgs e) {
-            MouseTarget target = (MouseTarget)cmbMouseTarget.SelectedValue;
-            BindAction action = (BindAction)cmbMouseAction.SelectedValue;
-            MouseChord chord = (MouseChord)cmbMouseModifiers.SelectedValue | (MouseChord)cmbMouseButtons.SelectedValue;
-            MouseEntry entry = MouseBindings.FirstOrDefault(m => m.Target == target && m.Chord == chord);
-            if(entry != null) {
-                const string removePlugin = "This mouse chord is already bound to the following action:\n\n{0}\n\nReplace?";
-                if(MessageBox.Show(string.Format(removePlugin, entry.ActionText), string.Empty, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
-                    return;
+        private void rctAddMouseAction_MouseDown(object sender, MouseButtonEventArgs e) {
+            FrameworkElement control = ((FrameworkElement)sender);
+            MouseChord chord = MouseChord.None;
+            if((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
+                chord |= MouseChord.Shift;
+            }
+            if((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+                chord |= MouseChord.Ctrl;
+            }
+            if((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
+                chord |= MouseChord.Alt;
+            }
+            // ugh.  wish there was a better way to do this, but I don't think there is one...
+            MouseTarget target = MouseTargetItems.First(kv => kv.Value == (string)control.Tag).Key;
+
+            // watch out for double clicks
+            if(e.ChangedButton == MouseButton.Left) {
+                if(mouseTimer == null || mouseTimer.Tag != control.Tag) {
+                    mouseTimer = new DispatcherTimer {
+                        Tag = control.Tag,
+                        Interval = TimeSpan.FromMilliseconds(
+                                System.Windows.Forms.SystemInformation.DoubleClickTime)
+                    };
+                    mouseTimer.Tick += (sender2, e2) => {
+                        mouseTimer.IsEnabled = false;
+                        mouseTimer = null;
+                        chord |= MouseChord.Left;
+                        AddMouseAction(chord, target);
+                    };
+                    mouseTimer.IsEnabled = true;
                 }
-                entry.Action = action;
+                else {
+                    mouseTimer.IsEnabled = false;
+                    mouseTimer = null;
+                    chord |= MouseChord.Double;
+                    AddMouseAction(chord, target);
+                }
             }
             else {
-                MouseBindings.Add(new MouseEntry(target, chord, action));
+                if(mouseTimer != null) {
+                    mouseTimer.IsEnabled = false;
+                    mouseTimer = null;                    
+                }
+                chord |= mouseButtonMappings[e.ChangedButton];
+                AddMouseAction(chord, target);
+            }
+        }
+
+        private void AddMouseAction(MouseChord chord, MouseTarget target) {
+            MouseChord button = chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
+            if(!MouseTargetButtons[target].ContainsKey(button)) {
+                // todo: msgbox
+                System.Media.SystemSounds.Hand.Play();
+                return;
+            }
+            MouseEntry entry = MouseBindings.FirstOrDefault(e => e.Chord == chord && e.Target == target);
+            if(entry == null) {
+                entry = new MouseEntry(target, chord, BindAction.Nothing);
+                MouseBindings.Add(entry);                
+            }
+            entry.IsSelected = true;
+            lvwMouseBindings.UpdateLayout();
+            lvwMouseBindings.ScrollIntoView(entry);
+            // Need to wait for ScrollIntoView to finish, or the dropdown will open in the wrong place.
+            Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() => { entry.IsEditing = true; }));
+        }
+
+        private void lvwMouseBindings_KeyDown(object sender, KeyEventArgs e) {
+            MouseEntry entry = lvwMouseBindings.SelectedItem as MouseEntry;
+            if(entry == null) return;
+            if(e.Key == Key.Delete) {
+                MouseBindings.Remove(entry);
+            }
+            else if(e.Key == Key.Space || e.Key == Key.Enter) {
+                entry.IsEditing = true;
             }
         }
 
@@ -1638,12 +1710,39 @@ namespace QTTabBarLib {
 
         private class MouseEntry : INotifyPropertyChanged {
             public event PropertyChangedEventHandler PropertyChanged;
+            private bool isSelected;
+            public bool IsSelected {
+                get {
+                    return isSelected;
+                } 
+                set {
+                    isSelected = value;
+                    if(!isSelected) IsEditing = false;
+                }
+            }
+            private bool isEditing;
+            public bool IsEditing {
+                get {
+                    return isEditing;
+                } 
+                set {
+                    isEditing = value; 
+                    if(isEditing) IsSelected = true;
+                }
+            }
+            public Dictionary<BindAction, string> ComboBoxItems {
+                get { return MouseTargetActions[Target]; }
+            }
             public string GestureText {
                 get {
-                    MouseChord modifier = Chord & (MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
+                    string ret = "";
+                    foreach(var mod in new MouseChord[] { MouseChord.Ctrl, MouseChord.Shift, MouseChord.Alt }) {
+                        if((Chord & mod) == mod) {
+                            ret += MouseModifierItems[mod] + " + ";
+                        }
+                    }
                     MouseChord button = Chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
-                    return (modifier != MouseChord.None ? MouseModifierItems[modifier] + " + " : "")
-                            + MouseButtonItems[button];
+                    return ret + MouseButtonItems[button];
                 }
             }
             public string TargetText { get { return MouseTargetItems[Target]; } }
