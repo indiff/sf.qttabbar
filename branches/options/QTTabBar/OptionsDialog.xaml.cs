@@ -441,12 +441,12 @@ namespace QTTabBarLib {
             PluginManager.SavePluginShortcutKeys();
         }
 
-        private void ListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {
+        private void CategoryListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {
             lstCategories.Focus();
             e.Handled = true;
         }
 
-        private void ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+        private void CategoryListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
             ((ListBoxItem)sender).Focus();
             ((ListBoxItem)sender).IsSelected = true;
             e.Handled = true;
@@ -2089,24 +2089,6 @@ namespace QTTabBarLib {
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
             throw new NotSupportedException();
         }
-    }
-
-    /// <summary>
-    /// Convert Level to left margin
-    /// Pass a prarameter if you want a unit length other than 19.0.
-    /// </summary>
-    public class LevelToIndentConverter : IValueConverter {
-        public object Convert(object o, Type type, object parameter,
-                              CultureInfo culture) {
-            return new Thickness((int)o * c_IndentSize, 0, 0, 0);
-        }
-
-        public object ConvertBack(object o, Type type, object parameter,
-                                  CultureInfo culture) {
-            throw new NotSupportedException();
-        }
-
-        private const double c_IndentSize = 19.0;
     }
 
     // You can create ObjectToTypeConverter instead of this,
