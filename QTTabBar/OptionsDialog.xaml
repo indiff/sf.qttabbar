@@ -29,13 +29,12 @@
     Title="QTTabBar Options"
     Width="724">
     <Window.Resources>
+        <BooleanToVisibilityConverter       x:Key="BooleanToVisibilityConverter"/>
         <qt:BoolInverterConverter           x:Key="BoolInverterConverter"/>
         <qt:BitmapToImageSourceConverter    x:Key="BitmapToImageSourceConverter"/>
         <qt:LogicalAndMultiConverter        x:Key="LogicalAndMultiConverter"/>
         <qt:BoolJoinMultiConverter          x:Key="BoolJoinMultiConverter"/>
         <qt:StringEqualityConverter         x:Key="StringEqualityConverter"/>
-        <BooleanToVisibilityConverter       x:Key="BooleanToVisibilityConverter"/>
-        <qt:LevelToIndentConverter          x:Key="LevelIndentConverter"/>
         <qt:ObjectToClassNameConverter      x:Key="ObjectToClassNameConverter"/>
         <qt:ColorToBrushConverter           x:Key="ColorToBrushConverter"/>
         <qt:FontStringConverter             x:Key="FontStringConverter"/>
@@ -93,208 +92,6 @@
             <Setter Property="Padding"          Value="0"/>
         </Style>
 
-        <!-- DataTemplates for the Category list box -->
-        <!-- TODO: there's go to be a way to collapse this into only one -->
-        <DataTemplate x:Key="CategoryItemTemplate">
-            <Grid
-                Background="White"
-                Height="25"
-                Margin="0,1"
-                Width="128">
-                <TextBlock
-                    Margin="10,1"
-                    Text="{Binding Path=Header}" 
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="CategorySelectedTemplate">
-            <Grid
-                Background="White"
-                Height="25"
-                Margin="0,1"
-                Width="128">
-                <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_Selected}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                <TextBlock
-                    Margin="10,1"
-                    Text="{Binding Path=Header}" 
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="CategoryHotTemplate">
-            <Grid
-                Background="White"
-                Height="25"
-                Margin="0,1"
-                Width="128">
-                <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_Hot}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                <TextBlock
-                    Margin="10,1"
-                    Text="{Binding Path=Header}" 
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="CategorySelAndHotTemplate">
-            <Grid
-                Background="White"
-                Height="25"
-                Margin="0,1"
-                Width="128">
-                <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_SelAndHot}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                <TextBlock
-                    Margin="10,1"
-                    Text="{Binding Path=Header}" 
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="CategoryNoFocusTemplate">
-            <Grid
-                Background="White"
-                Height="25"
-                Margin="0,1"
-                Width="128">
-                <Image Source="{Binding Source={x:Static qt:Resources_Image.imgOptions_NoFocus}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                <TextBlock
-                    Margin="10,1"
-                    Text="{Binding Path=Header}" 
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </DataTemplate>
-        <Style x:Key="CategoryListContainerStyle"
-            TargetType="{x:Type ListBoxItem}">
-            <Setter Property="ContentTemplate"  Value="{StaticResource CategoryItemTemplate}" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <EventSetter
-                Event="PreviewMouseRightButtonDown"
-                Handler="ListBoxItem_PreviewMouseRightButtonDown" />
-            <EventSetter
-                Event="PreviewMouseDown"
-                Handler="ListBoxItem_PreviewMouseDown" />
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="ContentTemplate" Value="{StaticResource CategoryNoFocusTemplate}" />
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="ContentTemplate" Value="{StaticResource CategoryHotTemplate}" />
-                </Trigger>
-                <MultiTrigger>
-                    <MultiTrigger.Conditions>
-                        <Condition Property="IsKeyboardFocused" Value="True"/>
-                        <Condition Property="IsSelected" Value="True"/>
-                    </MultiTrigger.Conditions>
-                    <Setter Property="ContentTemplate" Value="{StaticResource CategorySelectedTemplate}" />
-                </MultiTrigger>
-                <MultiTrigger>
-                    <MultiTrigger.Conditions>
-                        <Condition Property="IsMouseOver" Value="True"/>
-                        <Condition Property="IsSelected" Value="True"/>
-                    </MultiTrigger.Conditions>
-                    <Setter Property="ContentTemplate" Value="{StaticResource CategorySelAndHotTemplate}" />
-                </MultiTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- DataTemplate for the Button Bar editing list boxes -->
-        <DataTemplate x:Key="ButtonBarItemTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    RenderOptions.BitmapScalingMode="NearestNeighbor">
-                    <Image.Style>
-                        <Style TargetType="Image">
-                            <Setter Property="Height" Value="16" />
-                            <Setter Property="Width" Value="16" />
-                            <Setter Property="Source" Value="{Binding Path=SmallImage, Converter={StaticResource BitmapToImageSourceConverter}}" />
-                            <Setter Property="Margin" Value="0,2" />
-                            <Style.Triggers>
-                                <DataTrigger 
-                                    Binding="{Binding ElementName=chkLargeButtons, Path=IsChecked}" 
-                                    Value="True">
-                                    <Setter Property="Height" Value="24" />
-                                    <Setter Property="Width" Value="24" />
-                                    <Setter Property="Source" Value="{Binding Path=LargeImage, Converter={StaticResource BitmapToImageSourceConverter}}" />
-                                    <Setter Property="Margin" Value="0" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Image.Style>
-                </Image>
-                <TextBlock
-                    Margin="5,0"
-                    Text="{Binding Path=Text}"
-                    VerticalAlignment="Center"/>
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- DataTemplate for the Plugin listview -->
-        <DataTemplate x:Key="PluginItemTemplate">
-            <DockPanel>
-                <TextBlock 
-                    DockPanel.Dock="Top"
-                    Text="This plugin will be installed when you press OK or Apply."
-                    Visibility="{Binding Path=InstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <TextBlock 
-                    DockPanel.Dock="Top"
-                    Text="This plugin will be uninstalled when you press OK or Apply."
-                    Visibility="{Binding Path=UninstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <TextBlock 
-                    DockPanel.Dock="Top"
-                    Text="This plugin will be disabled when you press OK or Apply."
-                    Visibility="{Binding Path=DisableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <TextBlock 
-                    DockPanel.Dock="Top"
-                    Text="This plugin will be enabled when you press OK or Apply."
-                    Visibility="{Binding Path=EnableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <Separator DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="0"/>
-                <Grid
-                    VerticalAlignment="Top"
-                    Width="48"
-                    Height="48">
-                    <Image
-                        Opacity="{Binding Path=Opacity}"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Center"
-                        Stretch="None"
-                        RenderOptions.BitmapScalingMode="NearestNeighbor"
-                        Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                </Grid>
-                <DockPanel DockPanel.Dock="Bottom" LastChildFill="False"
-                    Visibility="{Binding Path=IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Button x:Name="btnPluginOptions" 
-                        Click="btnPluginOptions_Click"
-                        Content="Options"
-                        DockPanel.Dock="Left"
-                        Width="70"
-                        Margin="0,10,6,6"
-                        Visibility="{Binding Path=HasOptions, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    <Button x:Name="btnPluginRemove"
-                        Click="btnPluginRemove_Click"
-                        Content="Uninstall"
-                        DockPanel.Dock="Right"
-                        Margin="0,10,6,6"
-                        Width="70"/>
-                    <Button x:Name="btnPluginDisable"
-                        Click="btnPluginDisable_Click"
-                        Content="Disable"
-                        DockPanel.Dock="Right"
-                        Width="70"
-                        Margin="0,10,6,6"/>
-                </DockPanel>
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Path=Title}" FontSize="15" FontWeight="ExtraBold" Margin="2" VerticalAlignment="Bottom"/>
-                        <TextBlock Text="{Binding Path=Author}" Margin="10,2" VerticalAlignment="Bottom"/>
-                    </StackPanel>
-                    <TextBlock 
-                        Text="{Binding Path=Desc}"
-                        Margin="2"
-                        HorizontalAlignment="Left"
-                        TextWrapping="Wrap"
-                        TextTrimming="CharacterEllipsis"
-                        MaxHeight="50"
-                        />
-                </StackPanel>
-            </DockPanel>
-        </DataTemplate>
-
         <!-- DataTemplate that reproduces the WinForms-style group headers -->
         <DataTemplate x:Key="WinFormsGroupStyle">
             <DockPanel LastChildFill="True">
@@ -310,38 +107,6 @@
                     Margin="0,0,10,0"
                     SnapsToDevicePixels="True"/>
             </DockPanel>
-        </DataTemplate>
-
-        <!-- DataTemplate for the file extension listboxes on the Tooltips tab -->
-        <DataTemplate x:Key="FileTypeItemTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Image
-                    Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"
-                    Width="16"
-                    Height="16"
-                    Stretch="Fill"/>
-                <qt:EditableHeader
-                    Text="{Binding Path=Extension}"
-                    IsEditing="{Binding Path=IsEditing}"
-                    Padding="2,0"
-                    Margin="0,2"
-                    Container="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                <TextBlock
-                    Text="{Binding Path=FriendlyName}"
-                    VerticalAlignment="Center"
-                    Margin="0,2,0,0"
-                    FontSize="10">
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsSelected}" Value="False">
-                                    <Setter Property="Foreground" Value="Gray"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
         </DataTemplate>
     </Window.Resources>
 
@@ -393,7 +158,6 @@
         <ListView x:Name="lstCategories"
             DockPanel.Dock="Left"
             ItemsSource="{Binding Items, ElementName=tabbedPanel}"
-            ItemContainerStyle="{StaticResource CategoryListContainerStyle}" 
             Margin="3"
             SelectionMode="Single"
             Width="136">
@@ -408,6 +172,59 @@
                     x:Key="{x:Static SystemColors.ControlBrushKey}"
                     Color="White"/>
             </ListBox.Resources>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <EventSetter
+                        Event="PreviewMouseRightButtonDown"
+                        Handler="CategoryListBoxItem_PreviewMouseRightButtonDown" />
+                    <EventSetter
+                        Event="PreviewMouseDown"
+                        Handler="CategoryListBoxItem_PreviewMouseDown" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid
+                        Background="White"
+                        Height="25"
+                        Margin="0,1"
+                        Width="128">
+                        <Image x:Name="imgCategorySelection" 
+                            Visibility="Collapsed"/>
+                        <TextBlock
+                            Margin="10,1"
+                            Text="{Binding Path=Header}" 
+                            VerticalAlignment="Center"/>
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                            <Setter TargetName="imgCategorySelection" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="imgCategorySelection" Property="Source" Value="{Binding Source={x:Static qt:Resources_Image.imgOptions_NoFocus}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                            <Setter TargetName="imgCategorySelection" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="imgCategorySelection" Property="Source" Value="{Binding Source={x:Static qt:Resources_Image.imgOptions_Hot}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True"/>
+                                <Condition Binding="{Binding Path=IsKeyboardFocused, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="imgCategorySelection" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="imgCategorySelection" Property="Source" Value="{Binding Source={x:Static qt:Resources_Image.imgOptions_Selected}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True"/>
+                                <Condition Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="imgCategorySelection" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="imgCategorySelection" Property="Source" Value="{Binding Source={x:Static qt:Resources_Image.imgOptions_SelAndHot}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                        </MultiDataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListView>
 
         <!-- The main TabControl -->
@@ -984,6 +801,39 @@
                             Width="200"/>
                     </StackPanel>
                     <Grid Margin="13,15,0,1">
+                        <Grid.Resources>
+                            <!-- DataTemplate for the file extension listboxes -->
+                            <DataTemplate x:Key="FileTypeItemTemplate">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image
+                                        Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"
+                                        Width="16"
+                                        Height="16"
+                                        Stretch="Fill"/>
+                                    <qt:EditableHeader
+                                        Text="{Binding Path=Extension}"
+                                        IsEditing="{Binding Path=IsEditing}"
+                                        Padding="2,0"
+                                        Margin="0,2"
+                                        Container="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                    <TextBlock
+                                        Text="{Binding Path=FriendlyName}"
+                                        VerticalAlignment="Center"
+                                        Margin="0,2,0,0"
+                                        FontSize="10">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsSelected}" Value="False">
+                                                        <Setter Property="Foreground" Value="Gray"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Grid.Resources>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="80"/>
@@ -2442,8 +2292,39 @@
                             Margin="13,1,0,1"
                             SelectedPath="{Binding Path=ImageStripPath}"/>
                     </StackPanel>
-                    <Grid
-                        Margin="8">
+                    <Grid Margin="8">
+                        <Grid.Resources>
+                            <!-- DataTemplate for the Button Bar editing list boxes -->
+                            <DataTemplate x:Key="ButtonBarItemTemplate">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image
+                                        RenderOptions.BitmapScalingMode="NearestNeighbor">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Height" Value="16" />
+                                                <Setter Property="Width" Value="16" />
+                                                <Setter Property="Source" Value="{Binding Path=SmallImage, Converter={StaticResource BitmapToImageSourceConverter}}" />
+                                                <Setter Property="Margin" Value="0,2" />
+                                                <Style.Triggers>
+                                                    <DataTrigger 
+                                                        Binding="{Binding ElementName=chkLargeButtons, Path=IsChecked}" 
+                                                        Value="True">
+                                                        <Setter Property="Height" Value="24" />
+                                                        <Setter Property="Width" Value="24" />
+                                                        <Setter Property="Source" Value="{Binding Path=LargeImage, Converter={StaticResource BitmapToImageSourceConverter}}" />
+                                                        <Setter Property="Margin" Value="0" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock
+                                        Margin="5,0"
+                                        Text="{Binding Path=Text}"
+                                        VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Grid.Resources>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
@@ -2519,15 +2400,82 @@
                         Width="120"/>
                     <ListBox x:Name="lstPluginView"
                         HorizontalContentAlignment="Stretch"
-                        ItemTemplate="{StaticResource PluginItemTemplate}"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
-                                <Setter 
-                                    Property="IsSelected"
-                                    Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+                                <Setter  Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
                             </Style>
                         </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <TextBlock 
+                                        DockPanel.Dock="Top"
+                                        Text="This plugin will be installed when you press OK or Apply."
+                                        Visibility="{Binding Path=InstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock 
+                                        DockPanel.Dock="Top"
+                                        Text="This plugin will be uninstalled when you press OK or Apply."
+                                        Visibility="{Binding Path=UninstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock 
+                                        DockPanel.Dock="Top"
+                                        Text="This plugin will be disabled when you press OK or Apply."
+                                        Visibility="{Binding Path=DisableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock 
+                                        DockPanel.Dock="Top"
+                                        Text="This plugin will be enabled when you press OK or Apply."
+                                        Visibility="{Binding Path=EnableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <Separator DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="0"/>
+                                    <Grid
+                                        VerticalAlignment="Top"
+                                        Width="48"
+                                        Height="48">
+                                        <Image
+                                            Opacity="{Binding Path=Opacity}"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Stretch="None"
+                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                            Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                                    </Grid>
+                                    <DockPanel DockPanel.Dock="Bottom" LastChildFill="False"
+                                        Visibility="{Binding Path=IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Button x:Name="btnPluginOptions" 
+                                            Click="btnPluginOptions_Click"
+                                            Content="Options"
+                                            DockPanel.Dock="Left"
+                                            Width="70"
+                                            Margin="0,10,6,6"
+                                            Visibility="{Binding Path=HasOptions, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Button x:Name="btnPluginRemove"
+                                            Click="btnPluginRemove_Click"
+                                            Content="Uninstall"
+                                            DockPanel.Dock="Right"
+                                            Margin="0,10,6,6"
+                                            Width="70"/>
+                                        <Button x:Name="btnPluginDisable"
+                                            Click="btnPluginDisable_Click"
+                                            Content="Disable"
+                                            DockPanel.Dock="Right"
+                                            Width="70"
+                                            Margin="0,10,6,6"/>
+                                    </DockPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Path=Title}" FontSize="15" FontWeight="ExtraBold" Margin="2" VerticalAlignment="Bottom"/>
+                                            <TextBlock Text="{Binding Path=Author}" Margin="10,2" VerticalAlignment="Bottom"/>
+                                        </StackPanel>
+                                        <TextBlock 
+                                            Text="{Binding Path=Desc}"
+                                            Margin="2"
+                                            HorizontalAlignment="Left"
+                                            TextWrapping="Wrap"
+                                            TextTrimming="CharacterEllipsis"
+                                            MaxHeight="50"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                     </ListBox>
                 </DockPanel>
             </TabItem>
