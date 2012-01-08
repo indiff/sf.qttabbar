@@ -607,7 +607,7 @@ namespace QTTabBarLib {
         }
 
         private void btnUpdateNow_Click(object sender, RoutedEventArgs e) {
-            // TODO
+            UpdateChecker.Check(true);
         }
 
         #endregion
