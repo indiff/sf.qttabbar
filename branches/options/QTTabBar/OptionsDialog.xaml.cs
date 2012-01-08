@@ -395,6 +395,7 @@ namespace QTTabBarLib {
             cmbNewTabPos.ItemsSource = NewTabPosItems;
             cmbNextAfterClosed.ItemsSource = NextAfterCloseItems;
             cmbRebarStretchMode.ItemsSource = StretchModeItems;
+            btnRecentFilesClear.DataContext = btnRecentTabsClear.DataContext = new RecentButtonBinding();
 
             InitializeTips();
             InitializeMouse();
@@ -587,6 +588,26 @@ namespace QTTabBarLib {
             FrameworkElement item = (FrameworkElement)sender;
             FrameworkElement parent = (FrameworkElement)item.Tag;
             if(parent.IsFocused) item.Focus();
+        }
+
+        #endregion
+
+        #region ---------- General ----------
+
+        private void btnRecentFilesClear_Click(object sender, RoutedEventArgs e) {
+            // TODO: confirmation msgbox, sync
+            QTUtility.ExecutedPathsList.Clear();
+            btnRecentFilesClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
+        }
+
+        private void btnRecentTabsClear_Click(object sender, RoutedEventArgs e) {
+            // TODO: confirmation msgbox, sync
+            QTUtility.ClosedTabHistoryList.Clear();
+            btnRecentTabsClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
+        }
+
+        private void btnUpdateNow_Click(object sender, RoutedEventArgs e) {
+            // TODO
         }
 
         #endregion
@@ -1556,6 +1577,11 @@ namespace QTTabBarLib {
         // will automatically raise the PropertyChanged event when 
         // modified.  Bind away!
 
+        private class RecentButtonBinding {
+            public bool HaveRecentTabs { get { return QTUtility.ClosedTabHistoryList.Count != 0; } }
+            public bool HaveRecentFiles { get { return QTUtility.ExecutedPathsList.Count != 0; } }
+        }
+
         private class ButtonEntry : INotifyPropertyChanged {
             public event PropertyChangedEventHandler PropertyChanged;
             private OptionsDialog parent;
@@ -1983,18 +2009,6 @@ namespace QTTabBarLib {
                     return (base.Options | 2);
                 }
             }
-        }
-
-        private void btnRecentFilesClear_Click(object sender, RoutedEventArgs e) {
-            // TODO
-        }
-
-        private void btnRecentTabsClear_Click(object sender, RoutedEventArgs e) {
-            // TODO
-        }
-
-        private void btnUpdateNow_Click(object sender, RoutedEventArgs e) {
-            // TODO
         }
     }
 
