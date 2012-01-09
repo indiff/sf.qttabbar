@@ -107,6 +107,7 @@
     <Compile Include="BreadcrumbBar.cs" />
     <Compile Include="AbstractListView.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Interop\SHELLSTATE.cs" />
     <Compile Include="OptionsDialog\Options03_Tweaks.xaml.cs">
       <DependentUpon>Options03_Tweaks.xaml</DependentUpon>
     </Compile>

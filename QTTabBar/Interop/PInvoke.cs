@@ -345,6 +345,8 @@ namespace QTTabBarLib.Interop {
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         public static extern bool SHGetPathFromIDList(IntPtr pidl, StringBuilder pszPath);
         [DllImport("shell32.dll")]
+        public static extern void SHGetSetSettings(ref SHELLSTATE lpss, uint dwMask, bool bSet);
+        [DllImport("shell32.dll")]
         public static extern IntPtr SHLockShared(IntPtr hData, uint dwOtherProcId);
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);

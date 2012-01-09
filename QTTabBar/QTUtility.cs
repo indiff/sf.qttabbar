@@ -34,7 +34,6 @@ namespace QTTabBarLib {
     internal static class QTUtility {
         internal static readonly Version BetaRevision = new Version(0, 3);
         internal static PathList ClosedTabHistoryList = new PathList(0x10);
-        internal static byte[] ConfigValues;
         internal static string CreateWindowTMPGroup = string.Empty;
         internal static string CreateWindowTMPPath = string.Empty;
         internal static readonly Version CurrentVersion = new Version(1, 5, 0, 0);
@@ -176,6 +175,15 @@ namespace QTTabBarLib {
                 return (ext == ".cab");
             }
             return true;
+        }
+
+        public static void GetHiddenFileSettings(out bool fShowHidden, out bool fShowSystem) {
+            const uint SSF_SHOWALLOBJECTS   = 0x00001;
+            const uint SSF_SHOWSUPERHIDDEN  = 0x40000;
+            SHELLSTATE ss = new SHELLSTATE();
+            PInvoke.SHGetSetSettings(ref ss, SSF_SHOWALLOBJECTS | SSF_SHOWSUPERHIDDEN, false);
+            fShowHidden = ss.fShowAllObjects != 0;
+            fShowSystem = ss.fShowSuperHidden != 0;
         }
 
         public static Icon GetIcon(IntPtr pIDL) {
