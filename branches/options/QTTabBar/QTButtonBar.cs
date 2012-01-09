@@ -348,7 +348,7 @@ namespace QTTabBarLib {
                 timerSearchBox_Rearrange = null;
             }
             ClearToolStripItems();
-            toolStrip.ShowItemToolTips = Config.ShowTooltips;
+            toolStrip.ShowItemToolTips = true;
             Height = Config.BBar.LargeButtons ? 34 : 26;
             bool showButtonLabels = Config.BBar.ShowButtonLabels;
             UnloadPluginsOnCreation();
@@ -368,7 +368,7 @@ namespace QTTabBarLib {
                     case BII_MISCTOOL:
                         string[] strArray = QTUtility.TextResourcesDic["ButtonBar_Misc"];
                         DropDownMenuBase base2 = new DropDownMenuBase(components) {
-                                ShowCheckMargin = Config.NonDefaultMenu && !Config.XPStyleMenus,
+                                ShowCheckMargin = !QTUtility.IsXP,
                                 ShowImageMargin = false
                         };
                         base2.Items.AddRange(new ToolStripItem[] {
