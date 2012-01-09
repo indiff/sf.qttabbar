@@ -58,7 +58,6 @@ namespace QTTabBarLib {
         internal const float FONTSIZE_DIFF = 0.75f;
         private bool fRedrawSuspended;
         private bool fShowSubDirTip;
-        private bool fShowToolTips;
         private bool fSubDirShown;
         private bool fSuppressDoubleClick;
         private bool fSuppressMouseUp;
@@ -947,7 +946,7 @@ namespace QTTabBarLib {
 
         protected override void OnMouseLeave(EventArgs e) {
             iToolTipIndex = -1;
-            if(fShowToolTips && (toolTip != null)) {
+            if(toolTip != null) {
                 toolTip.Active = false;
             }
             iPointedChanged_LastRaisedIndex = -2;
@@ -977,31 +976,28 @@ namespace QTTabBarLib {
                     PointedTabChanged(this, new QTabCancelEventArgs(null, -1, false, TabControlAction.Deselecting));
                 }
             }
-            if(fShowToolTips) {
-                if(tabMouseOn != null) {
-                    if(((iToolTipIndex != num) && IsHandleCreated) && !string.IsNullOrEmpty(tabMouseOn.ToolTipText)) {
-                        if(toolTip == null) {
-                            toolTip = new ToolTip(components);
-                            toolTip.ShowAlways = true;
-                        }
-                        else {
-                            toolTip.Active = false;
-                        }
-                        string toolTipText = tabMouseOn.ToolTipText;
-                        string str2 = ((QTabItem)tabMouseOn).TooltipText2;
-                        if(!string.IsNullOrEmpty(str2)) {
-                            toolTipText = toolTipText + "\r\n" + str2;
-                        }
-                        iToolTipIndex = num;
-                        toolTip.SetToolTip(this, toolTipText);
-                        toolTip.Active = true;
+            if(tabMouseOn != null) {
+                if(((iToolTipIndex != num) && IsHandleCreated) && !string.IsNullOrEmpty(tabMouseOn.ToolTipText)) {
+                    if(toolTip == null) {
+                        toolTip = new ToolTip(components) { ShowAlways = true };
                     }
-                }
-                else {
-                    iToolTipIndex = -1;
-                    if(toolTip != null) {
+                    else {
                         toolTip.Active = false;
                     }
+                    string toolTipText = tabMouseOn.ToolTipText;
+                    string str2 = ((QTabItem)tabMouseOn).TooltipText2;
+                    if(!string.IsNullOrEmpty(str2)) {
+                        toolTipText = toolTipText + "\r\n" + str2;
+                    }
+                    iToolTipIndex = num;
+                    toolTip.SetToolTip(this, toolTipText);
+                    toolTip.Active = true;
+                }
+            }
+            else {
+                iToolTipIndex = -1;
+                if(toolTip != null) {
+                    toolTip.Active = false;
                 }
             }
             base.OnMouseMove(e);
@@ -1194,7 +1190,6 @@ namespace QTTabBarLib {
                 brshActive.Color = colorSet[0];
                 brshInactv.Color = colorSet[1];
             }
-            fShowToolTips = Config.ShowTooltips;
             if(Config.Skin.FixedWidthTabs) {
                 sizeMode = TabSizeMode.Fixed;
                 fLimitSize = false;

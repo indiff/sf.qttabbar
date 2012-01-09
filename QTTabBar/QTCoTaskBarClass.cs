@@ -845,15 +845,16 @@ namespace QTTabBarLib {
             return false;
         }
 
+        // TODO: merge with qttbc's.
         private bool HandleTabFolderActions(int index, Keys modKey, bool fEnqExec) {
-            if(Config.MidClickNewWindow) {
+            /*if(Config.MidClickNewWindow) {
                 if(modKey == Keys.Control) {
                     modKey = Keys.None;
                 }
                 else if(modKey == Keys.None) {
                     modKey = Keys.Control;
                 }
-            }
+            }*/
             if(!Config.Tabs.ActivateNewTab) {
                 if((modKey & Keys.Shift) == Keys.Shift) {
                     modKey &= ~Keys.Shift;
@@ -1118,13 +1119,15 @@ namespace QTTabBarLib {
             return HandleTabFolderActions(-1, modKeys, fEnqExec);
         }
 
+        // TODO
         private bool ListView_MiddleClick(Point pt) {
+            /*
             if(!Config.NoCaptureMidClick) {
                 int index = listView.HitTest(pt, false);
                 if(index != -1) {
                     HandleTabFolderActions(index, ModifierKeys, false);
                 } 
-            }
+            }*/
             return false;
         }
 
