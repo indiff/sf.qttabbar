@@ -61,21 +61,21 @@ namespace QTTabBarLib {
             InitializeComponent();
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                 if(key != null) {
-                    int num = (int)key.GetValue("MD5FormLocation", 0x640064);
-                    int num2 = (int)key.GetValue("MD5FormSize", 0xc801c2);
-                    int num3 = (int)key.GetValue("HashType", 0);
-                    Location = new Point((short)(num & 0xffff), (short)((num >> 0x10) & 0xffff));
-                    Size = new Size(num2 & 0xffff, (num2 >> 0x10) & 0xffff);
-                    if((num3 < 0) || (num3 > (cmbHashType.Items.Count - 1))) {
-                        num3 = 0;
+                    chbFullPath.Checked = (int)key.GetValue("MD5FormFullPath", 0) == 1;
+                    chbClearOnClose.Checked = (int)key.GetValue("MD5FormClearOnClose", 0) == 1;
+                    chbShowResult.Checked = (int)key.GetValue("MD5FormShowResult", 0) == 1;
+                    chbTopMost.Checked = (int)key.GetValue("MD5FormTopMost", 0) == 1;
+                    int location = (int)key.GetValue("MD5FormLocation", 0x640064);
+                    int size = (int)key.GetValue("MD5FormSize", 0xc801c2);
+                    int type = (int)key.GetValue("HashType", 0);
+                    Location = new Point((short)(location & 0xffff), (short)((location >> 0x10) & 0xffff));
+                    Size = new Size(size & 0xffff, (size >> 0x10) & 0xffff);
+                    if((type < 0) || (type > (cmbHashType.Items.Count - 1))) {
+                        type = 0;
                     }
-                    cmbHashType.SelectedIndex = num3;
+                    cmbHashType.SelectedIndex = type;
                 }
             }
-            chbFullPath.Checked = Config.HashFullPath;
-            chbClearOnClose.Checked = Config.HashClearOnClose;
-            chbShowResult.Checked = Config.ShowHashResult;
-            chbTopMost.Checked = !Config.HashTopMost;
             PInvoke.DragAcceptFiles(Handle, true);
         }
 
@@ -512,11 +512,10 @@ namespace QTTabBarLib {
                 key.SetValue("MD5FormLocation", QTUtility2.Make_INT(Left, Top));
                 key.SetValue("MD5FormSize", Width | (Height << 0x10));
                 key.SetValue("HashType", cmbHashType.SelectedIndex);
-                QTUtility.ConfigValues[8] = chbFullPath.Checked ? ((byte)(QTUtility.ConfigValues[8] | 0x10)) : ((byte)(QTUtility.ConfigValues[8] & -17));
-                QTUtility.ConfigValues[9] = chbClearOnClose.Checked ? ((byte)(QTUtility.ConfigValues[9] | 2)) : ((byte)(QTUtility.ConfigValues[9] & -3));
-                QTUtility.ConfigValues[6] = chbShowResult.Checked ? ((byte)(QTUtility.ConfigValues[6] | 1)) : ((byte)(QTUtility.ConfigValues[6] & -2));
-                QTUtility.ConfigValues[7] = chbTopMost.Checked ? ((byte)(QTUtility.ConfigValues[7] & -129)) : ((byte)(QTUtility.ConfigValues[7] | 0x80));
-                key.SetValue("Config", QTUtility.ConfigValues);
+                key.SetValue("MD5FormFullPath", chbFullPath.Checked ? 1 : 0);
+                key.SetValue("MD5FormClearOnClose", chbClearOnClose.Checked ? 1 : 0);
+                key.SetValue("MD5FormShowResult", chbShowResult.Checked ? 1 : 0);
+                key.SetValue("MD5FormTopMost", chbTopMost.Checked ? 1 : 0);
             }
         }
 

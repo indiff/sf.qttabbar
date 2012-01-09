@@ -205,9 +205,9 @@ namespace QTTabBarLib {
             catch {
             }
             try {
-                bool flag2 = Config.SubDirTipsSystem;
-                bool flag3 = Config.SubDirTipsHidden;
-                FileAttributes attributes = FileAttributes.ReparsePoint | FileAttributes.System | FileAttributes.Hidden;
+                bool flag2, flag3;
+                QTUtility.GetHiddenFileSettings(out flag3, out flag2);
+                const FileAttributes attributes = FileAttributes.ReparsePoint | FileAttributes.System | FileAttributes.Hidden;
                 int num = 0;
                 foreach(DirectoryInfo info in di.GetDirectories()) {
                     try {
@@ -353,7 +353,9 @@ namespace QTTabBarLib {
                     zero = ShellMethods.CreateIDL(idlChild);
                     ptr2 = PInvoke.ILFindLastID(zero);
                 }
-                bool flag = Config.SubDirTipsHidden;
+                bool dummy;
+                bool flag;
+                QTUtility.GetHiddenFileSettings(out flag, out dummy);
                 int grfFlags = 0x60;
                 if(flag) {
                     grfFlags |= 0x80;
@@ -665,8 +667,9 @@ namespace QTTabBarLib {
             item.MouseMove += tsmi_Folder_MouseMove;
             item.MouseDown += tsmi_MouseDown;
             item.MouseUp += tsmi_MouseUp;
-            bool fSearchHidden = Config.SubDirTipsHidden;
-            bool fSearchSystem = Config.SubDirTipsSystem;
+            bool fSearchHidden;
+            bool fSearchSystem;
+            QTUtility.GetHiddenFileSettings(out fSearchHidden, out fSearchSystem);
             bool flag3 = Config.Tips.SubDirTipsFiles;
             bool flag4;
             using(FindFile file = new FindFile(item.TargetPath, fSearchHidden, fSearchSystem)) {

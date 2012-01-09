@@ -43,41 +43,29 @@
             HorizontalAlignment="Right"
             Orientation="Horizontal"
             VerticalAlignment="Center">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Margin" Value="7,0,5,6"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Width" Value="75"/>
+                </Style>
+            </StackPanel.Resources>
             <Button x:Name="btnResetPage"
                 Click="btnResetPage_Click"
-                Content="Reset Page"
-                Height="20"
-                Margin="7,0,5,6"
-                Padding="0"
-                Width="75"/>
+                Content="Reset Page"/>
             <Button x:Name="btnResetAll"
                 Click="btnResetAll_Click"
-                Content="Reset All"
-                Height="20"
-                Margin="7,0,25,6"
-                Padding="0"
-                Width="75"/>
+                Content="Reset All"/>
             <Button x:Name="btnOK"
                 Click="btnOK_Click"
-                Content="OK"
-                Height="20"
-                Margin="7,0,5,6"
-                Padding="0"
-                Width="75"/>
+                Content="OK"/>
             <Button x:Name="btnCancel"
                 Click="btnCancel_Click"
-                Content="Cancel"
-                Height="20"
-                Margin="7,0,5,6"
-                Padding="0"
-                Width="75"/>
+                Content="Cancel"/>
             <Button x:Name="btnApply"
                 Click="btnApply_Click"
-                Content="Apply"
-                Height="20"
-                Margin="7,0,5,6"
-                Padding="0"
-                Width="75"/>
+                Content="Apply"/>
         </StackPanel>
 
         <!-- The category listview -->

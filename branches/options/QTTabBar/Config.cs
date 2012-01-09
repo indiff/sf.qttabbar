@@ -537,16 +537,10 @@ namespace QTTabBarLib {
         //-----------
 
         // Maybe
-        public static bool ShowHashResult { get; set; }
-        public static bool HashTopMost { get; set; }
-        public static bool HashFullPath { get; set; }
-        public static bool HashClearOnClose { get; set; }
         public static bool AllRecentFiles { get; set; } 
 
         // DEATH ROW
         public static bool CaptureX1X2         { get; set; }
-        public static bool SubDirTipsHidden    { get; set; }
-        public static bool SubDirTipsSystem    { get; set; }
         public static bool NoTabSwitcher       { get; set; }
     }
 
