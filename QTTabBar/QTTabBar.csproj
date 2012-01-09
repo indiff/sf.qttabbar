@@ -107,6 +107,48 @@
     <Compile Include="BreadcrumbBar.cs" />
     <Compile Include="AbstractListView.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="OptionsDialog\Options03_Tweaks.xaml.cs">
+      <DependentUpon>Options03_Tweaks.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options04_Tooltips.xaml.cs">
+      <DependentUpon>Options04_Tooltips.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options05_General.xaml.cs">
+      <DependentUpon>Options05_General.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options06_Appearance.xaml.cs">
+      <DependentUpon>Options06_Appearance.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options07_Mouse.xaml.cs">
+      <DependentUpon>Options07_Mouse.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options08_Keys.xaml.cs">
+      <DependentUpon>Options08_Keys.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options09_Groups.xaml.cs">
+      <DependentUpon>Options09_Groups.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options10_Apps.xaml.cs">
+      <DependentUpon>Options10_Apps.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options11_ButtonBar.xaml.cs">
+      <DependentUpon>Options11_ButtonBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options12_Plugins.xaml.cs">
+      <DependentUpon>Options12_Plugins.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options13_Language.xaml.cs">
+      <DependentUpon>Options13_Language.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options14_About.xaml.cs">
+      <DependentUpon>Options14_About.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options02_Tabs.xaml.cs">
+      <DependentUpon>Options02_Tabs.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="OptionsDialog\Options01_Window.xaml.cs">
+      <DependentUpon>Options01_Window.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ShellContextMenu.cs" />
     <Compile Include="EditableHeader.xaml.cs">
       <DependentUpon>EditableHeader.xaml</DependentUpon>
@@ -126,7 +168,7 @@
     <Compile Include="MarginCombo.xaml.cs">
       <DependentUpon>MarginCombo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OptionsDialog.xaml.cs">
+    <Compile Include="OptionsDialog\OptionsDialog.xaml.cs">
       <DependentUpon>OptionsDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="RebarController.cs" />
@@ -347,6 +389,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TxtEnc.cs" />
+    <Compile Include="WPFUtils.cs" />
     <Compile Include="UpdateChecker.cs" />
     <Compile Include="UpDown.cs">
       <SubType>Component</SubType>
@@ -405,6 +448,58 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="OptionsDialog\Options03_Tweaks.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options04_Tooltips.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options05_General.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options06_Appearance.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options07_Mouse.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options08_Keys.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options09_Groups.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options10_Apps.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options11_ButtonBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options12_Plugins.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options13_Language.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options14_About.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="OptionsDialog\Options02_Tabs.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="EditableHeader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -417,7 +512,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OptionsDialog.xaml">
+    <Page Include="OptionsDialog\Options01_Window.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\OptionsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="OptionsDialog\OptionsDialogResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

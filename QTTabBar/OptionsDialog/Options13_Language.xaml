@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This file is part of QTTabBar, a shell extension for Microsoft
+    Windows Explorer.
+    Copyright (C) 2007-2010  Quizo, Paul Accisano
+
+    QTTabBar is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    QTTabBar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<qt:OptionsDialogTab
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:qt="clr-namespace:QTTabBarLib"
+    x:Class="QTTabBarLib.Options13_Language"
+    x:ClassModifier="internal"
+    DataContext="{Binding Path=WorkingConfig.lang, RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="OptionsDialogResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel
+        Margin="14,5,10,0"
+        Orientation="Vertical">
+        <StackPanel
+            Margin="0,0,0,4"
+            Orientation="Horizontal">
+            <Image
+                Source="{Binding Source={x:Static qt:Resources_Image.imgTabLang}, Converter={StaticResource BitmapToImageSourceConverter}}"
+                Style="{StaticResource PageHeaderImageStyle}"/>
+            <Label
+                Content="Change the language"
+                FontSize="13"
+                VerticalAlignment="Bottom"/>
+        </StackPanel>
+        <Label
+            Content="Main language"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="184*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <qt:RadioButtonEx x:Name="radUseBuiltInYes"
+                Content="Use built-in language:"
+                Height="16"
+                HorizontalAlignment="Left"
+                IsChecked="{Binding Path=UseBuiltIn}"
+                Margin="5,9"
+                VerticalAlignment="Top"/>
+            <qt:RadioButtonEx x:Name="radUseBuiltInNo"
+                Content="Use language file:"
+                Grid.Row="1"
+                Height="16"
+                HorizontalAlignment="Left"
+                IsChecked="{Binding Path=UseBuiltIn, Converter={StaticResource BoolInverterConverter}}"
+                Margin="5,9"
+                VerticalAlignment="Top"/>
+            <ComboBox
+                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Height="23"
+                HorizontalAlignment="Stretch"
+                Margin="5"
+                VerticalAlignment="Top"/>
+            <TextBox
+                Grid.Column="1"
+                Grid.Row="1"
+                Height="23"
+                HorizontalAlignment="Stretch"
+                Margin="5"
+                VerticalAlignment="Top"/>
+            <Button
+                Content="..."
+                Grid.Column="2"
+                Grid.Row="1"
+                Height="23"
+                HorizontalAlignment="Right"
+                Margin="5"
+                VerticalAlignment="Top"
+                Width="28"/>
+        </Grid>
+        <Label
+            Content="Plugin language files"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <ListBox Height="185"/>
+        <StackPanel
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Content="+"
+                Height="23"
+                Margin="5"
+                Width="28"/>
+            <Button
+                Content="-"
+                Height="23"
+                Margin="5"
+                Width="28"/>
+        </StackPanel>
+    </StackPanel>
+</qt:OptionsDialogTab>

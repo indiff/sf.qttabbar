@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <qt:IntToTextConverter x:Key="IntToTextConverter"/>
+        <qt:Converter Type="{x:Type qt:Spinner+IntToTextConverter}" x:Key="IntToTextConverter"/>
     </UserControl.Resources>
     <Grid Height="{Binding Path=Height, ElementName=SpinnerControl}" Width="{Binding Path=Width, ElementName=SpinnerControl}">
         <TextBox x:Name="txtValue"
