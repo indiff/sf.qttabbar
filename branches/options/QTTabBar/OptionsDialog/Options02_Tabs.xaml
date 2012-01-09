@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This file is part of QTTabBar, a shell extension for Microsoft
+    Windows Explorer.
+    Copyright (C) 2007-2010  Quizo, Paul Accisano
+
+    QTTabBar is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    QTTabBar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<qt:OptionsDialogTab
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:qt="clr-namespace:QTTabBarLib"
+    x:Class="QTTabBarLib.Options02_Tabs"
+    x:ClassModifier="internal"
+    DataContext="{Binding Path=WorkingConfig.tabs, RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="OptionsDialogResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel
+        Margin="14,5,10,0"
+        Orientation="Vertical">
+        <StackPanel
+            Margin="0,0,0,4"
+            Orientation="Horizontal">
+            <Image
+                Source="{Binding Source={x:Static qt:Resources_Image.imgTabTabs}, Converter={StaticResource BitmapToImageSourceConverter}}"
+                Style="{StaticResource PageHeaderImageStyle}"/>
+            <Label
+                Content="Change options related to tabs."
+                FontSize="13"
+                VerticalAlignment="Bottom"/>
+        </StackPanel>
+        <Label
+            Content="Behavior"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label
+                Content="Open new tabs:"
+                Style="{StaticResource LabelStyle}"/>
+            <ComboBox x:Name="cmbNewTabPos"
+                DisplayMemberPath="Value"
+                Grid.Column="1"
+                Height="23"
+                Margin="0,2,-47,2"
+                SelectedValue="{Binding Path=NewTabPosition}"
+                SelectedValuePath="Key"
+                Width="167"/>
+            <Label
+                Content="When the current tab is closed, switch to the:"
+                Grid.Row="1"
+                Style="{StaticResource LabelStyle}"/>
+            <ComboBox x:Name="cmbNextAfterClosed"
+                DisplayMemberPath="Value"
+                Grid.Column="1"
+                Grid.Row="1"
+                Height="23"
+                Margin="0,2,-47,2"
+                SelectedValue="{Binding Path=NextAfterClosed}"
+                SelectedValuePath="Key"
+                Width="167"/>
+        </Grid>
+        <CheckBox x:Name="chkActivateNewTab"
+            Content="Switch to new tabs immediately"
+            IsChecked="{Binding Path=ActivateNewTab}"
+            Style="{StaticResource CheckStyle}"/>
+        <CheckBox x:Name="chkNeverOpenSame"
+            Content="Reuse existing tabs"
+            IsChecked="{Binding Path=NeverOpenSame}"
+            Style="{StaticResource CheckStyle}"/>
+        <CheckBox x:Name="chkRenameAmbTabs"
+            Content="Rename ambiguous tabs"
+            IsChecked="{Binding Path=RenameAmbTabs}"
+            Style="{StaticResource CheckStyle}"/>
+        <StackPanel Orientation="Horizontal">
+            <Label
+                Content="When drag-hovering over a tab,"
+                Style="{StaticResource LabelStyle}"/>
+            <qt:RadioButtonEx x:Name="radDragOverTabOpensSTD_No"
+                Content="Switch to it"
+                IsCheckedReal ="{Binding Path=DragOverTabOpensSDT, Converter={StaticResource BoolInverterConverter}}"
+                Margin="0,1,10,1"/>
+            <qt:RadioButtonEx x:Name="radDragOverTabOpensSDT_Yes"
+                Content="Show the Subfolder Tip menu"
+                IsCheckedReal ="{Binding Path=DragOverTabOpensSDT}"
+                Margin="0,1,10,1"/>
+        </StackPanel>
+        <Label
+            Content="Tab icons"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="chkShowFolderIcon"
+            Content="Show folder icons on tabs"
+            IsChecked="{Binding Path=ShowFolderIcon}"
+            Style="{StaticResource CheckStyle}"/>
+        <CheckBox x:Name="chkShowSDTOnTab"
+            Content="Show the Subfolder Tip menu when the icon is clicked"
+            IsChecked="{Binding Path=ShowSubDirTipOnTab}"
+            IsEnabled="{Binding Path=IsChecked, ElementName=chkShowFolderIcon}"
+            Style="{StaticResource IndentedCheckStyle}"/>
+        <CheckBox x:Name="chkShowDriveLetters"
+            Content="Show the drive letter on the icon"
+            IsChecked="{Binding Path=ShowDriveLetters}"
+            IsEnabled="{Binding Path=IsChecked, ElementName=chkShowFolderIcon}"
+            Style="{StaticResource IndentedCheckStyle}"/>
+        <Label
+            Content="Close button"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="chkShowCloseButtons"
+            Content="Show close button on tabs"
+            IsChecked="{Binding Path=ShowCloseButtons}"
+            Style="{StaticResource CheckStyle}"/>
+        <CheckBox x:Name="chkCloseBtnsWithAlt"
+            Content="Only with the Alt key down"
+            IsChecked="{Binding Path=CloseBtnsWithAlt}"
+            IsEnabled="{Binding Path=IsChecked, ElementName=chkShowCloseButtons}"
+            Style="{StaticResource IndentedCheckStyle}"/>
+        <CheckBox x:Name="CloseBtnsOnHover"
+            Content="Only on mouse hover"
+            IsChecked="{Binding Path=CloseBtnsOnHover}"
+            IsEnabled="{Binding Path=IsChecked, ElementName=chkShowCloseButtons}"
+            Style="{StaticResource IndentedCheckStyle}"/>
+        <Label
+            Content="Tab Bar"
+            Style="{StaticResource SectionHeaderStyle}"/>
+        <CheckBox x:Name="chkShowNavButtons"
+            Content="Show navigation buttons on the tab bar"
+            IsChecked="{Binding Path=ShowNavButtons}"
+            Style="{StaticResource CheckStyle}"/>
+        <StackPanel
+            Margin="31,1,0,1"
+            Orientation="Horizontal">
+            <qt:RadioButtonEx x:Name="radNavButtonsOnRight_No"
+                Content="On the left"
+                HorizontalAlignment="Left"
+                IsEnabled="{Binding Path=IsChecked, ElementName=chkShowNavButtons}"
+                Margin="0,0,10,0"
+                Style="{StaticResource CheckStyle}">
+                <qt:RadioButtonEx.IsCheckedReal>
+                    <MultiBinding Converter="{StaticResource LogicalAndMultiConverter}">
+                        <Binding Path="NavButtonsOnRight" Converter="{StaticResource BoolInverterConverter}"/>
+                        <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}"/>
+                    </MultiBinding>
+                </qt:RadioButtonEx.IsCheckedReal>
+            </qt:RadioButtonEx>
+            <qt:RadioButtonEx x:Name="radNavButtonsOnRight_Yes"
+                Content="On the right"
+                HorizontalAlignment="Left"
+                IsEnabled="{Binding Path=IsChecked, ElementName=chkShowNavButtons}"
+                Margin="0,0,10,0"
+                Style="{StaticResource CheckStyle}">
+                <qt:RadioButtonEx.IsCheckedReal>
+                    <MultiBinding Converter="{StaticResource LogicalAndMultiConverter}">
+                        <Binding Path="NavButtonsOnRight"/>
+                        <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}"/>
+                    </MultiBinding>
+                </qt:RadioButtonEx.IsCheckedReal>
+            </qt:RadioButtonEx>
+        </StackPanel>
+        <CheckBox x:Name="chkMultipleTabRows"
+            Content="Allow multiple rows of tabs"
+            IsChecked="{Binding Path=MultipleTabRows}"
+            Style="{StaticResource CheckStyle}"/>
+        <CheckBox x:Name="chkActiveTabOnBottomRow"
+            Content="Always put the row with the active tab on the bottom"
+            IsChecked="{Binding Path=ActiveTabOnBottomRow}"
+            IsEnabled="{Binding Path=IsChecked, ElementName=chkMultipleTabRows}"
+            Style="{StaticResource IndentedCheckStyle}"/>
+    </StackPanel>
+</qt:OptionsDialogTab>

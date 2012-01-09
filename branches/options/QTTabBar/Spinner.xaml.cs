@@ -73,17 +73,17 @@ namespace QTTabBarLib {
                Value--;
            }
         }
-    }
 
-    [ValueConversion(typeof(int), typeof(string))]
-    public class IntToTextConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            return value.ToString();
-        }
+        [ValueConversion(typeof(int), typeof(string))]
+        public class IntToTextConverter : IValueConverter {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+                return value.ToString();
+            }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            int i;
-            return int.TryParse(value.ToString(), out i) ? i : Binding.DoNothing;
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+                int i;
+                return int.TryParse(value.ToString(), out i) ? i : Binding.DoNothing;
+            }
         }
     }
 }
