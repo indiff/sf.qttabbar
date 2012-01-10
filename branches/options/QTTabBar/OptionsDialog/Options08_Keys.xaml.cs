@@ -63,7 +63,7 @@ namespace QTTabBarLib {
         }
 
         public override void ResetConfig() {
-            WorkingConfig.keys = new Config._Keys();
+            DataContext = WorkingConfig.keys = new Config._Keys();
             InitializeConfig();
         }
 

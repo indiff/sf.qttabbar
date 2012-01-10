@@ -522,7 +522,7 @@ namespace QTTabBarLib {
 
                     switch(key) {
                         case Keys.ShiftKey:
-                            if(!Config.NoTabSwitcher) {
+                            if(Config.Keys.UseTabSwitcher) {
                                 HideTabSwitcher(true);
                             }
                             break;
@@ -534,7 +534,7 @@ namespace QTTabBarLib {
                             break;
 
                         case Keys.Tab:
-                            if(!Config.NoTabSwitcher && tabSwitcher != null && tabSwitcher.IsShown) {
+                            if(Config.Keys.UseTabSwitcher && tabSwitcher != null && tabSwitcher.IsShown) {
                                 tabControl1.SetPseudoHotIndex(tabSwitcher.SelectedIndex);
                             }
                             break;
@@ -884,7 +884,7 @@ namespace QTTabBarLib {
                             }
                             QTUtility.SaveRecentlyClosed(key);
                         }
-                        if(Config.Misc.KeepRecentFiles && Config.AllRecentFiles) {
+                        if(Config.Misc.KeepRecentFiles) {
                             QTUtility.SaveRecentFiles(key);
                         }
                         string[] list = (from QTabItem item2 in tabControl1.TabPages
@@ -2621,29 +2621,46 @@ namespace QTTabBarLib {
                     }
                     return false;
 
-                case WM.APPCOMMAND: {
-                    int num = ((((int)((long)msg.LParam)) >> 0x10) & 0xffff) & -61441;
-                    int num2 = ((((int)((long)msg.LParam)) >> 0x10) & 0xffff) & 0xf000;
-                    bool flag = (num2 != 0x8000) || Config.CaptureX1X2;
-                    switch(num) {
-                        case 1:
-                            if(flag) {
-                                NavigateCurrentTab(true);
+
+                case WM.APPCOMMAND:
+                    // some mouse drivers and utilities have the extra buttons send WM_APPCOMMAND.
+                    const int APPCOMMAND_BROWSER_BACKWARD = 1;
+                    const int APPCOMMAND_BROWSER_FORWARD = 2;
+                    const int APPCOMMAND_CLOSE = 31;
+                    const int FAPPCOMMAND_MOUSE = 0x8000;
+                    const int FAPPCOMMAND_MASK = 0xF000;
+
+                    //GET_APPCOMMAND_LPARAM(lParam) ((short)(HIWORD(lParam) & ~FAPPCOMMAND_MASK))
+                    //GET_DEVICE_LPARAM(lParam)     ((WORD)(HIWORD(lParam) & FAPPCOMMAND_MASK))
+                    int command = ((((int)(long)msg.LParam) >> 16) & 0xFFFF) & ~FAPPCOMMAND_MASK;
+                    int device = ((((int)(long)msg.LParam) >> 16) & 0xFFFF) & FAPPCOMMAND_MASK;
+                    bool fProcess = device != FAPPCOMMAND_MOUSE;
+                    BindAction action;
+
+                    switch(command) {
+                        case APPCOMMAND_BROWSER_BACKWARD:
+                            if(fProcess) {
+                                MouseChord chord = QTUtility.MakeMouseChord(MouseChord.X1, ModifierKeys);
+                                if(Config.Mouse.GlobalMouseActions.TryGetValue(chord, out action)) {
+                                    DoBindAction(action);
+                                }
                             }
                             return true;
 
-                        case 2:
-                            if(flag) {
-                                NavigateCurrentTab(false);
+                        case APPCOMMAND_BROWSER_FORWARD:
+                            if(fProcess) {
+                                MouseChord chord = QTUtility.MakeMouseChord(MouseChord.X2, ModifierKeys);
+                                if(Config.Mouse.GlobalMouseActions.TryGetValue(chord, out action)) {
+                                    DoBindAction(action);
+                                }
                             }
                             return true;
 
-                        case 0x1f:
+                        case APPCOMMAND_CLOSE:
                             WindowUtils.CloseExplorer(ExplorerHandle, 0);
                             return true;
                     }
-                    return false;
-                }
+                    break;
             }
             return false;
         }
@@ -2925,7 +2942,7 @@ namespace QTTabBarLib {
                     break;
 
                 case Keys.Tab:
-                    if(!Config.NoTabSwitcher && (mkey & Keys.Control) != Keys.None) {
+                    if(Config.Keys.UseTabSwitcher && (mkey & Keys.Control) != Keys.None) {
                         return ShowTabSwitcher((mkey & Keys.Shift) != Keys.None, fRepeat);
                     }
                     break;

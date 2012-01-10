@@ -47,6 +47,18 @@
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
+        <StackPanel
+            DockPanel.Dock="Bottom"
+            Margin="0,10,0,0"
+            Orientation="Vertical">
+            <Label
+                Content="Other keyboard options"
+                Style="{StaticResource SectionHeaderStyle}"/>
+            <CheckBox
+                Content="Show the Tab Switcher window when Ctrl + Tab is pressed"
+                IsChecked="{Binding Path=UseTabSwitcher}"
+                Margin="13,0,1,0"/>
+        </StackPanel>
         <TextBlock 
             Text="Select an action from the list and press the key gesture you would like to bind to it.&#x0a;Press Escape to clear the binding." 
             TextWrapping="Wrap"

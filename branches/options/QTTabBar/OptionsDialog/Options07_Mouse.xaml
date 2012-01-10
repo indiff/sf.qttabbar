@@ -141,6 +141,7 @@
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{Binding Path=ComboBoxItems}"
                                             IsDropDownOpen="{Binding Path=IsEditing, Mode=TwoWay}"
+                                            Loaded="cmbInlineMouseAction_Loaded"
                                             Margin="0,-3"
                                             SelectedValue="{Binding Path=Action, Mode=TwoWay}"
                                             SelectedValuePath="Key"

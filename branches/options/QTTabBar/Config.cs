@@ -503,6 +503,7 @@ namespace QTTabBarLib {
         [Serializable]
         public class _Keys {
             public int[] Shortcuts               { get; set; }
+            public bool UseTabSwitcher           { get; set; }
 
             public _Keys() {
                 // todo
@@ -510,7 +511,8 @@ namespace QTTabBarLib {
                   0, 0, 0x160025, 0x160027, 0x120009, 0x130009, 0, 0, 0x120057, 0x130057, 0, 0, 0, 0x13005a, 0x12004e, 0x13004e, 
                   0x12004c, 0x13004c, 0x12004f, 0, 0x14004f, 0x1400bc, 0x1400be, 0x140047, 0x140048, 0x140055, 0x14004d, 0, 0, 0, 0, 0, 
                   0, 0, 0, 0, 0, 0, 0, 0, 0
-                 };
+                };
+                UseTabSwitcher = true;
             }
         }
 
@@ -533,15 +535,6 @@ namespace QTTabBarLib {
                 LangFile = "English";
             }
         }
-
-        //-----------
-
-        // Maybe
-        public static bool AllRecentFiles { get; set; } 
-
-        // DEATH ROW
-        public static bool CaptureX1X2         { get; set; }
-        public static bool NoTabSwitcher       { get; set; }
     }
 
     public static class ConfigManager {

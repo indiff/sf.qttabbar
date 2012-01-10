@@ -21,6 +21,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -296,7 +298,7 @@ namespace QTTabBarLib {
         }
 
         public override void ResetConfig() {
-            WorkingConfig.mouse = new Config._Mouse();
+            DataContext = WorkingConfig.mouse = new Config._Mouse();
             InitializeConfig();
         }
 
@@ -398,6 +400,12 @@ namespace QTTabBarLib {
             else if(e.Key == Key.Space || e.Key == Key.Enter) {
                 entry.IsEditing = true;
             }
+        }
+
+        private void cmbInlineMouseAction_Loaded(object sender, RoutedEventArgs e) {
+            // For some reason, SelectedValue gets wonky when the config is reinitialized.
+            // This seems to fix it.
+            ((ComboBox)sender).GetBindingExpression(Selector.SelectedValueProperty).UpdateTarget();
         }
 
         #region ---------- Binding Classes ----------
