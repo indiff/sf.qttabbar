@@ -125,13 +125,11 @@ namespace QTTabBarLib {
                                 ClosedTabHistoryList = new PathList(collection, Config.Misc.TabHistoryCount);
                             }
                         }
-                        if(Config.AllRecentFiles) {
-                            using(RegistryKey key3 = key.CreateSubKey("RecentFiles")) {
-                                if(key3 != null) {
-                                    List<string> list2 = key3.GetValueNames().Select(str5 =>
-                                            (string)key3.GetValue(str5)).ToList();
-                                    ExecutedPathsList = new PathList(list2, Config.Misc.FileHistoryCount);
-                                }
+                        using(RegistryKey key3 = key.CreateSubKey("RecentFiles")) {
+                            if(key3 != null) {
+                                List<string> list2 = key3.GetValueNames().Select(str5 =>
+                                        (string)key3.GetValue(str5)).ToList();
+                                ExecutedPathsList = new PathList(list2, Config.Misc.FileHistoryCount);
                             }
                         }
                         RefreshLockedTabsList();
