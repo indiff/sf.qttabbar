@@ -15,7 +15,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.Windows;
+using DialogResult = System.Windows.Forms.DialogResult;
+using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 
 namespace QTTabBarLib {
     internal partial class Options05_General : OptionsDialogTab {
@@ -49,6 +52,18 @@ namespace QTTabBarLib {
 
         private void btnUpdateNow_Click(object sender, RoutedEventArgs e) {
             UpdateChecker.Check(true);
+        }
+
+        private void btnExport_Click(object sender, RoutedEventArgs e) {
+            using(SaveFileDialog sf = new SaveFileDialog()) {
+                sf.Filter = "Registry file (*.reg)|*.reg";
+                sf.RestoreDirectory = true;
+                DateTime dt = DateTime.Now;
+                sf.FileName = "QTTabBarSettings-" + dt.Year + "-" + dt.Month + "-" + dt.Day + ".reg";
+                if(DialogResult.OK == sf.ShowDialog()) {
+                    RegFileWriter.Export(RegConst.Root, sf.FileName);
+                }
+            }
         }
 
         #region ---------- Binding Classes ----------

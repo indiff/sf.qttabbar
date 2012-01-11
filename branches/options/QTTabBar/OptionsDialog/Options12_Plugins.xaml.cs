@@ -19,12 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
-
+using Image = System.Drawing.Image;
 namespace QTTabBarLib {
     internal partial class Options12_Plugins : OptionsDialogTab {
         private ObservableCollection<PluginEntry> CurrentPlugins;
@@ -123,9 +125,9 @@ namespace QTTabBarLib {
         private void btnPluginRemove_Click(object sender, RoutedEventArgs e) {
             if(lstPluginView.SelectedIndex == -1) return;
             PluginEntry entry = CurrentPlugins[lstPluginView.SelectedIndex];
-            PluginAssembly pluingAssembly = entry.PluginAssembly;
-            if(pluingAssembly.PluginInformations.Count > 1) {
-                string str = pluingAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
+            PluginAssembly pluginAssembly = entry.PluginAssembly;
+            if(pluginAssembly.PluginInformations.Count > 1) {
+                string str = pluginAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
                 // todo localize
                 const string removePlugin = "Uninstalling this plugin will also uninstall the following plugins:\n\n{0}\n\nProceed?";
                 if(MessageBox.Show(string.Format(removePlugin, str), string.Empty, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
@@ -167,6 +169,23 @@ namespace QTTabBarLib {
             }
         }
 
+        private void txtUndo_MouseUp(object sender, MouseButtonEventArgs e) {
+            PluginEntry entry = (PluginEntry)((TextBlock)sender).Tag;
+            if(entry.UninstallOnClose) {
+                entry.UninstallOnClose = false;
+            }
+            else if(entry.InstallOnClose) {
+                entry.IsSelected = true;
+                btnPluginRemove_Click(sender, null);
+            }
+            else if(entry.DisableOnClose) {
+                entry.DisableOnClose = false;
+            }
+            else if(entry.EnableOnClose) {
+                entry.EnableOnClose = false;
+            }
+        }
+
         private void CreatePluginEntry(PluginAssembly pa, bool fAddedByUser) {
             if(!pa.PluginInfosExist || CurrentPlugins.Any(pe => pe.Path == pa.Path)) {
                 return;
@@ -198,7 +217,7 @@ namespace QTTabBarLib {
             public string Author { get { return "by " + PluginInfo.Author; } }
             public string Desc { get { return PluginInfo.Description; } }
             public bool IsSelected { get; set; }
-            public double Opacity { get { return Enabled ? 1.0 : 0.5; } }
+            public double IconOpacity { get { return Enabled ? 1.0 : 0.5; } }
             public bool DisableOnClose { get; set; }
             public bool EnableOnClose { get; set; }
             public bool InstallOnClose { get; set; }
@@ -206,6 +225,35 @@ namespace QTTabBarLib {
             public bool Enabled { get { return PluginInfo.Enabled; } set { PluginInfo.Enabled = value; } }
             public string PluginID { get { return PluginInfo.PluginID; } }
             public string Path { get { return PluginInfo.Path; } }
+            public Visibility StatusVisibility { get {
+                return DisableOnClose || EnableOnClose || InstallOnClose || UninstallOnClose
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+            }}
+            public string StatusText { get {
+                if(UninstallOnClose) return Name + " has been removed.";
+                if(InstallOnClose) return "This plugin will be installed when you press OK or Apply.";
+                if(EnableOnClose) return "This plugin will be enabled when you press OK or Apply.";
+                if(DisableOnClose) return "This plugin will be disabled when you press OK or Apply.";
+                return "";
+            }}
+            public Visibility MainBodyVisibility { get {
+                return UninstallOnClose ? Visibility.Collapsed : Visibility.Visible;
+            }}
+
+            public Color BackgroundColor { get {
+                return Enabled
+                        ? Colors.Transparent // Color.FromArgb(0x10, 0x60, 0xA0, 0xFF)
+                        : Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+            }}
+            public Color BarberPoleColor { get {
+                if(EnableOnClose || InstallOnClose) return Colors.Green;
+                if(DisableOnClose || UninstallOnClose) return Colors.Black;
+                return Colors.Transparent;
+            }}
+            public string DisableToggleText { get {
+                return Enabled || EnableOnClose ? "Disable" : "Enable";
+            }}
 
             private bool cachedHasOptions;
             private bool optionsQueried;
