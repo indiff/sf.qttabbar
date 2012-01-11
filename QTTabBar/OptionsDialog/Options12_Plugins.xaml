@@ -57,79 +57,160 @@
             <ListBox x:Name="lstPluginView"
                 HorizontalContentAlignment="Stretch"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.Resources>
+                    <SolidColorBrush 
+                        x:Key="{x:Static SystemColors.HighlightBrushKey}" 
+                        Color="#FFC6D3E4"/>
+                    <SolidColorBrush 
+                        x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
+                        Color="Black"/>
+                    <SolidColorBrush 
+                        x:Key="{x:Static SystemColors.ControlBrushKey}"
+                        Color="White"/>
+                </ListBox.Resources>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
-                        <Setter  Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+                        <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="BorderBrush"  Value="DarkGray"/>
+                        <Setter Property="BorderThickness"  Value="0,0,0,1"/>
                     </Style>
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <DockPanel>
-                            <TextBlock 
-                                DockPanel.Dock="Top"
-                                Text="This plugin will be installed when you press OK or Apply."
-                                Visibility="{Binding Path=InstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <TextBlock 
-                                DockPanel.Dock="Top"
-                                Text="This plugin will be uninstalled when you press OK or Apply."
-                                Visibility="{Binding Path=UninstallOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <TextBlock 
-                                DockPanel.Dock="Top"
-                                Text="This plugin will be disabled when you press OK or Apply."
-                                Visibility="{Binding Path=DisableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <TextBlock 
-                                DockPanel.Dock="Top"
-                                Text="This plugin will be enabled when you press OK or Apply."
-                                Visibility="{Binding Path=EnableOnClose, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            <Separator DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Margin="0"/>
-                            <Grid
-                                VerticalAlignment="Top"
-                                Width="48"
-                                Height="48">
-                                <Image
-                                    Opacity="{Binding Path=Opacity}"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Center"
-                                    Stretch="None"
-                                    RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                    Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"/>
-                            </Grid>
-                            <DockPanel DockPanel.Dock="Bottom" LastChildFill="False"
-                                Visibility="{Binding Path=IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Button x:Name="btnPluginOptions" 
-                                    Click="btnPluginOptions_Click"
-                                    Content="Options"
-                                    DockPanel.Dock="Left"
-                                    Width="70"
-                                    Margin="0,10,6,6"
-                                    Visibility="{Binding Path=HasOptions, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <Button x:Name="btnPluginRemove"
-                                    Click="btnPluginRemove_Click"
-                                    Content="Uninstall"
-                                    DockPanel.Dock="Right"
-                                    Margin="0,10,6,6"
-                                    Width="70"/>
-                                <Button x:Name="btnPluginDisable"
-                                    Click="btnPluginDisable_Click"
-                                    Content="Disable"
-                                    DockPanel.Dock="Right"
-                                    Width="70"
-                                    Margin="0,10,6,6"/>
-                            </DockPanel>
-                            <StackPanel Orientation="Vertical">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Path=Title}" FontSize="15" FontWeight="ExtraBold" Margin="2" VerticalAlignment="Bottom"/>
-                                    <TextBlock Text="{Binding Path=Author}" Margin="10,2" VerticalAlignment="Bottom"/>
+                        <Grid>
+                            <!-- Background -->
+                            <Rectangle>
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding Path=BackgroundColor}"/>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <!-- Barber Pole -->
+                            <Rectangle>
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush
+                                        EndPoint="0,200"
+                                        StartPoint="0,0"
+                                        MappingMode="Absolute">
+                                        <GradientStop Color="{Binding Path=BarberPoleColor}" Offset="0"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                                <Rectangle.OpacityMask>
+                                    <LinearGradientBrush
+                                        EndPoint="28,28"
+                                        MappingMode="Absolute"
+                                        SpreadMethod="Repeat"
+                                        StartPoint="0,0">
+                                        <GradientStop Color="#1D000000" Offset="0"/>
+                                        <GradientStop Color="#1D000000" Offset="0.5"/>
+                                        <GradientStop Color="#14000000" Offset="0.5"/>
+                                        <GradientStop Color="#14000000" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <DockPanel Background="Transparent" Margin="0,10">
+                                <!-- Status Message block -->
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    DockPanel.Dock="Top"
+                                    Margin="48,0,0,0"
+                                    Visibility="{Binding Path=StatusVisibility}">
+                                    <!-- Status Message -->
+                                    <TextBlock
+                                        FontWeight="Bold"
+                                        Margin="0,0,10,0"
+                                        Text="{Binding Path=StatusText}"/>
+                                    <!-- Undo link -->
+                                    <TextBlock
+                                        Cursor="Hand"
+                                        FontWeight="Bold"
+                                        MouseUp="txtUndo_MouseUp"
+                                        Tag="{Binding}"
+                                        TextDecorations="Underline"
+                                        Text="Undo">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Foreground" Value="RoyalBlue"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Foreground" Value="DodgerBlue"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </StackPanel>
-                                <TextBlock 
-                                    Text="{Binding Path=Desc}"
-                                    Margin="2"
-                                    HorizontalAlignment="Left"
-                                    TextWrapping="Wrap"
-                                    TextTrimming="CharacterEllipsis"
-                                    MaxHeight="50"/>
-                            </StackPanel>
-                        </DockPanel>
+                                <DockPanel
+                                    Background="Transparent"
+                                    Visibility="{Binding Path=MainBodyVisibility}">
+                                    <!-- Icon -->
+                                    <Grid
+                                        DockPanel.Dock="Left"
+                                        VerticalAlignment="Top"
+                                        Width="48"
+                                        Height="48">
+                                        <Image
+                                            Opacity="{Binding Path=Opacity}"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Stretch="None"
+                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                            Source="{Binding Path=Icon, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+                                    </Grid>
+                                    <!-- Title and Author -->
+                                    <StackPanel 
+                                        DockPanel.Dock="Top"
+                                        Orientation="Horizontal">
+                                        <TextBlock 
+                                            Text="{Binding Path=Title}"
+                                            FontSize="15"
+                                            FontWeight="ExtraBold"
+                                            Margin="2"
+                                            VerticalAlignment="Bottom"/>
+                                        <TextBlock
+                                            Text="{Binding Path=Author}"
+                                            Margin="10,2"
+                                            VerticalAlignment="Bottom"/>
+                                    </StackPanel>
+                                    <!-- Description -->
+                                    <TextBlock 
+                                        Text="{Binding Path=Desc}"
+                                        DockPanel.Dock="Top"
+                                        Margin="2"
+                                        HorizontalAlignment="Left"
+                                        TextWrapping="Wrap"
+                                        TextTrimming="CharacterEllipsis"
+                                        MaxHeight="50"/>
+                                    <!-- Buttons -->
+                                    <DockPanel
+                                        Grid.Column="1"
+                                        Grid.Row="3"
+                                        LastChildFill="False"
+                                        Visibility="{Binding Path=IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <Button x:Name="btnPluginOptions"
+                                            Click="btnPluginOptions_Click"
+                                            Content="Options"
+                                            DockPanel.Dock="Left"
+                                            Width="70"
+                                            Margin="0,10,6,6"
+                                            Visibility="{Binding Path=HasOptions, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Button x:Name="btnPluginRemove"
+                                            Click="btnPluginRemove_Click"
+                                            Content="Uninstall"
+                                            DockPanel.Dock="Right"
+                                            Margin="0,10,6,6"
+                                            Width="70"/>
+                                        <Button x:Name="btnPluginDisable"
+                                            Click="btnPluginDisable_Click"
+                                            Content="{Binding Path=DisableToggleText}"
+                                            DockPanel.Dock="Right"
+                                            Width="70"
+                                            Margin="0,10,6,6"/>
+                                    </DockPanel>
+                                </DockPanel>
+                            </DockPanel>
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

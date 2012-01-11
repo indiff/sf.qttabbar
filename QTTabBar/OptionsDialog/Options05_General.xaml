@@ -140,28 +140,14 @@
                 Width="75"/>
         </StackPanel>
         <Label
-            Content="Settings Location"
+            Content="Export"
             Style="{StaticResource SectionHeaderStyle}"/>
-        <qt:RadioButtonEx x:Name="radUseIniFileNo"
-            Content="Store settings in the Windows Registry"
-            IsCheckedReal="{Binding Path=UseIniFile, Converter={StaticResource BoolInverterConverter}}"
-            Style="{StaticResource CheckStyle}"/>
-        <qt:RadioButtonEx x:Name="radUseIniFileYes"
-            Content="Store settings in a .ini file"
-            IsCheckedReal="{Binding Path=UseIniFile}"
-            Style="{StaticResource CheckStyle}"/>
-        <StackPanel
-            Orientation="Horizontal">
-            <Button
-                Content="Export Settings..."
-                Height="23"
-                Margin="13,2,5,2"
-                Width="120"/>
-            <Button
-                Content="Import Settings..."
-                Height="23"
-                Margin="5,2"
-                Width="120"/>
-        </StackPanel>
+        <Button x:Name="btnExport"
+            Click="btnExport_Click"
+            Content="Export Settings..."
+            Height="23"
+            HorizontalAlignment="Left"
+            Margin="13,2,5,2"
+            Width="120"/>
     </StackPanel>
 </qt:OptionsDialogTab>

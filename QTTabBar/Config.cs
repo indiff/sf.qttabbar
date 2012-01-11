@@ -363,7 +363,6 @@ namespace QTTabBarLib {
             public int FileHistoryCount          { get; set; }
             public int NetworkTimeout            { get; set; }
             public bool AutoUpdate               { get; set; }
-            public bool UseIniFile               { get; set; }
 
             public _Misc() {
                 TaskbarThumbnails = false;
@@ -373,7 +372,6 @@ namespace QTTabBarLib {
                 FileHistoryCount = 15;
                 NetworkTimeout = 0; // TODO
                 AutoUpdate = true;
-                UseIniFile = false;
             }
         }
 

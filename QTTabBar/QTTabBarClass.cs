@@ -521,7 +521,7 @@ namespace QTTabBarLib {
                     }
 
                     switch(key) {
-                        case Keys.ShiftKey:
+                        case Keys.ControlKey:
                             if(Config.Keys.UseTabSwitcher) {
                                 HideTabSwitcher(true);
                             }
