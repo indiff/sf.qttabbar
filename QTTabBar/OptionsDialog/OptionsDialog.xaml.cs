@@ -30,6 +30,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using QTTabBarLib.Interop;
 using Font = System.Drawing.Font;
 using Bitmap = System.Drawing.Bitmap;
@@ -39,7 +40,7 @@ namespace QTTabBarLib {
     /// <summary>
     /// Interaction logic for OptionsDialog.xaml
     /// </summary>
-    internal partial class OptionsDialog : IDisposable {
+    internal partial class OptionsDialog : Window {
         private static OptionsDialog instance;
         private static Thread instanceThread;
         private static Thread launchingThread;
@@ -56,11 +57,11 @@ namespace QTTabBarLib {
                     launchingThread = Thread.CurrentThread;
 
                     if(instance == null) {
-                        instanceThread = new Thread(ThreadEntry);
+                        instanceThread = new Thread(ThreadEntry) { IsBackground = true };
                         instanceThread.SetApartmentState(ApartmentState.STA);
                         lock(instanceThread) {
                             instanceThread.Start();
-                            // Don't return until we know that instance is set.
+                            // Don't return until we know that the instance is created!
                             Monitor.Wait(instanceThread);
                         }
                     }
@@ -90,15 +91,18 @@ namespace QTTabBarLib {
         }
 
         private static void ThreadEntry() {
-            using(instance = new OptionsDialog()) {
-                lock(instanceThread) {
-                    Monitor.Pulse(instanceThread);
+            instance = new OptionsDialog();
+            lock(instanceThread) {
+                Monitor.Pulse(instanceThread);
+            }
+            instance.Closed += (sender, e) => {
+                lock(typeof(OptionsDialog)) {
+                    instance.Dispatcher.InvokeShutdown();
+                    instance = null;
                 }
-                instance.ShowDialog();
-            }
-            lock(typeof(OptionsDialog)) {
-                instance = null;
-            }
+            };
+            instance.Show();
+            Dispatcher.Run();
         }
 
         #endregion
@@ -131,10 +135,6 @@ namespace QTTabBarLib {
                 }
                 tab.InitializeConfig();
             }
-        }
-
-        public void Dispose() {
-            // TODO
         }
 
         private void UpdateOptions() {
