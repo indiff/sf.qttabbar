@@ -25,9 +25,9 @@
     x:Class="QTTabBarLib.OptionsDialog"
     x:ClassModifier="internal"
     Background="{StaticResource {x:Static SystemColors.ControlBrushKey}}"
-    Height="647"
+    Height="650"
     Title="QTTabBar Options"
-    Width="724">
+    Width="750">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

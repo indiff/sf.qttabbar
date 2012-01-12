@@ -91,8 +91,7 @@ namespace QTTabBarLib {
         }
 
         private void btnPluginOptions_Click(object sender, RoutedEventArgs e) {
-            if(lstPluginView.SelectedIndex == -1) return;
-            PluginEntry entry = CurrentPlugins[lstPluginView.SelectedIndex];
+            PluginEntry entry = (PluginEntry)((Button)sender).DataContext;
             Plugin p;
             if(pluginManager.TryGetPlugin(entry.PluginID, out p) && p.Instance != null) {
                 try {
@@ -106,8 +105,7 @@ namespace QTTabBarLib {
         }
 
         private void btnPluginDisable_Click(object sender, RoutedEventArgs e) {
-            if(lstPluginView.SelectedIndex == -1) return;
-            PluginEntry entry = CurrentPlugins[lstPluginView.SelectedIndex];
+            PluginEntry entry = (PluginEntry)((Button)sender).DataContext; 
             if(entry.DisableOnClose) {
                 entry.DisableOnClose = false;
             }
@@ -123,8 +121,7 @@ namespace QTTabBarLib {
         }
 
         private void btnPluginRemove_Click(object sender, RoutedEventArgs e) {
-            if(lstPluginView.SelectedIndex == -1) return;
-            PluginEntry entry = CurrentPlugins[lstPluginView.SelectedIndex];
+            PluginEntry entry = (PluginEntry)((Button)sender).DataContext; 
             PluginAssembly pluginAssembly = entry.PluginAssembly;
             if(pluginAssembly.PluginInformations.Count > 1) {
                 string str = pluginAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
@@ -170,9 +167,13 @@ namespace QTTabBarLib {
         }
 
         private void txtUndo_MouseUp(object sender, MouseButtonEventArgs e) {
-            PluginEntry entry = (PluginEntry)((TextBlock)sender).Tag;
+            PluginEntry entry = (PluginEntry)((TextBlock)sender).DataContext;
             if(entry.UninstallOnClose) {
-                entry.UninstallOnClose = false;
+                foreach(var other in CurrentPlugins) {
+                    if(entry.PluginAssembly == other.PluginAssembly) {
+                        other.UninstallOnClose = false;       
+                    }
+                }
             }
             else if(entry.InstallOnClose) {
                 entry.IsSelected = true;
@@ -213,7 +214,9 @@ namespace QTTabBarLib {
 
             public Image Icon { get { return PluginInfo.ImageLarge ?? Resources_Image.imgPlugin24; } }
             public string Name { get { return PluginInfo.Name; } }
-            public string Title { get { return Name + "  " + PluginInfo.Version; } }
+            public string Title { get {
+                return Name + "  " + PluginInfo.Version + ((Enabled || InstallOnClose) ? "" : "  (Disabled)");
+            } }
             public string Author { get { return "by " + PluginInfo.Author; } }
             public string Desc { get { return PluginInfo.Description; } }
             public bool IsSelected { get; set; }
@@ -240,15 +243,17 @@ namespace QTTabBarLib {
             public Visibility MainBodyVisibility { get {
                 return UninstallOnClose ? Visibility.Collapsed : Visibility.Visible;
             }}
-
-            public Color BackgroundColor { get {
-                return Enabled
-                        ? Colors.Transparent // Color.FromArgb(0x10, 0x60, 0xA0, 0xFF)
-                        : Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+            public Color TextColor { get {
+                return Enabled ? Colors.Black : SystemColors.GrayTextBrush.Color;
             }}
-            public Color BarberPoleColor { get {
-                if(EnableOnClose || InstallOnClose) return Colors.Green;
-                if(DisableOnClose || UninstallOnClose) return Colors.Black;
+            public Color BackgroundColor { get {
+                if(StatusVisibility == Visibility.Visible) return Color.FromArgb(0x10, 0x60, 0xA0, 0xFF);
+                if(!Enabled) return Color.FromArgb(0x10, 0x00, 0x00, 0x00);
+                return Colors.Transparent;
+            }}
+            public Color StatusColor { get {
+                if(EnableOnClose || InstallOnClose) return Color.FromRgb(0x20, 0x80, 0x20);
+                if(DisableOnClose || UninstallOnClose) return Color.FromRgb(0x80, 0x80, 0x80);
                 return Colors.Transparent;
             }}
             public string DisableToggleText { get {
