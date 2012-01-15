@@ -115,6 +115,51 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to General options for QTTabBar&apos;s behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Keep history of opened files;Clear now;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings....
+        /// </summary>
+        public static string Options_Page_General {
+            get {
+                return ResourceManager.GetString("Options_Page_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change options related to tabs.;Open new tabs:;When the current tab is closed, switch to the:;Switch to new tabs immediately;Reuse existing tabs;Rename ambiguous tabs;When drag-hovering over a tab,;Switch to it;Show the Subfolder Tip menu;Tab icons;Show folder icons on tabs;Show the Subfolder Tip menu when the icon is clicked;Show the drive letter on the icon;Close button;Show close button on tabs;Only with the Alt key down;Only on mouse hover;Tab Bar;Show navigation buttons on the tab bar;On the left;On th [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Options_Page_Tabs {
+            get {
+                return ResourceManager.GetString("Options_Page_Tabs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes.
+        /// </summary>
+        public static string Options_Page_Tooltips {
+            get {
+                return ResourceManager.GetString("Options_Page_Tooltips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable or disable tweaks to Explorer&apos;s List View.;Tweaks that can be used with either List View;Display column headers in all view modes (Windows Vista/7);Use the standard filesystem view for Library folders (Windows 7);Deselect file extension when renaming files (Windows XP);Cycle selection with F2 while renaming;Wrap around when moving the selection with the arrow keys;Backspace goes up one level;Scrolling with mouse wheel while holding shift scrolls horizontally;Tweaks that can only be used with the olde [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Options_Page_Tweaks {
+            get {
+                return ResourceManager.GetString("Options_Page_Tweaks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize.
+        /// </summary>
+        public static string Options_Page_Window {
+            get {
+                return ResourceManager.GetString("Options_Page_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://sourceforge.net/donate/index.php?group_id=312930.
         /// </summary>
         public static string PayPalURL {

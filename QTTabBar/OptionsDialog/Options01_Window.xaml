@@ -42,17 +42,18 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabWindow}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Change how Explorer Windows behave."
+                Content="{qt:Resx Key=Options_Page_Window, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="Single Window mode"
+            Content="{qt:Resx Key=Options_Page_Window, Index=1}"
             Style="{StaticResource SectionHeaderStyle}"/>
-        <Grid>
+        <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -74,19 +75,27 @@
                 Stretch="None"
                 Width="64"/>
             <qt:RadioButtonEx x:Name="radSingleWindowOn"
-                Content="Capture new Explorer&#x0a;windows as new tabs"
                 Grid.Row="1"
                 HorizontalAlignment="Center"
-                IsCheckedReal="{Binding Path=CaptureNewWindows}"/>
+                IsCheckedReal="{Binding Path=CaptureNewWindows}"
+                Width="160">
+                <AccessText
+                    Text="{qt:Resx Key=Options_Page_Window, Index=2}"
+                    TextWrapping="Wrap"/>
+            </qt:RadioButtonEx>
             <qt:RadioButtonEx x:Name="radSingleWindowOff"
-                Content="Do not capture new&#x0a;Explorer windows"
                 Grid.Column="1"
                 Grid.Row="1"
                 HorizontalAlignment="Center"
-                IsCheckedReal="{Binding Path=CaptureNewWindows, Converter={StaticResource BoolInverterConverter}}"/>
+                IsCheckedReal="{Binding Path=CaptureNewWindows, Converter={StaticResource BoolInverterConverter}}"
+                Width="160">
+                <AccessText
+                    Text="{qt:Resx Key=Options_Page_Window, Index=3}"
+                    TextWrapping="Wrap"/>
+            </qt:RadioButtonEx>
         </Grid>
         <Label
-            Content="Default location for new windows and tabs"
+            Content="{qt:Resx Key=Options_Page_Window, Index=4}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <StackPanel 
             Margin="13,0"
@@ -98,7 +107,7 @@
                 Width="400"/>
         </StackPanel>
         <Label x:Name="lblRestoreTabs"
-            Content="Session saving"
+            Content="{qt:Resx Key=Options_Page_Window, Index=5}"
             Style="{StaticResource SectionHeaderStyle}">
             <!-- We use the Tag of the group's section header
                     label to keep track of the property values, and
@@ -113,7 +122,7 @@
             </Label.Tag>
         </Label>
         <qt:RadioButtonEx x:Name="radRestoreTabsOff"
-            Content="Start a new session each time"
+            Content="{qt:Resx Key=Options_Page_Window, Index=6}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -125,7 +134,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>    
         <qt:RadioButtonEx x:Name="radRestoreTabsOn"
-            Content="Restore all tabs from the previous session"
+            Content="{qt:Resx Key=Options_Page_Window, Index=7}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -137,7 +146,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radRestoreTabsLockedOnly"
-            Content="Restore only the locked tabs from the previous session"
+            Content="{qt:Resx Key=Options_Page_Window, Index=8}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -149,7 +158,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <Label x:Name="lblCloseButton"
-            Content="When the close button is clicked"
+            Content="{qt:Resx Key=Options_Page_Window, Index=9}"
             Style="{StaticResource SectionHeaderStyle}">
             <Label.Tag>
                 <MultiBinding 
@@ -162,7 +171,7 @@
             </Label.Tag>
         </Label>
         <qt:RadioButtonEx x:Name="radCloseBtnWindow"
-            Content="Close the window"
+            Content="{qt:Resx Key=Options_Page_Window, Index=10}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -175,7 +184,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radCloseBtnTabs"
-            Content="Close the current tab"
+            Content="{qt:Resx Key=Options_Page_Window, Index=11}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -188,7 +197,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radCloseBtnUnlocked"
-            Content="Close all unlocked tabs"
+            Content="{qt:Resx Key=Options_Page_Window, Index=12}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -201,14 +210,14 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <Label
-            Content="Send the window to the Task Tray on"
+            Content="{qt:Resx Key=Options_Page_Window, Index=13}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkTrayClose"
-            Content="Close"
+            Content="{qt:Resx Key=Options_Page_Window, Index=14}"
             IsChecked="{Binding Path=TrayOnClose}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkTrayMinimize"
-            Content="Minimize"
+            Content="{qt:Resx Key=Options_Page_Window, Index=15}"
             IsChecked="{Binding Path=TrayOnMinimize}"
             Style="{StaticResource CheckStyle}"/>
     </StackPanel>

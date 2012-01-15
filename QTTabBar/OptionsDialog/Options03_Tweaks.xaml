@@ -43,60 +43,60 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabTweaks}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Enable or disable tweaks to Explorer's List View"
+                Content="{qt:Resx Key=Options_Page_Tweaks, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="Tweaks that can be used with either List View"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=1}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkAlwaysShowHeaders"
-            Content="Display column headers in all view modes (Windows Vista/7)"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=2}"
             IsChecked="{Binding Path=AlwaysShowHeaders}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkRedirectLibraryFolders"
-            Content="Use the standard filesystem view for Library folders (Windows 7)"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=3}"
             IsChecked="{Binding Path=RedirectLibraryFolders}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkKillExtWhileRenaming"
-            Content="Deselect file extension when renaming files (Windows XP)"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=4}"
             IsChecked="{Binding Path=KillExtWhileRenaming}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkF2Selection"
-            Content="Cycle selection with F2 while renaming"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=5}"
             IsChecked="{Binding Path=F2Selection}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkWrapArrowKeySelection"
-            Content="Wrap around when moving the selection with the arrow keys"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=6}"
             IsChecked="{Binding Path=WrapArrowKeySelection}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkBackspaceUpLevel"
-            Content="Backspace goes up one level"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=7}"
             IsChecked="{Binding Path=BackspaceUpLevel}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkHorizontalScroll"
-            Content="Scrolling with mouse wheel while holding shift scrolls horizontally"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=8}"
             IsChecked="{Binding Path=HorizontalScroll}"
             Style="{StaticResource CheckStyle}"/>
         <Label
-            Content="Tweaks that can only be used with the older List View"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=9}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkForceSysListView"
-            Content="Enable the older List View control (Windows 7)"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=10}"
             IsChecked="{Binding Path=ForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkToggleFullRowSelect"
-            Content="Full row selection in Details view"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=11}"
             IsChecked="{Binding ToggleFullRowSelect}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkDetailsGridLines"
-            Content="Show grid lines in Details view"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=12}"
             IsChecked="{Binding Path=DetailsGridLines}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkAlternateRowColors"
-            Content="Alternate row colors in Details view"
+            Content="{qt:Resx Key=Options_Page_Tweaks, Index=13}"
             IsChecked="{Binding Path=AlternateRowColors}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
@@ -116,11 +116,11 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label
-                Content="Foreground color: "
+                Content="{qt:Resx Key=Options_Page_Tweaks, Index=14}"
                 Grid.Column="0"
                 Grid.Row="0"/>
             <Label
-                Content="Background color: "
+                Content="{qt:Resx Key=Options_Page_Tweaks, Index=15}"
                 Grid.Column="0"
                 Grid.Row="1"/>
             <Button x:Name="btnAltRowForeground"
