@@ -20,14 +20,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -112,22 +110,22 @@ namespace QTTabBarLib {
         private OptionsDialog() {
             InitializeComponent();
 
-            string[] labels = QTUtility.TextResourcesDic["TabBar_Option_Genre"];
+            string[] tabNames = QTUtility.TextResourcesDic["TabBar_Option_Genre"];
             tabbedPanel.ItemsSource = new OptionsDialogTab[] {
-                new Options01_Window        { TabLabel = labels[00] },
-                new Options02_Tabs          { TabLabel = labels[01] },
-                new Options03_Tweaks        { TabLabel = labels[02] },
-                new Options04_Tooltips      { TabLabel = labels[03] },
-                new Options05_General       { TabLabel = labels[04] },
-                new Options06_Appearance    { TabLabel = labels[05] },
-                new Options07_Mouse         { TabLabel = labels[06] },
-                new Options08_Keys          { TabLabel = labels[07] },
-                new Options09_Groups        { TabLabel = labels[08] },
-                new Options10_Apps          { TabLabel = labels[09] },
-                new Options11_ButtonBar     { TabLabel = labels[10] },
-                new Options12_Plugins       { TabLabel = labels[11] },
-                new Options13_Language      { TabLabel = labels[12] },
-                new Options14_About         { TabLabel = labels[13] }
+                new Options01_Window        { TabLabel = tabNames[00] },
+                new Options02_Tabs          { TabLabel = tabNames[01] },
+                new Options03_Tweaks        { TabLabel = tabNames[02] },
+                new Options04_Tooltips      { TabLabel = tabNames[03] },
+                new Options05_General       { TabLabel = tabNames[04] },
+                new Options06_Appearance    { TabLabel = tabNames[05] },
+                new Options07_Mouse         { TabLabel = tabNames[06] },
+                new Options08_Keys          { TabLabel = tabNames[07] },
+                new Options09_Groups        { TabLabel = tabNames[08] },
+                new Options10_Apps          { TabLabel = tabNames[09] },
+                new Options11_ButtonBar     { TabLabel = tabNames[10] },
+                new Options12_Plugins       { TabLabel = tabNames[11] },
+                new Options13_Language      { TabLabel = tabNames[12] },
+                new Options14_About         { TabLabel = tabNames[13] }
             };
 
             WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
@@ -173,12 +171,22 @@ namespace QTTabBarLib {
         }
 
         private void btnResetPage_Click(object sender, RoutedEventArgs e) {
-            ((OptionsDialogTab)tabbedPanel.SelectedItem).ResetConfig();
+            MessageBoxResult response = MessageBox.Show(
+                    "Reset all options on this page to their default values?", "Confirm",
+                    MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if(response == MessageBoxResult.OK) {
+                ((OptionsDialogTab)tabbedPanel.SelectedItem).ResetConfig();   
+            }
         }
 
         private void btnResetAll_Click(object sender, RoutedEventArgs e) {
-            foreach(OptionsDialogTab tab in tabbedPanel.Items) {
-                tab.ResetConfig();
+            MessageBoxResult response = MessageBox.Show(
+                    "Reset all options to their default values?  This will not affect Groups, Applications, or Plugins.", "Confirm",
+                    MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if(response == MessageBoxResult.OK) {
+                foreach(OptionsDialogTab tab in tabbedPanel.Items) {
+                    tab.ResetConfig();
+                }
             }
         }
 

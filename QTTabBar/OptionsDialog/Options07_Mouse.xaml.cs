@@ -375,8 +375,11 @@ namespace QTTabBarLib {
         private void AddMouseAction(MouseChord chord, MouseTarget target) {
             MouseChord button = chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
             if(!MouseTargetButtons[target].ContainsKey(button)) {
-                // todo: msgbox
-                System.Media.SystemSounds.Hand.Play();
+                MessageBox.Show(
+                        "This mouse button cannot be used for this target.  " +
+                        "The valid mouse buttons for this target are:\r\n" +
+                        MouseTargetButtons[target].Keys.Select(k => MouseButtonItems[k]).StringJoin("\r\n"),
+                        "Invalid Button", MessageBoxButton.OK, MessageBoxImage.Hand);
                 return;
             }
             MouseEntry entry = MouseBindings.FirstOrDefault(e => e.Chord == chord && e.Target == target);

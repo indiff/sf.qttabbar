@@ -243,10 +243,11 @@ namespace QTTabBarLib {
                 CloseBtnClosesUnlocked = false;
                 TrayOnClose = false;
                 TrayOnMinimize = false;
-                
-                // TODO: should be Libraries on win7
-                // It's just Computer for now.
-                using(IDLWrapper w = new IDLWrapper("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}")) {
+
+                string idl = Environment.OSVersion.Version >= new Version(6, 1)
+                        ? "::{031E4825-7B94-4DC3-B131-E946B44C8DD5}"  // Libraries
+                        : "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"; // Computer
+                using(IDLWrapper w = new IDLWrapper(idl)) {
                     DefaultLocation = w.IDL;
                 }
             }

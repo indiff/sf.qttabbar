@@ -39,13 +39,21 @@ namespace QTTabBarLib {
         }
 
         private void btnRecentFilesClear_Click(object sender, RoutedEventArgs e) {
-            // TODO: confirmation msgbox, sync
+            // TODO: sync
+            var resp = MessageBox.Show(
+                    "Clear file history?", "Confirmation", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if(resp == MessageBoxResult.Cancel) return;
             QTUtility.ExecutedPathsList.Clear();
             btnRecentFilesClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
         }
 
         private void btnRecentTabsClear_Click(object sender, RoutedEventArgs e) {
-            // TODO: confirmation msgbox, sync
+            // TODO: sync
+            var resp = MessageBox.Show(
+                    "Clear tab history?", "Confirmation", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if(resp == MessageBoxResult.Cancel) return;
             QTUtility.ClosedTabHistoryList.Clear();
             btnRecentTabsClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
         }
