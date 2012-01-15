@@ -83,21 +83,29 @@ namespace QTTabBarLib {
         }
 
         private void btnGroupsAddFolder_Click(object sender, RoutedEventArgs e) {
-            // TODO: Generates new group if the view is empty.
-
-            object sel = tvwGroups.SelectedItem;
-            if(sel == null) return;
-
             GroupEntry group;
             int index;
-            if(sel is FolderEntry) {
-                FolderEntry entry = (FolderEntry)sel;
-                group = GetParentGroup(entry);
-                index = group.Folders.IndexOf(entry) + 1;
+            bool editGroup;
+            if(tvwGroups.Items.Count == 0) {
+                group = new GroupEntry("New Group");
+                CurrentGroups.Add(group);
+                group.IsSelected = true;
+                index = 0;
+                editGroup = true;
             }
             else {
-                group = (GroupEntry)sel;
-                index = group.Folders.Count;
+                object sel = tvwGroups.SelectedItem;
+                if(sel == null) return;
+                if(sel is FolderEntry) {
+                    FolderEntry entry = (FolderEntry)sel;
+                    group = GetParentGroup(entry);
+                    index = group.Folders.IndexOf(entry) + 1;
+                }
+                else {
+                    group = (GroupEntry)sel;
+                    index = group.Folders.Count;
+                }
+                editGroup = false;
             }
 
             FolderBrowserDialogEx dlg = new FolderBrowserDialogEx();
@@ -105,7 +113,14 @@ namespace QTTabBarLib {
             FolderEntry folder = new FolderEntry(dlg.SelectedPath);
             group.Folders.Insert(index, folder);
             group.IsExpanded = true;
-            folder.IsSelected = true;
+            
+            if(editGroup) {
+                group.IsSelected = true;
+                group.IsEditing = true;
+            }
+            else {
+                folder.IsSelected = true;   
+            }
         }
 
         private void btnGroupsRemoveNode_Click(object sender, RoutedEventArgs e) {

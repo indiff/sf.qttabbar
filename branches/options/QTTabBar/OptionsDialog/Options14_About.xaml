@@ -51,8 +51,7 @@
             HorizontalAlignment="Center"
             Stretch="Fill"
             Width="200"/>
-        <Label
-            Content="QTTabBar version 2.0"
+        <Label x:Name="lblVersion"
             Height="28"
             HorizontalAlignment="Center"/>
         <Label

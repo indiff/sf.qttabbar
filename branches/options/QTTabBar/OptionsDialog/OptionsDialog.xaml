@@ -35,45 +35,61 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-    <DockPanel>
         <!-- The OK/Cancel/etc buttons -->
-        <StackPanel
-            DockPanel.Dock="Bottom"
-            HorizontalAlignment="Right"
-            Margin="0,0,0,6"
-            Orientation="Horizontal"
+        <DockPanel
+            HorizontalAlignment="Stretch"
+            Margin="2,3,0,3"
+            Grid.Column="1"
+            Grid.Row="1"
+            LastChildFill="False"
             VerticalAlignment="Center">
-            <StackPanel.Resources>
+            <DockPanel.Resources>
                 <Style TargetType="{x:Type Button}">
                     <Setter Property="Height" Value="22"/>
-                    <Setter Property="Margin" Value="5,0"/>
+                    <Setter Property="Margin" Value="3,0"/>
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Width" Value="75"/>
                 </Style>
-            </StackPanel.Resources>
-            <Button x:Name="btnResetPage"
-                Click="btnResetPage_Click"
-                Content="{qt:Resx Key=DialogButtons, Index=4 }"/>
-            <Button x:Name="btnResetAll"
-                Click="btnResetAll_Click"
-                Content="{qt:Resx Key=DialogButtons, Index=5 }"/>
-            <Button x:Name="btnOK"
-                Click="btnOK_Click"
-                Content="{qt:Resx Key=DialogButtons, Index=0 }"/>
-            <Button x:Name="btnCancel"
-                Click="btnCancel_Click"
-                Content="{qt:Resx Key=DialogButtons, Index=1 }"/>
-            <Button x:Name="btnApply"
-                Click="btnApply_Click"
-                Content="{qt:Resx Key=DialogButtons, Index=2 }"/>
-        </StackPanel>
+            </DockPanel.Resources>
+            <StackPanel
+                DockPanel.Dock="Left"
+                Orientation="Horizontal">
+                <Button x:Name="btnResetPage"
+                    Click="btnResetPage_Click"
+                    Content="{qt:Resx Key=DialogButtons, Index=4 }"/>
+                <Button x:Name="btnResetAll"
+                    Click="btnResetAll_Click"
+                    Content="{qt:Resx Key=DialogButtons, Index=5 }"/>
+            </StackPanel>
+            <StackPanel
+                DockPanel.Dock="Right"
+                Orientation="Horizontal">
+                <Button x:Name="btnOK"
+                    Click="btnOK_Click"
+                    Content="{qt:Resx Key=DialogButtons, Index=0 }"/>
+                <Button x:Name="btnCancel"
+                    Click="btnCancel_Click"
+                    Content="{qt:Resx Key=DialogButtons, Index=1 }"/>
+                <Button x:Name="btnApply"
+                    Click="btnApply_Click"
+                    Content="{qt:Resx Key=DialogButtons, Index=2 }"/>            
+            </StackPanel>
+        </DockPanel>
 
         <!-- The category listview -->
         <ListView x:Name="lstCategories"
-            DockPanel.Dock="Left"
             ItemsSource="{Binding Items, ElementName=tabbedPanel}"
-            Margin="3"
+            Margin="3,3,0,0"
             SelectionMode="Single"
             Width="136">
             <ListBox.Resources>
@@ -145,7 +161,8 @@
         <!-- The main TabControl -->
     	<TabControl x:Name="tabbedPanel"
             Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}"
-            Margin="3,3,5,3"
+            Grid.Column="1"
+            Margin="0,3,3,0"
             Padding="0"
             SelectedItem="{Binding SelectedItem, ElementName=lstCategories}"
             TabStripPlacement="Left">
@@ -162,5 +179,5 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
-    </DockPanel>
+    </Grid>
 </Window>

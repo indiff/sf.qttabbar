@@ -39,7 +39,6 @@ namespace QTTabBarLib {
 
         public override void InitializeConfig() {
             // Initialize the button bar tab.
-            // todo: options, localize, etc...
             ButtonItemsDisplayName = QTUtility.TextResourcesDic["ButtonBar_BtnName"];
             imageStripLarge = new ImageStrip(new Size(24, 24));
             using(Bitmap b = Resources_Image.ButtonStrip24) {

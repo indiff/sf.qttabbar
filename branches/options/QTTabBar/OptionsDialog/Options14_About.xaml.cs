@@ -22,6 +22,7 @@ namespace QTTabBarLib {
         }
 
         public override void InitializeConfig() {
+            lblVersion.Content = "QTTabBar " + QTUtility2.MakeVersionString();
         }
 
         public override void ResetConfig() {    

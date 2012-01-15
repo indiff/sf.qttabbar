@@ -111,7 +111,10 @@ namespace QTTabBarLib {
             AppEntry sel = tvwApps.SelectedItem as AppEntry;
             if(sel == null) return;
             if(sel.IsFolder && sel.Children.Count > 0) {
-                // todo: confirm
+                var resp = MessageBox.Show(
+                        "Remove this folder and its contents?", "Confirmation",
+                        MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+                if(resp == MessageBoxResult.Cancel) return;
             }
             IList list = sel.ParentList;
             int index = list.IndexOf(sel);

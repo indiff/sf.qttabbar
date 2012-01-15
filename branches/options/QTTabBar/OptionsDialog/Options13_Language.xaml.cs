@@ -102,7 +102,10 @@ namespace QTTabBarLib {
         }
 
         private void btnClear_Click(object sender, RoutedEventArgs e) {
-            // TODO confirm
+            var resp = MessageBox.Show(
+                    "Reset all translated items to their original value?", "Confirmation",
+                    MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if(resp == MessageBoxResult.Cancel) return;
             foreach(LangEntry entry in LangItems) {
                 entry.Reset();
             }

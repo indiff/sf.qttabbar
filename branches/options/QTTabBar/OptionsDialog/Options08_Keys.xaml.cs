@@ -37,7 +37,6 @@ namespace QTTabBarLib {
             string[] arrGrps = QTUtility.TextResourcesDic["ShortcutKeys_Groups"];
             int[] keys = WorkingConfig.keys.Shortcuts;
             HotkeyEntries = new List<HotkeyEntry>();
-            // todo: validate arrActions length
             for(int i = 0; i <= (int)QTUtility.LAST_KEYBOARD_ACTION; ++i) {
                 HotkeyEntries.Add(new HotkeyEntry(keys, i, arrActions[i], arrGrps[0]));
             }
