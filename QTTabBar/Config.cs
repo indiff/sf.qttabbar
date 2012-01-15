@@ -525,12 +525,16 @@ namespace QTTabBarLib {
 
         [Serializable]
         public class _Lang {
-            public bool UseBuiltIn               { get; set; }
+            public string[] PluginLangFiles      { get; set; }
+            public bool UseLangFile               { get; set; }
             public string LangFile               { get; set; }
+            public string BuiltInLang            { get; set; }
 
             public _Lang() {
-                UseBuiltIn = true;
-                LangFile = "English";
+                UseLangFile = false;
+                BuiltInLang = "English";
+                LangFile = "";
+                PluginLangFiles = new string[0];
             }
         }
     }

@@ -33,89 +33,197 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel
-        Margin="14,5,10,0"
-        Orientation="Vertical">
+    <DockPanel
+        LastChildFill="True"
+        Margin="14,5,10,0">
         <StackPanel
-            Margin="0,0,0,4"
-            Orientation="Horizontal">
-            <Image
-                Source="{Binding Source={x:Static qt:Resources_Image.imgTabLang}, Converter={StaticResource BitmapToImageSourceConverter}}"
-                Style="{StaticResource PageHeaderImageStyle}"/>
+            DockPanel.Dock="Top"
+            Orientation="Vertical">
+            <StackPanel
+                Margin="0,0,0,4"
+                Orientation="Horizontal">
+                <Image
+                    Source="{Binding Source={x:Static qt:Resources_Image.imgTabLang}, Converter={StaticResource BitmapToImageSourceConverter}}"
+                    Style="{StaticResource PageHeaderImageStyle}"/>
+                <Label
+                    Content="Change the language"
+                    FontSize="13"
+                    VerticalAlignment="Bottom"/>
+            </StackPanel>
             <Label
-                Content="Change the language"
-                FontSize="13"
-                VerticalAlignment="Bottom"/>
-        </StackPanel>
-        <Label
-            Content="Main language"
-            Style="{StaticResource SectionHeaderStyle}"/>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="184*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <qt:RadioButtonEx x:Name="radUseBuiltInYes"
-                Content="Use built-in language:"
-                Height="16"
+                Content="Main language"
+                Style="{StaticResource SectionHeaderStyle}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <qt:RadioButtonEx x:Name="radUseLangFileNo"
+                    Content="Use built-in language:"
+                    Height="16"
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding Path=UseLangFile, Converter={StaticResource BoolInverterConverter}}"
+                    Margin="5,9"
+                    VerticalAlignment="Top"/>
+                <qt:RadioButtonEx x:Name="radUseLangFileYes"
+                    Content="Use language file:"
+                    Grid.Row="1"
+                    Height="16"
+                    HorizontalAlignment="Left"
+                    IsChecked="{Binding Path=UseLangFile}"
+                    Margin="5,9"
+                    VerticalAlignment="Top"/>
+                <ComboBox
+                    Grid.Column="1"
+                    Height="23"
+                    HorizontalAlignment="Stretch"
+                    Margin="5"
+                    VerticalAlignment="Top"
+                    SelectedValue="{Binding Path=BuiltInLang}"
+                    SelectedValuePath="Content">
+                    <ComboBoxItem Content="English"/>
+                </ComboBox>
+                <qt:FileFolderEntryBox
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Height="23"
+                    HorizontalAlignment="Stretch"
+                    IsEnabled="{Binding Path=UseLangFile}"
+                    Margin="5"
+                    SelectedPath="{Binding Path=LangFile}"
+                    VerticalAlignment="Top"/>
+            </Grid>
+            <Label
+                Content="Plugin language files"
+                Style="{StaticResource SectionHeaderStyle}"/>
+            <DockPanel>
+                <StackPanel
+                    DockPanel.Dock="Right"
+                    Orientation="Vertical"
+                    VerticalAlignment="Top">
+                    <Button x:Name="btnPluginAdd"
+                        Click="btnPluginAdd_Click"
+                        Content="Add..."
+                        Margin="5,0,0,5"/>
+                    <Button x:Name="btnPluginRemove"
+                        Click="btnPluginRemove_Click"
+                        Content="Remove"
+                        Margin="5,5,0,0"/>
+                </StackPanel>
+                <ListBox x:Name="lstPluginFiles"/>
+            </DockPanel>
+            <Label
+                Content="Language File Editor"
+                Style="{StaticResource SectionHeaderStyle}"/>
+            <ToggleButton x:Name="btnToggleLangEditor"
+                Content="Show Language Editor..."
                 HorizontalAlignment="Left"
-                IsChecked="{Binding Path=UseBuiltIn}"
-                Margin="5,9"
-                VerticalAlignment="Top"/>
-            <qt:RadioButtonEx x:Name="radUseBuiltInNo"
-                Content="Use language file:"
-                Grid.Row="1"
-                Height="16"
-                HorizontalAlignment="Left"
-                IsChecked="{Binding Path=UseBuiltIn, Converter={StaticResource BoolInverterConverter}}"
-                Margin="5,9"
-                VerticalAlignment="Top"/>
-            <ComboBox
-                Grid.Column="1"
-                Grid.ColumnSpan="2"
-                Height="23"
-                HorizontalAlignment="Stretch"
-                Margin="5"
-                VerticalAlignment="Top"/>
-            <TextBox
-                Grid.Column="1"
-                Grid.Row="1"
-                Height="23"
-                HorizontalAlignment="Stretch"
-                Margin="5"
-                VerticalAlignment="Top"/>
-            <Button
-                Content="..."
-                Grid.Column="2"
-                Grid.Row="1"
-                Height="23"
+                Margin="13,2,5,2">
+                <ToggleButton.Style>
+                    <Style TargetType="{x:Type ToggleButton}">
+                        <Style.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
+            <StackPanel
                 HorizontalAlignment="Right"
-                Margin="5"
-                VerticalAlignment="Top"
-                Width="28"/>
-        </Grid>
-        <Label
-            Content="Plugin language files"
-            Style="{StaticResource SectionHeaderStyle}"/>
-        <ListBox Height="185"/>
-        <StackPanel
-            HorizontalAlignment="Right"
-            Orientation="Horizontal">
-            <Button
-                Content="+"
-                Height="23"
-                Margin="5"
-                Width="28"/>
-            <Button
-                Content="-"
-                Height="23"
-                Margin="5"
-                Width="28"/>
+                Orientation="Horizontal"
+                Visibility="{Binding ElementName=btnToggleLangEditor, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Width" Value="80"/>
+                        <Setter Property="Margin" Value="6,0,0,0"/>
+                        <Setter Property="Height" Value="22"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Button x:Name="btnClear"
+                    Click="btnClear_Click"
+                    Content="Clear"/>
+                <Button x:Name="btnLoad"
+                    Click="btnLoad_Click"
+                    Content="Load..."/>
+                <Button x:Name="btnSave"
+                    Click="btnSave_Click"
+                    Content="Save..."/>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+        <qt:RestrictDesiredSize
+            MinHeight="200"
+            Visibility="{Binding ElementName=btnToggleLangEditor, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ListView x:Name="lvwLangEditor"
+                Margin="0,6"
+                KeyDown="lvwLangEditor_KeyDown">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter Event="Selected" Handler="lvwLangEditor_ItemSelected"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock 
+                                        DockPanel.Dock="Left"
+                                        Foreground="MediumBlue"
+                                        Margin="20, 1, 4, 4"
+                                        Text="{Binding Path=Name}"/>
+                                    <Border
+                                        BorderBrush="LightGray"
+                                        BorderThickness="1"
+                                        Height="1"
+                                        Margin="0,0,10,0"
+                                        SnapsToDevicePixels="True"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Original" Width="250">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock
+                                        Foreground="Black"
+                                        Margin="6,0"
+                                        Text="{Binding Path=Original}"
+                                        TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Translated" Width="250">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <DataTemplate.Resources>
+                                        <Style TargetType="{x:Type TextBox}">
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                        </Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Foreground" Value="Black"/>
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                        </Style>
+                                    </DataTemplate.Resources>
+                                    <qt:EditableHeader
+                                        IsEditing="{Binding Path=IsEditing}"
+                                        Margin="0,-1"
+                                        MinWidth="80"
+                                        Text="{Binding Path=Translated}"/>
+                                </DataTemplate>                                    
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>                    
+            </ListView>
+        </qt:RestrictDesiredSize>
+    </DockPanel>
 </qt:OptionsDialogTab>
