@@ -43,19 +43,19 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabMisc}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="General options for QTTabBar's behavoir"
+                Content="{qt:Resx Key=Options_Page_General, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="Taskbar integration"
+            Content="{qt:Resx Key=Options_Page_General, Index=1}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkTaskbarThumbnails"
-            Content="Show tab previews on the Taskbar"
+            Content="{qt:Resx Key=Options_Page_General, Index=2}"
             IsChecked="{Binding Path=TaskbarThumbnails}"
             Style="{StaticResource CheckStyle}"/>
         <Label
-            Content="History"
+            Content="{qt:Resx Key=Options_Page_General, Index=3}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -69,13 +69,13 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <CheckBox x:Name="chkKeepHistory"
-                Content="Keep history of closed tabs"
+                Content="{qt:Resx Key=Options_Page_General, Index=4}"
                 Grid.Column="0"
                 IsChecked="{Binding Path=KeepHistory}"
                 Height="16"
                 Margin="13,1,10,1"/>
             <CheckBox x:Name="chkKeepRecentFiles"
-                Content="Keep history of opened files"
+                Content="{qt:Resx Key=Options_Page_General, Index=5}"
                 Grid.Row="1"
                 IsChecked="{Binding Path=KeepRecentFiles}"
                 Height="16"
@@ -93,7 +93,7 @@
                 Value="{Binding Path=FileHistoryCount}" />
             <Button x:Name="btnRecentTabsClear"
                 Click="btnRecentTabsClear_Click"
-                Content="Clear now"
+                Content="{qt:Resx Key=Options_Page_General, Index=6}"
                 IsEnabled="{Binding Path=HaveRecentTabs}"
                 Grid.Column="2"
                 Height="23"
@@ -101,7 +101,7 @@
                 Width="75"/>
             <Button x:Name="btnRecentFilesClear"
                 Click="btnRecentFilesClear_Click"
-                Content="Clear now"
+                Content="{qt:Resx Key=Options_Page_General, Index=6}"
                 IsEnabled="{Binding Path=HaveRecentFiles}"
                 Grid.Column="2"
                 Grid.Row="1"
@@ -110,12 +110,12 @@
                 Width="75"/>
         </Grid>
         <Label
-            Content="Network"
+            Content="{qt:Resx Key=Options_Page_General, Index=7}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <StackPanel
             Orientation="Horizontal">
             <Label
-                Content="Network timeout (Enter 0 for system default):"
+                Content="{qt:Resx Key=Options_Page_General, Index=8}"
                 Height="16"
                 Margin="13,1,10,1"
                 Padding="0"/>
@@ -129,22 +129,22 @@
         <StackPanel
             Orientation="Horizontal">
             <CheckBox x:Name="chkAutoUpdate"
-                Content="Check for updates periodically"
+                Content="{qt:Resx Key=Options_Page_General, Index=9}"
                 IsChecked="{Binding Path=AutoUpdate}"
                 Style="{StaticResource CheckStyle}"/>
             <Button x:Name="btnUpdateNow"
                 Click="btnUpdateNow_Click"
-                Content="Check now"
+                Content="{qt:Resx Key=Options_Page_General, Index=10}"
                 Height="23"
                 Margin="5,2"
                 Width="75"/>
         </StackPanel>
         <Label
-            Content="Export"
+            Content="{qt:Resx Key=Options_Page_General, Index=11}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <Button x:Name="btnExport"
             Click="btnExport_Click"
-            Content="Export Settings..."
+            Content="{qt:Resx Key=Options_Page_General, Index=12}"
             Height="23"
             HorizontalAlignment="Left"
             Margin="13,2,5,2"

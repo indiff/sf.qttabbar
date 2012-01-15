@@ -22,6 +22,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -670,6 +671,14 @@ namespace QTTabBarLib {
             return value;
         }
 
+        public static IEnumerable<KeyValuePair<string, string>> GetStrings(this ResourceManager res) {
+            var dict = res.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
+            var e = dict.GetEnumerator();
+            while(e.MoveNext()) {
+                yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
+            }
+        }
+
         public static void ValidateTextResources() {
             ValidateTextResources(ref TextResourcesDic);
             ResMain = TextResourcesDic["TabBar_Menu"];
@@ -677,43 +686,23 @@ namespace QTTabBarLib {
         }
 
         public static void ValidateTextResources(ref Dictionary<string, string[]> dict) {
-            string[] strArray = new string[] { 
-                "ButtonBar_BtnName",
-                "ButtonBar_Misc",
-                "ButtonBar_Option",
-                "DialogButtons",
-                "DragDropToolTip",
-                "Misc_Strings",
-                "TabBar_Menu",
-                "TabBar_Message",
-                "TabBar_NewGroup",
-                "TabBar_Option",
-                "TabBar_Option2",
-                "TabBar_Option_DropDown",
-                "TabBar_Option_Genre",
-                "TabBar_Option_Buttons",
-                "TaskBar_Menu",
-                "TaskBar_Titles",
-                "ShortcutKeys_ActionNames",
-                "ShortcutKeys_MsgReassign",
-                "ShortcutKeys_Groups",
-                "UpdateCheck"
-           };
+            string[] urlKeys = {"SiteURL", "PayPalURL"};
             if(dict == null) {
                 dict = new Dictionary<string, string[]>();
             }
-            foreach(string str in strArray) {
-                string[] english = Resources_String.ResourceManager.GetString(str).Split(SEPARATOR_CHAR);
+            foreach(var pair in Resources_String.ResourceManager.GetStrings()) {
+                if(urlKeys.Contains(pair.Key)) continue;
+                string[] english = pair.Value.Split(SEPARATOR_CHAR);
                 string[] res;
-                dict.TryGetValue(str, out res);
+                dict.TryGetValue(pair.Key, out res);
                 if(res == null) {
-                    dict[str] = english;
+                    dict[pair.Key] = english;
                 }
                 else if(res.Length < english.Length) {
                     int len = res.Length;
                     Array.Resize(ref res, english.Length);
                     Array.Copy(english, len, res, len, english.Length - len);
-                    dict[str] = res;
+                    dict[pair.Key] = res;
                 }
             }
         }
