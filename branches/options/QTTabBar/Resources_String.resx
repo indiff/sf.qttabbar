@@ -127,7 +127,7 @@
     <value>&amp;Add;&amp;Remove;&amp;Close;&amp;Reset;&amp;Up;&amp;Down;&amp;Browse image...;Small icon;Large icon;&amp;Customize...;&amp;Lock menus;Re&amp;set image;Show text labels;Selective text;No text labels;Lock the size of the search box</value>
   </data>
   <data name="DialogButtons" xml:space="preserve">
-    <value>OK;Cancel;&amp;Apply;&amp;Default</value>
+    <value>OK;Cancel;&amp;Apply;&amp;Default;Reset &amp;Page;&amp;Reset All</value>
   </data>
   <data name="DragDropToolTip" xml:space="preserve">
     <value>Copy to:;Move to:;Create shortcut in:</value>
@@ -180,7 +180,7 @@ Are you sure you want to do this?;Display file information below images;Use old 
     <value>Left;Right;Most right;Most left;Last activated;Up One Level;Close;Lock;Show menu;New window;Clone;Copy path;Properties; - ;Browse folder;Close all but current;Lock all;Restore last closed;Options;Close window;Clone current;multiple;New tab;Auto;Fixed;Limit tab width;Stretch;Tile;Real size;Left;Center;Vista;XP;Stretch on each band</value>
   </data>
   <data name="TabBar_Option_Genre" xml:space="preserve">
-    <value>General;Tab;Window;Appearance;Groups;Applications;Plugins;Shortcut Keys;Misc.;Path</value>
+    <value>Window;Tabs;Tweaks;Tooltips;General;Appearance;Mouse;Keys;Groups;Applications;Button Bar;Plugins;Language;About</value>
   </data>
   <data name="TaskBar_Menu" xml:space="preserve">
     <value>Taskbar;Desktop;Lock items;Draw title background;Menu by one click;Enable application shortcut keys</value>

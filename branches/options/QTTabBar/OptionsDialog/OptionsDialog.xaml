@@ -41,31 +41,32 @@
         <StackPanel
             DockPanel.Dock="Bottom"
             HorizontalAlignment="Right"
+            Margin="0,0,0,6"
             Orientation="Horizontal"
             VerticalAlignment="Center">
             <StackPanel.Resources>
                 <Style TargetType="{x:Type Button}">
-                    <Setter Property="Height" Value="20"/>
-                    <Setter Property="Margin" Value="7,0,5,6"/>
+                    <Setter Property="Height" Value="22"/>
+                    <Setter Property="Margin" Value="5,0"/>
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Width" Value="75"/>
                 </Style>
             </StackPanel.Resources>
             <Button x:Name="btnResetPage"
                 Click="btnResetPage_Click"
-                Content="Reset Page"/>
+                Content="{qt:Resx Key=DialogButtons, Index=4 }"/>
             <Button x:Name="btnResetAll"
                 Click="btnResetAll_Click"
-                Content="Reset All"/>
+                Content="{qt:Resx Key=DialogButtons, Index=5 }"/>
             <Button x:Name="btnOK"
                 Click="btnOK_Click"
-                Content="OK"/>
+                Content="{qt:Resx Key=DialogButtons, Index=0 }"/>
             <Button x:Name="btnCancel"
                 Click="btnCancel_Click"
-                Content="Cancel"/>
+                Content="{qt:Resx Key=DialogButtons, Index=1 }"/>
             <Button x:Name="btnApply"
                 Click="btnApply_Click"
-                Content="Apply"/>
+                Content="{qt:Resx Key=DialogButtons, Index=2 }"/>
         </StackPanel>
 
         <!-- The category listview -->

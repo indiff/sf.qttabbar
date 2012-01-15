@@ -20,6 +20,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Markup;
 
 namespace QTTabBarLib {
 
@@ -126,6 +127,22 @@ namespace QTTabBarLib {
                 base.MeasureOverride(arrangeSize);
             }
             return base.ArrangeOverride(arrangeSize);
+        }
+    }
+
+    [MarkupExtensionReturnType(typeof(string))]
+    class Resx : MarkupExtension {
+        public Resx() { }
+        public Resx(string key, int index = 0) {
+            Key = key;
+            Index = index;
+        }
+
+        public string Key { get; set; }
+        public int Index { get; set; }
+
+        public override object ProvideValue(IServiceProvider serviceProvider) {
+            return QTUtility.TextResourcesDic[Key][Index].Replace("&", "_");
         }
     }
 }

@@ -93,7 +93,6 @@ namespace QTTabBarLib {
         public static void Initialize() {
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins\Paths")) {
                 if(key == null) return;
-                QTUtility.Path_PluginLangFile = (string)key.GetValue("LanguageFile", string.Empty);
 
                 string[] enabled = Config.Plugin.Enabled;
                 foreach(string str in key.GetValueNames()) {

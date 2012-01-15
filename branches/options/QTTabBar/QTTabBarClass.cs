@@ -4665,19 +4665,12 @@ namespace QTTabBarLib {
         internal void RefreshOptions() {
             // TODO
             bool fAutoSubText = false;
-            string oldPath_LangFile = "";
 
-            if(QTUtility.Path_LanguageFile != oldPath_LangFile) {
-                if(File.Exists(QTUtility.Path_LanguageFile)) {
-                    QTUtility.TextResourcesDic = QTUtility.ReadLanguageFile(QTUtility.Path_LanguageFile);
-                }
-                else {
-                    QTUtility.Path_LanguageFile = string.Empty;
-                    QTUtility.TextResourcesDic = null;
-                }
-                QTUtility.ValidateTextResources();
-                RefreshTexts();
-            }
+            QTUtility.TextResourcesDic = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
+                    ? QTUtility.ReadLanguageFile(Config.Lang.LangFile) 
+                    : null;
+            QTUtility.ValidateTextResources();
+            RefreshTexts();
             RefreshTabBar();
             SyncTabBarBroadcast(Handle);
             QTUtility.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
@@ -6566,11 +6559,14 @@ namespace QTTabBarLib {
                 this.tabBar = tabBar;
                 shellBrowser = (QTPlugin.Interop.IShellBrowser)this.tabBar.ShellBrowser.GetIShellBrowser();
                 pluginManager = manager;
-                if((QTUtility.Path_PluginLangFile.Length > 0) && File.Exists(QTUtility.Path_PluginLangFile)) {
-                    dicLocalizingStrings = QTUtility.ReadLanguageFile(QTUtility.Path_PluginLangFile);
-                }
-                if(dicLocalizingStrings == null) {
-                    dicLocalizingStrings = new Dictionary<string, string[]>();
+                dicLocalizingStrings = new Dictionary<string, string[]>();
+                foreach(string file in Config.Lang.PluginLangFiles) {
+                    if(file.Length <= 0 || !File.Exists(file)) continue;
+                    var dict = QTUtility.ReadLanguageFile(file);
+                    if(dict == null) continue;
+                    foreach(var pair in dict) {
+                        dicLocalizingStrings[pair.Key] = pair.Value;
+                    }
                 }
             }
 

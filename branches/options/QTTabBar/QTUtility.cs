@@ -63,9 +63,7 @@ namespace QTTabBarLib {
 #else
             false;
 #endif
-        internal static string Path_LanguageFile;
         internal static string PATH_MYNETWORK;
-        internal static string Path_PluginLangFile;
         internal static string PATH_SEARCHFOLDER;
         internal static string PathToSelectInCommandLineArg;
         internal const string REGUSER = RegConst.Root;
@@ -106,18 +104,13 @@ namespace QTTabBarLib {
                 GroupsManager.LoadGroups();
                 AppsManager.LoadApps();
 
+                if(Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)) {
+                    TextResourcesDic = ReadLanguageFile(Config.Lang.LangFile);
+                }
+                ValidateTextResources();
+
                 using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                     if(key != null) {
-                        string path = (string)key.GetValue("LanguageFile", string.Empty);
-                        if((path.Length > 0) && File.Exists(path)) {
-                            Path_LanguageFile = path;
-                            TextResourcesDic = ReadLanguageFile(path);
-                        }
-                        else {
-                            Path_LanguageFile = string.Empty;
-                        }
-                        ValidateTextResources();
-
                         using(RegistryKey key2 = key.CreateSubKey("RecentlyClosed")) {
                             if(key2 != null) {
                                 List<string> collection = key2.GetValueNames()
@@ -496,13 +489,12 @@ namespace QTTabBarLib {
             try {
                 using(XmlTextReader reader = new XmlTextReader(path)) {
                     while(reader.Read()) {
-                        if((reader.NodeType == XmlNodeType.Element) && (reader.Name != "root")) {
-                            string[] strArray = reader.ReadString().Split(new string[] { newValue }, StringSplitOptions.RemoveEmptyEntries);
-                            for(int i = 0; i < strArray.Length; i++) {
-                                strArray[i] = strArray[i].Replace(oldValue, newValue);
-                            }
-                            dictionary[reader.Name] = strArray;
+                        if(reader.NodeType != XmlNodeType.Element || reader.Name == "root") continue;
+                        string[] str = reader.ReadString().Split(new string[] { newValue }, StringSplitOptions.RemoveEmptyEntries);
+                        for(int i = 0; i < str.Length; i++) {
+                            str[i] = str[i].Replace(oldValue, newValue);
                         }
+                        dictionary[reader.Name] = str;
                     }
                 }
                 return dictionary;
@@ -679,30 +671,51 @@ namespace QTTabBarLib {
         }
 
         public static void ValidateTextResources() {
-            string[] strArray = new string[] { 
-        "ButtonBar_BtnName", "ButtonBar_Misc", "ButtonBar_Option", "DialogButtons", "DragDropToolTip", "Misc_Strings", "TabBar_Menu", "TabBar_Message", "TabBar_NewGroup", "TabBar_Option", "TabBar_Option2", "TabBar_Option_DropDown", "TabBar_Option_Genre", "TabBar_Option_Buttons", "TaskBar_Menu", "TaskBar_Titles", 
-        "ShortcutKeys_ActionNames", "ShortcutKeys_MsgReassign", "ShortcutKeys_Groups", "UpdateCheck"
-       };
-            if(TextResourcesDic == null) {
-                TextResourcesDic = new Dictionary<string, string[]>();
-            }
-            foreach(string str in strArray) {
-                string[] strArray2 = Resources_String.ResourceManager.GetString(str).Split(SEPARATOR_CHAR);
-                string[] strArray3;
-                TextResourcesDic.TryGetValue(str, out strArray3);
-                if(strArray3 == null) {
-                    TextResourcesDic[str] = strArray2;
-                }
-                else if(strArray3.Length < strArray2.Length) {
-                    List<string> list = new List<string>(strArray3);
-                    for(int i = strArray3.Length; i < strArray2.Length; i++) {
-                        list.Add(strArray2[i]);
-                    }
-                    TextResourcesDic[str] = list.ToArray();
-                }
-            }
+            ValidateTextResources(ref TextResourcesDic);
             ResMain = TextResourcesDic["TabBar_Menu"];
             ResMisc = TextResourcesDic["Misc_Strings"];
+        }
+
+        public static void ValidateTextResources(ref Dictionary<string, string[]> dict) {
+            string[] strArray = new string[] { 
+                "ButtonBar_BtnName",
+                "ButtonBar_Misc",
+                "ButtonBar_Option",
+                "DialogButtons",
+                "DragDropToolTip",
+                "Misc_Strings",
+                "TabBar_Menu",
+                "TabBar_Message",
+                "TabBar_NewGroup",
+                "TabBar_Option",
+                "TabBar_Option2",
+                "TabBar_Option_DropDown",
+                "TabBar_Option_Genre",
+                "TabBar_Option_Buttons",
+                "TaskBar_Menu",
+                "TaskBar_Titles",
+                "ShortcutKeys_ActionNames",
+                "ShortcutKeys_MsgReassign",
+                "ShortcutKeys_Groups",
+                "UpdateCheck"
+           };
+            if(dict == null) {
+                dict = new Dictionary<string, string[]>();
+            }
+            foreach(string str in strArray) {
+                string[] english = Resources_String.ResourceManager.GetString(str).Split(SEPARATOR_CHAR);
+                string[] res;
+                dict.TryGetValue(str, out res);
+                if(res == null) {
+                    dict[str] = english;
+                }
+                else if(res.Length < english.Length) {
+                    int len = res.Length;
+                    Array.Resize(ref res, english.Length);
+                    Array.Copy(english, len, res, len, english.Length - len);
+                    dict[str] = res;
+                }
+            }
         }
     }
 }

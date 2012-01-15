@@ -20,12 +20,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -110,21 +112,22 @@ namespace QTTabBarLib {
         private OptionsDialog() {
             InitializeComponent();
 
+            string[] labels = QTUtility.TextResourcesDic["TabBar_Option_Genre"];
             tabbedPanel.ItemsSource = new OptionsDialogTab[] {
-                new Options01_Window        { TabLabel = "Window"       },
-                new Options02_Tabs          { TabLabel = "Tabs"         },
-                new Options03_Tweaks        { TabLabel = "Tweaks"       },
-                new Options04_Tooltips      { TabLabel = "Tooltips"     },
-                new Options05_General       { TabLabel = "General"      },
-                new Options06_Appearance    { TabLabel = "Appearance"   },
-                new Options07_Mouse         { TabLabel = "Mouse"        },
-                new Options08_Keys          { TabLabel = "Keys"         },
-                new Options09_Groups        { TabLabel = "Groups"       },
-                new Options10_Apps          { TabLabel = "Applications" },
-                new Options11_ButtonBar     { TabLabel = "Button Bar"   },
-                new Options12_Plugins       { TabLabel = "Plugins"      },
-                new Options13_Language      { TabLabel = "Language"     },
-                new Options14_About         { TabLabel = "About"        },
+                new Options01_Window        { TabLabel = labels[00] },
+                new Options02_Tabs          { TabLabel = labels[01] },
+                new Options03_Tweaks        { TabLabel = labels[02] },
+                new Options04_Tooltips      { TabLabel = labels[03] },
+                new Options05_General       { TabLabel = labels[04] },
+                new Options06_Appearance    { TabLabel = labels[05] },
+                new Options07_Mouse         { TabLabel = labels[06] },
+                new Options08_Keys          { TabLabel = labels[07] },
+                new Options09_Groups        { TabLabel = labels[08] },
+                new Options10_Apps          { TabLabel = labels[09] },
+                new Options11_ButtonBar     { TabLabel = labels[10] },
+                new Options12_Plugins       { TabLabel = labels[11] },
+                new Options13_Language      { TabLabel = labels[12] },
+                new Options14_About         { TabLabel = labels[13] }
             };
 
             WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
