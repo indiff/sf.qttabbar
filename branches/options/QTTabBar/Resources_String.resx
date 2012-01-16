@@ -135,20 +135,44 @@
   <data name="Misc_Strings" xml:space="preserve">
     <value>Desktop Search;Image file is invalid.\r\n\r\nPlease specify 432 x 40 px image file.;Search Results in;shortcut</value>
   </data>
-  <data name="Options_Page_General" xml:space="preserve">
-    <value>General options for QTTabBar's behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Keep history of opened files;Clear now;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings...</value>
+  <data name="Options_Page01_Window" xml:space="preserve">
+    <value>Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize</value>
   </data>
-  <data name="Options_Page_Tabs" xml:space="preserve">
+  <data name="Options_Page02_Tabs" xml:space="preserve">
     <value>Change options related to tabs.;Open new tabs:;When the current tab is closed, switch to the:;Switch to new tabs immediately;Reuse existing tabs;Rename ambiguous tabs;When drag-hovering over a tab,;Switch to it;Show the Subfolder Tip menu;Tab icons;Show folder icons on tabs;Show the Subfolder Tip menu when the icon is clicked;Show the drive letter on the icon;Close button;Show close button on tabs;Only with the Alt key down;Only on mouse hover;Tab Bar;Show navigation buttons on the tab bar;On the left;On the right;Allow multiple rows of tabs;Always put the row with the active tab on the bottom</value>
   </data>
-  <data name="Options_Page_Tooltips" xml:space="preserve">
-    <value>Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes</value>
-  </data>
-  <data name="Options_Page_Tweaks" xml:space="preserve">
+  <data name="Options_Page03_Tweaks" xml:space="preserve">
     <value>Enable or disable tweaks to Explorer's List View.;Tweaks that can be used with either List View;Display column headers in all view modes (Windows Vista/7);Use the standard filesystem view for Library folders (Windows 7);Deselect file extension when renaming files (Windows XP);Cycle selection with F2 while renaming;Wrap around when moving the selection with the arrow keys;Backspace goes up one level;Scrolling with mouse wheel while holding shift scrolls horizontally;Tweaks that can only be used with the older List View;Enable the older List View control (Windows 7);Full row selection in Details view;Show grid lines in Details view;Alternate row colors in Details view;Foreground color:;Background color:</value>
   </data>
-  <data name="Options_Page_Window" xml:space="preserve">
-    <value>Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize</value>
+  <data name="Options_Page04_Tooltips" xml:space="preserve">
+    <value>Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes</value>
+  </data>
+  <data name="Options_Page05_General" xml:space="preserve">
+    <value>General options for QTTabBar's behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Clear now;Keep history of opened files;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings...</value>
+  </data>
+  <data name="Options_Page06_Appearance" xml:space="preserve">
+    <value>Change the appearance of tabs or the tab bar.;Tab image;Use custom tab image:;Sizing margins:;Overlap area:;Content margins:;Hit test transparent areas;Tab size;Height:;Min Width:;Max Width:;Sizing mode:;Full width;Same size;Tab text;Text Colors:;Shadow Colors:;Active Color;Inactive Color;Mouseover Color;Text Font:;Alignment:;Left;Center;Toolbar Background;Image;Solid color;Image each bar separately;Stretch mode:;Sizing margins:;Skin file;Import Skin...;Export Skin...</value>
+  </data>
+  <data name="Options_Page07_Mouse" xml:space="preserve">
+    <value>Assign commands to different mouse actions.;To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key.;Other mouse options;Mouse wheel scrolls the window under the mouse;Mouse Chord;Action</value>
+  </data>
+  <data name="Options_Page08_Keys" xml:space="preserve">
+    <value>Change keyboard shortcuts.;Select an action from the list and press the key gesture you would like to bind to it.  Press Escape to clear the binding.;Other keyboard options;Show the Tab Switcher window when Ctrl + Tab is pressed;Action;Keystroke</value>
+  </data>
+  <data name="Options_Page09_Groups" xml:space="preserve">
+    <value>Create and manage tab groups.;To assign a Shortcut Key to a group, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Group;Folder;Startup;Shortcut Key</value>
+  </data>
+  <data name="Options_Page10_Apps" xml:space="preserve">
+    <value>Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key</value>
+  </data>
+  <data name="Options_Page11_ButtonBar" xml:space="preserve">
+    <value>Customize the Button Bar.;Buttons;Button Bar Options;Large icons;Show labels on buttons;Lock the order of dropdown button menus;Lock the size of the search box;Custom Button Images</value>
+  </data>
+  <data name="Options_Page12_Plugins" xml:space="preserve">
+    <value>Manage third-party plugins.;Install a Plugin</value>
+  </data>
+  <data name="Options_Page13_Language" xml:space="preserve">
+    <value>Change the language.;Main language;Use built-in language:;Use language file:;Plugin language files;Language File Editor;Show Language Editor...;Original;Translated</value>
   </data>
   <data name="PayPalURL" xml:space="preserve">
     <value>https://sourceforge.net/donate/index.php?group_id=312930</value>

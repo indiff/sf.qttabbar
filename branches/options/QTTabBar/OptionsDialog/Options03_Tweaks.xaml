@@ -43,60 +43,60 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabTweaks}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tweaks, Index=0}"
+                Content="{qt:Resx Key=Options_Page03_Tweaks, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=1}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=1}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkAlwaysShowHeaders"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=2}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=2}"
             IsChecked="{Binding Path=AlwaysShowHeaders}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkRedirectLibraryFolders"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=3}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=3}"
             IsChecked="{Binding Path=RedirectLibraryFolders}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkKillExtWhileRenaming"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=4}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=4}"
             IsChecked="{Binding Path=KillExtWhileRenaming}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkF2Selection"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=5}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=5}"
             IsChecked="{Binding Path=F2Selection}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkWrapArrowKeySelection"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=6}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=6}"
             IsChecked="{Binding Path=WrapArrowKeySelection}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkBackspaceUpLevel"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=7}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=7}"
             IsChecked="{Binding Path=BackspaceUpLevel}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkHorizontalScroll"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=8}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=8}"
             IsChecked="{Binding Path=HorizontalScroll}"
             Style="{StaticResource CheckStyle}"/>
         <Label
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=9}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=9}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkForceSysListView"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=10}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=10}"
             IsChecked="{Binding Path=ForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkToggleFullRowSelect"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=11}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=11}"
             IsChecked="{Binding ToggleFullRowSelect}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkDetailsGridLines"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=12}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=12}"
             IsChecked="{Binding Path=DetailsGridLines}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkAlternateRowColors"
-            Content="{qt:Resx Key=Options_Page_Tweaks, Index=13}"
+            Content="{qt:Resx Key=Options_Page03_Tweaks, Index=13}"
             IsChecked="{Binding Path=AlternateRowColors}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkForceSysListView}"
             Style="{StaticResource CheckStyle}"/>
@@ -116,11 +116,11 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tweaks, Index=14}"
+                Content="{qt:Resx Key=Options_Page03_Tweaks, Index=14}"
                 Grid.Column="0"
                 Grid.Row="0"/>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tweaks, Index=15}"
+                Content="{qt:Resx Key=Options_Page03_Tweaks, Index=15}"
                 Grid.Column="0"
                 Grid.Row="1"/>
             <Button x:Name="btnAltRowForeground"

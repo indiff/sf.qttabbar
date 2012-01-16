@@ -43,7 +43,7 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabKeys}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Change keyboard shortcuts"
+                Content="{qt:Resx Key=Options_Page08_Keys, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
@@ -52,15 +52,15 @@
             Margin="0,10,0,0"
             Orientation="Vertical">
             <Label
-                Content="Other keyboard options"
+                Content="{qt:Resx Key=Options_Page08_Keys, Index=2}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <CheckBox
-                Content="Show the Tab Switcher window when Ctrl + Tab is pressed"
+                Content="{qt:Resx Key=Options_Page08_Keys, Index=3}"
                 IsChecked="{Binding Path=UseTabSwitcher}"
                 Margin="13,0,1,0"/>
         </StackPanel>
         <TextBlock 
-            Text="Select an action from the list and press the key gesture you would like to bind to it.&#x0a;Press Escape to clear the binding." 
+            Text="{qt:Resx Key=Options_Page08_Keys, Index=1}"
             TextWrapping="Wrap"
             DockPanel.Dock="Top"
             Margin="5,10,5,15"/>
@@ -93,7 +93,7 @@
                 </ListView.GroupStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Action" Width="350">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page08_Keys, Index=4}" Width="350">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -124,7 +124,7 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Keystroke">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page08_Keys, Index=5}">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock x:Name="txtKeyString"

@@ -46,12 +46,12 @@
                     Source="{Binding Source={x:Static qt:Resources_Image.imgTabLang}, Converter={StaticResource BitmapToImageSourceConverter}}"
                     Style="{StaticResource PageHeaderImageStyle}"/>
                 <Label
-                    Content="Change the language"
+                    Content="{qt:Resx Key=Options_Page13_Language, Index=0}"
                     FontSize="13"
                     VerticalAlignment="Bottom"/>
             </StackPanel>
             <Label
-                Content="Main language"
+                Content="{qt:Resx Key=Options_Page13_Language, Index=1}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -63,14 +63,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <qt:RadioButtonEx x:Name="radUseLangFileNo"
-                    Content="Use built-in language:"
+                    Content="{qt:Resx Key=Options_Page13_Language, Index=2}"
                     Height="16"
                     HorizontalAlignment="Left"
                     IsChecked="{Binding Path=UseLangFile, Converter={StaticResource BoolInverterConverter}}"
                     Margin="5,9"
                     VerticalAlignment="Top"/>
                 <qt:RadioButtonEx x:Name="radUseLangFileYes"
-                    Content="Use language file:"
+                    Content="{qt:Resx Key=Options_Page13_Language, Index=3}"
                     Grid.Row="1"
                     Height="16"
                     HorizontalAlignment="Left"
@@ -98,7 +98,7 @@
                     VerticalAlignment="Top"/>
             </Grid>
             <Label
-                Content="Plugin language files"
+                Content="{qt:Resx Key=Options_Page13_Language, Index=4}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <DockPanel>
                 <StackPanel
@@ -117,10 +117,10 @@
                 <ListBox x:Name="lstPluginFiles"/>
             </DockPanel>
             <Label
-                Content="Language File Editor"
+                Content="{qt:Resx Key=Options_Page13_Language, Index=5}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <ToggleButton x:Name="btnToggleLangEditor"
-                Content="Show Language Editor..."
+                Content="{qt:Resx Key=Options_Page13_Language, Index=6}"
                 HorizontalAlignment="Left"
                 Margin="13,2,5,2">
                 <ToggleButton.Style>
@@ -190,7 +190,7 @@
                 </ListView.GroupStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Original" Width="250">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page13_Language, Index=7}" Width="250">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock
@@ -201,7 +201,7 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Translated" Width="250">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page13_Language, Index=8}" Width="250">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <DataTemplate.Resources>

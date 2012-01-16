@@ -84,7 +84,7 @@ namespace QTTabBarLib {
         private void btnRebarBGColorChoose_Click(object sender, RoutedEventArgs e) {
             ColorDialogEx cd = new ColorDialogEx { Color = WorkingConfig.skin.RebarColor };
             if(System.Windows.Forms.DialogResult.OK == cd.ShowDialog()) {
-                WorkingConfig.skin.RebarColor = cd.Color;
+                ((Button)sender).Tag = cd.Color;
             }
         }
 
