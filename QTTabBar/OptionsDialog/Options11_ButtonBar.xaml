@@ -44,46 +44,46 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabBBar}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Customize the Button Bar"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="Buttons"
+            Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=1}"
             DockPanel.Dock="Top"
             Style="{StaticResource SectionHeaderStyle}"/>
         <StackPanel 
             DockPanel.Dock="Bottom"
             Orientation="Vertical">
             <Label
-                Content="Button Bar Options"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=2}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <CheckBox x:Name="chkLargeButtons"
-                Content="Large icons"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=3}"
                 Height="16"
                 HorizontalAlignment="Left"
                 IsChecked="{Binding Path=LargeButtons}"
                 Margin="13,1,0,1"/>
             <CheckBox x:Name="chkShowButtonLabels"
-                Content="Show labels on buttons"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=4}"
                 Height="16"
                 HorizontalAlignment="Left"
                 IsChecked="{Binding Path=ShowButtonLabels}"
                 Margin="13,1,0,1"/>
             <CheckBox x:Name="chkLockDropDownButtons"
-                Content="Lock the order of dropdown button menus"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=5}"
                 Height="16"
                 HorizontalAlignment="Left"
                 IsChecked="{Binding Path=LockDropDownButtons}"
                 Margin="13,1,0,1"/>
             <CheckBox x:Name="chkLockSearchBarWidth"
-                Content="Lock the size of the search box"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=6}"
                 Height="16"
                 HorizontalAlignment="Left"
                 IsChecked="{Binding Path=LockSearchBarWidth}"
                 Margin="13,1,0,1"/>
             <Label
-                Content="Custom Button Images"
+                Content="{qt:Resx Key=Options_Page11_ButtonBar, Index=7}"
                 Style="{StaticResource SectionHeaderStyle}" />
             <qt:FileFolderEntryBox
                 Margin="13,1,0,1"

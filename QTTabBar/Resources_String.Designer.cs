@@ -115,47 +115,119 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to General options for QTTabBar&apos;s behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Keep history of opened files;Clear now;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings....
+        ///   Looks up a localized string similar to Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize.
         /// </summary>
-        public static string Options_Page_General {
+        public static string Options_Page01_Window {
             get {
-                return ResourceManager.GetString("Options_Page_General", resourceCulture);
+                return ResourceManager.GetString("Options_Page01_Window", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Change options related to tabs.;Open new tabs:;When the current tab is closed, switch to the:;Switch to new tabs immediately;Reuse existing tabs;Rename ambiguous tabs;When drag-hovering over a tab,;Switch to it;Show the Subfolder Tip menu;Tab icons;Show folder icons on tabs;Show the Subfolder Tip menu when the icon is clicked;Show the drive letter on the icon;Close button;Show close button on tabs;Only with the Alt key down;Only on mouse hover;Tab Bar;Show navigation buttons on the tab bar;On the left;On th [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string Options_Page_Tabs {
+        public static string Options_Page02_Tabs {
             get {
-                return ResourceManager.GetString("Options_Page_Tabs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes.
-        /// </summary>
-        public static string Options_Page_Tooltips {
-            get {
-                return ResourceManager.GetString("Options_Page_Tooltips", resourceCulture);
+                return ResourceManager.GetString("Options_Page02_Tabs", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Enable or disable tweaks to Explorer&apos;s List View.;Tweaks that can be used with either List View;Display column headers in all view modes (Windows Vista/7);Use the standard filesystem view for Library folders (Windows 7);Deselect file extension when renaming files (Windows XP);Cycle selection with F2 while renaming;Wrap around when moving the selection with the arrow keys;Backspace goes up one level;Scrolling with mouse wheel while holding shift scrolls horizontally;Tweaks that can only be used with the olde [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string Options_Page_Tweaks {
+        public static string Options_Page03_Tweaks {
             get {
-                return ResourceManager.GetString("Options_Page_Tweaks", resourceCulture);
+                return ResourceManager.GetString("Options_Page03_Tweaks", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize.
+        ///   Looks up a localized string similar to Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes.
         /// </summary>
-        public static string Options_Page_Window {
+        public static string Options_Page04_Tooltips {
             get {
-                return ResourceManager.GetString("Options_Page_Window", resourceCulture);
+                return ResourceManager.GetString("Options_Page04_Tooltips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General options for QTTabBar&apos;s behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Clear now;Keep history of opened files;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings....
+        /// </summary>
+        public static string Options_Page05_General {
+            get {
+                return ResourceManager.GetString("Options_Page05_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change the appearance of tabs or the tab bar.;Tab image;Use custom tab image:;Sizing margins:;Overlap area:;Content margins:;Hit test transparent areas;Tab size;Height:;Min Width:;Max Width:;Sizing mode:;Full width;Same size;Tab text;Text Colors:;Shadow Colors:;Active Color;Inactive Color;Mouseover Color;Text Font:;Alignment:;Left;Center;Toolbar Background;Image;Solid color;Image each bar separately;Stretch mode:;Sizing margins:;Skin file;Import Skin...;Export Skin....
+        /// </summary>
+        public static string Options_Page06_Appearance {
+            get {
+                return ResourceManager.GetString("Options_Page06_Appearance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assign commands to different mouse actions.;To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key.;Other mouse options;Mouse wheel scrolls the window under the mouse;Mouse Chord;Action.
+        /// </summary>
+        public static string Options_Page07_Mouse {
+            get {
+                return ResourceManager.GetString("Options_Page07_Mouse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change keyboard shortcuts.;Select an action from the list and press the key gesture you would like to bind to it.  Press Escape to clear the binding.;Other keyboard options;Show the Tab Switcher window when Ctrl + Tab is pressed;Action;Keystroke.
+        /// </summary>
+        public static string Options_Page08_Keys {
+            get {
+                return ResourceManager.GetString("Options_Page08_Keys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create and manage tab groups.;To assign a Shortcut Key to a group, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Group;Folder;Startup;Shortcut Key.
+        /// </summary>
+        public static string Options_Page09_Groups {
+            get {
+                return ResourceManager.GetString("Options_Page09_Groups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key.
+        /// </summary>
+        public static string Options_Page10_Apps {
+            get {
+                return ResourceManager.GetString("Options_Page10_Apps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Customize the Button Bar.;Buttons;Button Bar Options;Large icons;Show labels on buttons;Lock the order of dropdown button menus;Lock the size of the search box;Custom Button Images.
+        /// </summary>
+        public static string Options_Page11_ButtonBar {
+            get {
+                return ResourceManager.GetString("Options_Page11_ButtonBar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage third-party plugins.;Install a Plugin.
+        /// </summary>
+        public static string Options_Page12_Plugins {
+            get {
+                return ResourceManager.GetString("Options_Page12_Plugins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change the language.;Main language;Use built-in language:;Use language file:;Plugin language files;Language File Editor;Show Language Editor...;Original;Translated.
+        /// </summary>
+        public static string Options_Page13_Language {
+            get {
+                return ResourceManager.GetString("Options_Page13_Language", resourceCulture);
             }
         }
         

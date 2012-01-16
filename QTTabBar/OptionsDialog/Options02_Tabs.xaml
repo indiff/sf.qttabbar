@@ -43,7 +43,7 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabTabs}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=0}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
@@ -60,7 +60,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=1}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=1}"
                 Style="{StaticResource LabelStyle}"/>
             <ComboBox x:Name="cmbNewTabPos"
                 DisplayMemberPath="Value"
@@ -71,7 +71,7 @@
                 SelectedValuePath="Key"
                 Width="167"/>
             <Label
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=2}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=2}"
                 Grid.Row="1"
                 Style="{StaticResource LabelStyle}"/>
             <ComboBox x:Name="cmbNextAfterClosed"
@@ -85,76 +85,76 @@
                 Width="167"/>
         </Grid>
         <CheckBox x:Name="chkActivateNewTab"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=3}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=3}"
             IsChecked="{Binding Path=ActivateNewTab}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkNeverOpenSame"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=4}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=4}"
             IsChecked="{Binding Path=NeverOpenSame}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkRenameAmbTabs"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=5}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=5}"
             IsChecked="{Binding Path=RenameAmbTabs}"
             Style="{StaticResource CheckStyle}"/>
         <StackPanel Orientation="Horizontal">
             <Label
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=6}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=6}"
                 Style="{StaticResource LabelStyle}"/>
             <qt:RadioButtonEx x:Name="radDragOverTabOpensSTD_No"
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=7}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=7}"
                 IsCheckedReal ="{Binding Path=DragOverTabOpensSDT, Converter={StaticResource BoolInverterConverter}}"
                 Margin="0,1,10,1"/>
             <qt:RadioButtonEx x:Name="radDragOverTabOpensSDT_Yes"
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=8}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=8}"
                 IsCheckedReal ="{Binding Path=DragOverTabOpensSDT}"
                 Margin="0,1,10,1"/>
         </StackPanel>
         <Label
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=9}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=9}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkShowFolderIcon"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=10}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=10}"
             IsChecked="{Binding Path=ShowFolderIcon}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkShowSDTOnTab"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=11}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=11}"
             IsChecked="{Binding Path=ShowSubDirTipOnTab}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkShowFolderIcon}"
             Style="{StaticResource IndentedCheckStyle}"/>
         <CheckBox x:Name="chkShowDriveLetters"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=12}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=12}"
             IsChecked="{Binding Path=ShowDriveLetters}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkShowFolderIcon}"
             Style="{StaticResource IndentedCheckStyle}"/>
         <Label
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=13}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=13}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkShowCloseButtons"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=14}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=14}"
             IsChecked="{Binding Path=ShowCloseButtons}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkCloseBtnsWithAlt"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=15}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=15}"
             IsChecked="{Binding Path=CloseBtnsWithAlt}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkShowCloseButtons}"
             Style="{StaticResource IndentedCheckStyle}"/>
         <CheckBox x:Name="CloseBtnsOnHover"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=16}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=16}"
             IsChecked="{Binding Path=CloseBtnsOnHover}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkShowCloseButtons}"
             Style="{StaticResource IndentedCheckStyle}"/>
         <Label
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=17}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=17}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkShowNavButtons"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=18}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=18}"
             IsChecked="{Binding Path=ShowNavButtons}"
             Style="{StaticResource CheckStyle}"/>
         <StackPanel
             Margin="31,1,0,1"
             Orientation="Horizontal">
             <qt:RadioButtonEx x:Name="radNavButtonsOnRight_No"
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=19}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=19}"
                 HorizontalAlignment="Left"
                 IsEnabled="{Binding Path=IsChecked, ElementName=chkShowNavButtons}"
                 Margin="0,0,10,0"
@@ -167,7 +167,7 @@
                 </qt:RadioButtonEx.IsCheckedReal>
             </qt:RadioButtonEx>
             <qt:RadioButtonEx x:Name="radNavButtonsOnRight_Yes"
-                Content="{qt:Resx Key=Options_Page_Tabs, Index=20}"
+                Content="{qt:Resx Key=Options_Page02_Tabs, Index=20}"
                 HorizontalAlignment="Left"
                 IsEnabled="{Binding Path=IsChecked, ElementName=chkShowNavButtons}"
                 Margin="0,0,10,0"
@@ -181,11 +181,11 @@
             </qt:RadioButtonEx>
         </StackPanel>
         <CheckBox x:Name="chkMultipleTabRows"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=21}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=21}"
             IsChecked="{Binding Path=MultipleTabRows}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkActiveTabOnBottomRow"
-            Content="{qt:Resx Key=Options_Page_Tabs, Index=22}"
+            Content="{qt:Resx Key=Options_Page02_Tabs, Index=22}"
             IsChecked="{Binding Path=ActiveTabOnBottomRow}"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkMultipleTabRows}"
             Style="{StaticResource IndentedCheckStyle}"/>

@@ -43,12 +43,12 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabGroups}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Create and manage tab groups"
+                Content="{qt:Resx Key=Options_Page09_Groups, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <TextBlock 
-            Text="To assign a Shortcut Key to a group, select it and press the appropriate key gesture.&#x0a;Press Escape to clear the binding." 
+            Text="{qt:Resx Key=Options_Page09_Groups, Index=1}" 
             TextWrapping="Wrap"
             DockPanel.Dock="Top"
             Margin="5,10,5,5"/>
@@ -64,37 +64,38 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="btnGroupsMoveNodeUp"
-                Content="^"
+                Content="&#9650;"
                 Height="23"
                 Margin="4"
                 Width="28"
                 Click="btnGroupsMoveNodeUp_Click" />
             <Button x:Name="btnGroupsMoveNodeDown"
-                Content="v"
+                Content="&#9660;"
                 Grid.Column="1"
                 Height="23"
                 Margin="4"
                 Width="28"
                 Click="btnGroupsMoveNodeDown_Click" />
-            <Button x:Name="btnGroupsAddGroup" Content="G"
+            <Button x:Name="btnGroupsAddGroup" 
+                Content="{qt:Resx Key=Options_Page09_Groups, Index=2}"
                 Grid.Column="3"
                 Height="23"
                 Margin="4"
-                Width="28"
+                Width="100"
                 Click="btnGroupsAddGroup_Click" />
             <Button x:Name="btnGroupsAddFolder"
-                Content="+"
+                Content="Add"
                 Grid.Column="4"
                 Height="23"
                 Margin="4"
-                Width="28"
+                Width="70"
                 Click="btnGroupsAddFolder_Click" />
             <Button x:Name="btnGroupsRemoveNode"
-                Content="-"
+                Content="Remove"
                 Grid.Column="5"
                 Height="23"
                 Margin="4"
-                Width="28"
+                Width="70"
                 Click="btnGroupsRemoveNode_Click" />
         </Grid>
         <qt:RestrictDesiredSize MinHeight="200">
@@ -111,7 +112,7 @@
                     <HierarchicalDataTemplate ItemsSource="{Binding Path=Folders}"/>
                 </TreeView.ItemTemplate>
                 <r:TreeListView.Columns>
-                    <GridViewColumn Header="Folder" Width="300">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page09_Groups, Index=3}" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel
@@ -151,7 +152,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Startup" Width="60">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page09_Groups, Index=4}" Width="60">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox x:Name="chkStartup"
@@ -167,7 +168,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Shortcut Key" Width="100">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page09_Groups, Index=5}" Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock x:Name="txtHotkey"

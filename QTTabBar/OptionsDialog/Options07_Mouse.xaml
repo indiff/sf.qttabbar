@@ -44,7 +44,7 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabMouse}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Assign commands to different mouse actions"
+                Content="{qt:Resx Key=Options_Page07_Mouse, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
@@ -53,14 +53,14 @@
             Margin="0,10,0,0"
             Orientation="Vertical">
             <Label
-                Content="Other mouse options"
+                Content="{qt:Resx Key=Options_Page07_Mouse, Index=2}"
                 Style="{StaticResource SectionHeaderStyle}"/>
             <CheckBox
-                Content="Mouse wheel scrolls the window under the mouse"
+                Content="{qt:Resx Key=Options_Page07_Mouse, Index=3}"
                 Margin="13,0,1,0"/>
         </StackPanel>
         <TextBlock 
-            Text="To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key."
+            Text="{qt:Resx Key=Options_Page07_Mouse, Index=1}"
             TextWrapping="Wrap"
             DockPanel.Dock="Top"
             Margin="5,10,5,15"/>
@@ -117,7 +117,7 @@
                 </ListView.GroupStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Mouse Chord" Width="235">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page07_Mouse, Index=4}" Width="235">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock
@@ -126,7 +126,7 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Action" Width="235">
+                        <GridViewColumn Header="{qt:Resx Key=Options_Page07_Mouse, Index=5}" Width="235">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid HorizontalAlignment="Stretch">

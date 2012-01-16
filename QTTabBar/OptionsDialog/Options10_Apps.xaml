@@ -43,12 +43,12 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabApps}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="Create shortcuts to commonly used files or applications"
+                Content="{qt:Resx Key=Options_Page10_Apps, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <TextBlock 
-            Text="To assign a Shortcut Key to an application, select it and press the appropriate key gesture.&#x0a;Press Escape to clear the binding." 
+            Text="{qt:Resx Key=Options_Page10_Apps, Index=1}"
             TextWrapping="Wrap"
             DockPanel.Dock="Top"
             Margin="5,10,5,5"/>
@@ -65,38 +65,38 @@
             </Grid.ColumnDefinitions>
             <Button x:Name="btnAppsMoveNodeUp"
                 Click="btnAppsMoveNodeUp_Click"    
-                Content="^"
+                Content="&#9650;"
                 Height="23"
                 Margin="4"
                 Width="28"/>
             <Button x:Name="btnAppsMoveNodeDown"
                 Click="btnAppsMoveNodeDown_Click" 
-                Content="v"
+                Content="&#9660;"
                 Grid.Column="1"
                 Height="23"
                 Margin="4"
                 Width="28"/>
             <Button x:Name="btnAppsAddFolder"
                 Click="btnAddAppFolder_Click"
-                Content="F"
+                Content="{qt:Resx Key=Options_Page10_Apps, Index=2}"
                 Grid.Column="3"
                 Height="23"
                 Margin="4"
-                Width="28"/>
+                Width="100"/>
             <Button x:Name="btnAppsAddNode"
                 Click="btnAddApp_Click"
-                Content="+"
+                Content="Add"
                 Grid.Column="4"
                 Height="23"
                 Margin="4"
-                Width="28"/>
+                Width="70"/>
             <Button x:Name="btnAppsRemoveNode"
                 Click="btnRemoveApp_Click"
-                Content="-"
+                Content="Remove"
                 Grid.Column="5"
                 Height="23"
                 Margin="4"
-                Width="28"/>
+                Width="70"/>
         </Grid>
         <Grid x:Name="grdAppProps"
             DataContext="{Binding ElementName=tvwApps, Path=SelectedItem}"
@@ -123,7 +123,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label
-                Content="Path:"
+                Content="{qt:Resx Key=Options_Page10_Apps, Index=3}"
                 Grid.Column="0"
                 Grid.Row="0"
                 Height="23"
@@ -139,7 +139,7 @@
                 Margin="0,3"
                 SelectedPath="{Binding Path=Path}"/>
             <Label
-                Content="Arguments:"
+                Content="{qt:Resx Key=Options_Page10_Apps, Index=4}"
                 Grid.Column="0"
                 Grid.Row="1"
                 Height="23"
@@ -190,7 +190,7 @@
                 </Button.ContextMenu>
             </Button>
             <Label
-                Content="Working Directory:"
+                Content="{qt:Resx Key=Options_Page10_Apps, Index=5}"
                 Grid.Column="0"
                 Grid.Row="2"
                 Height="23"
@@ -256,7 +256,7 @@
                     <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}"/>
                 </TreeView.ItemTemplate>
                 <r:TreeListView.Columns>
-                    <GridViewColumn Header="Application" Width="300">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page10_Apps, Index=6}" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel
@@ -277,7 +277,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Shortcut Key" Width="100">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page10_Apps, Index=6}" Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock x:Name="txtHotkey"

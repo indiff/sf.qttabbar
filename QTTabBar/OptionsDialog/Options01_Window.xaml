@@ -42,12 +42,12 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabWindow}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="{qt:Resx Key=Options_Page_Window, Index=0}"
+                Content="{qt:Resx Key=Options_Page01_Window, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
         <Label
-            Content="{qt:Resx Key=Options_Page_Window, Index=1}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=1}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
@@ -80,7 +80,7 @@
                 IsCheckedReal="{Binding Path=CaptureNewWindows}"
                 Width="160">
                 <AccessText
-                    Text="{qt:Resx Key=Options_Page_Window, Index=2}"
+                    Text="{qt:Resx Key=Options_Page01_Window, Index=2}"
                     TextWrapping="Wrap"/>
             </qt:RadioButtonEx>
             <qt:RadioButtonEx x:Name="radSingleWindowOff"
@@ -90,12 +90,12 @@
                 IsCheckedReal="{Binding Path=CaptureNewWindows, Converter={StaticResource BoolInverterConverter}}"
                 Width="160">
                 <AccessText
-                    Text="{qt:Resx Key=Options_Page_Window, Index=3}"
+                    Text="{qt:Resx Key=Options_Page01_Window, Index=3}"
                     TextWrapping="Wrap"/>
             </qt:RadioButtonEx>
         </Grid>
         <Label
-            Content="{qt:Resx Key=Options_Page_Window, Index=4}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=4}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <StackPanel 
             Margin="13,0"
@@ -107,7 +107,7 @@
                 Width="400"/>
         </StackPanel>
         <Label x:Name="lblRestoreTabs"
-            Content="{qt:Resx Key=Options_Page_Window, Index=5}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=5}"
             Style="{StaticResource SectionHeaderStyle}">
             <!-- We use the Tag of the group's section header
                     label to keep track of the property values, and
@@ -122,7 +122,7 @@
             </Label.Tag>
         </Label>
         <qt:RadioButtonEx x:Name="radRestoreTabsOff"
-            Content="{qt:Resx Key=Options_Page_Window, Index=6}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=6}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -134,7 +134,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>    
         <qt:RadioButtonEx x:Name="radRestoreTabsOn"
-            Content="{qt:Resx Key=Options_Page_Window, Index=7}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=7}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -146,7 +146,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radRestoreTabsLockedOnly"
-            Content="{qt:Resx Key=Options_Page_Window, Index=8}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=8}"
             GroupName="Session"
             Style="{StaticResource CheckStyle}">
             <qt:RadioButtonEx.IsCheckedReal>
@@ -158,7 +158,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <Label x:Name="lblCloseButton"
-            Content="{qt:Resx Key=Options_Page_Window, Index=9}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=9}"
             Style="{StaticResource SectionHeaderStyle}">
             <Label.Tag>
                 <MultiBinding 
@@ -171,7 +171,7 @@
             </Label.Tag>
         </Label>
         <qt:RadioButtonEx x:Name="radCloseBtnWindow"
-            Content="{qt:Resx Key=Options_Page_Window, Index=10}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=10}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -184,7 +184,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radCloseBtnTabs"
-            Content="{qt:Resx Key=Options_Page_Window, Index=11}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=11}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -197,7 +197,7 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <qt:RadioButtonEx x:Name="radCloseBtnUnlocked"
-            Content="{qt:Resx Key=Options_Page_Window, Index=12}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=12}"
             GroupName="Close"
             IsEnabled="{Binding Path=IsChecked, ElementName=chkTrayClose, Converter={StaticResource BoolInverterConverter}}"
             Style="{StaticResource CheckStyle}">
@@ -210,14 +210,14 @@
             </qt:RadioButtonEx.IsCheckedReal>
         </qt:RadioButtonEx>
         <Label
-            Content="{qt:Resx Key=Options_Page_Window, Index=13}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=13}"
             Style="{StaticResource SectionHeaderStyle}"/>
         <CheckBox x:Name="chkTrayClose"
-            Content="{qt:Resx Key=Options_Page_Window, Index=14}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=14}"
             IsChecked="{Binding Path=TrayOnClose}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkTrayMinimize"
-            Content="{qt:Resx Key=Options_Page_Window, Index=15}"
+            Content="{qt:Resx Key=Options_Page01_Window, Index=15}"
             IsChecked="{Binding Path=TrayOnMinimize}"
             Style="{StaticResource CheckStyle}"/>
     </StackPanel>
