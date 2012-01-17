@@ -205,7 +205,7 @@
             </ListBox>
             <Button
                 x:Name="btnAddTextFileTypes"
-                Content="Add"
+                Content="{qt:Resx Key=DialogButtons, Index=7}"
                 Grid.Column="1"
                 Grid.Row="1"
                 Height="23"
@@ -216,7 +216,7 @@
                 Click="btnAddTextFileTypes_Click"/>
             <Button
                 x:Name="btnRemoveTextFileTypes"
-                Content="Remove"
+                Content="{qt:Resx Key=DialogButtons, Index=9}"
                 Grid.Column="1"
                 Grid.Row="2"
                 Height="23"
@@ -227,7 +227,7 @@
                 Click="btnRemoveTextFileTypes_Click"/>
             <Button
                 x:Name="btnResetTextFileTypes"
-                Content="Reset"
+                Content="{qt:Resx Key=DialogButtons, Index=6}"
                 Grid.Column="1"
                 Grid.Row="3"
                 Height="23"
@@ -256,7 +256,7 @@
             </ListBox>
             <Button
                 x:Name="btnAddMediaFileTypes"
-                Content="Add"
+                Content="{qt:Resx Key=DialogButtons, Index=7}"
                 Grid.Column="3"
                 Grid.Row="1"
                 Height="23"
@@ -267,7 +267,7 @@
                 Click="btnAddMediaFileTypes_Click"/>
             <Button
                 x:Name="btnRemoveMediaFileTypes"
-                Content="Remove"
+                Content="{qt:Resx Key=DialogButtons, Index=9}"
                 Grid.Column="3"
                 Grid.Row="2"
                 Height="23"
@@ -278,7 +278,7 @@
                 Click="btnRemoveMediaFileTypes_Click"/>
             <Button
                 x:Name="btnResetMediaFileTypes"
-                Content="Reset"
+                Content="{qt:Resx Key=DialogButtons, Index=6}"
                 Grid.Column="3"
                 Grid.Row="3"
                 Height="23"

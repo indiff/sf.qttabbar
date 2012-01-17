@@ -138,17 +138,33 @@
                     ItemTemplate="{StaticResource ButtonBarItemTemplate}"/>
                 <Button x:Name="btnBBarAdd"
                     Click="btnBBarAdd_Click" 
-                    Content="Add >>"
                     Grid.Column="1"
                     Margin="8,4"
-                    VerticalAlignment="Bottom"/>
+                    VerticalAlignment="Bottom">
+                    <Button.Content>
+                        <TextBlock>
+                            <TextBlock.Inlines>
+                                <qt:BindableRun Text="{qt:Resx Key=DialogButtons, Index=7}"/>
+                                <qt:BindableRun Text=" &gt;&gt;"/>
+                            </TextBlock.Inlines>
+                        </TextBlock>
+                    </Button.Content>
+                </Button>
                 <Button x:Name="btnBBarRemove"
                     Click="btnBBarRemove_Click"
-                    Content="&lt;&lt; Remove"
                     Grid.Column="1"
                     Grid.Row="1"
                     Margin="8,4"
-                    VerticalAlignment="Top"/>
+                    VerticalAlignment="Top">
+                    <Button.Content>
+                        <TextBlock>
+                            <TextBlock.Inlines>
+                                <qt:BindableRun Text="&lt;&lt; "/>
+                                <qt:BindableRun Text="{qt:Resx Key=DialogButtons, Index=9}"/>
+                            </TextBlock.Inlines>
+                        </TextBlock>
+                    </Button.Content>
+                 </Button>
                 <ListBox x:Name="lstButtonBarCurrent"
                     Grid.Column="2"
                     Grid.RowSpan="2"

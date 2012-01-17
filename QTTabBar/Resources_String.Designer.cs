@@ -88,7 +88,7 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OK;Cancel;&amp;Apply;&amp;Default;Reset &amp;Page;&amp;Reset All.
+        ///   Looks up a localized string similar to OK;Cancel;&amp;Apply;&amp;Default;Reset &amp;Page;&amp;Reset All;Reset;Add;Add...;Remove;Options;Enable;Disable;Undo;Load...;Save....
         /// </summary>
         public static string DialogButtons {
             get {
@@ -214,7 +214,7 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Manage third-party plugins.;Install a Plugin.
+        ///   Looks up a localized string similar to Manage third-party plugins.;Install a Plugin;(Disabled);by {0};{0} has been removed.;This plugin will be installed when you press OK or Apply.;This plugin will be enabled when you press OK or Apply.;This plugin will be disabled when you press OK or Apply..
         /// </summary>
         public static string Options_Page12_Plugins {
             get {

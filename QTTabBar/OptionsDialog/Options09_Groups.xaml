@@ -84,14 +84,14 @@
                 Width="100"
                 Click="btnGroupsAddGroup_Click" />
             <Button x:Name="btnGroupsAddFolder"
-                Content="Add"
+                Content="{qt:Resx Key=DialogButtons, Index=8}"
                 Grid.Column="4"
                 Height="23"
                 Margin="4"
                 Width="70"
                 Click="btnGroupsAddFolder_Click" />
             <Button x:Name="btnGroupsRemoveNode"
-                Content="Remove"
+                Content="{qt:Resx Key=DialogButtons, Index=9}"
                 Grid.Column="5"
                 Height="23"
                 Margin="4"

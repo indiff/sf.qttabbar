@@ -104,7 +104,7 @@ namespace QTTabBarLib {
             }
         }
 
-        private void btnPluginDisable_Click(object sender, RoutedEventArgs e) {
+        private void btnPluginEnableDisable_Click(object sender, RoutedEventArgs e) {
             PluginEntry entry = (PluginEntry)((Button)sender).DataContext; 
             if(entry.DisableOnClose) {
                 entry.DisableOnClose = false;
@@ -215,9 +215,9 @@ namespace QTTabBarLib {
             public Image Icon { get { return PluginInfo.ImageLarge ?? Resources_Image.imgPlugin24; } }
             public string Name { get { return PluginInfo.Name; } }
             public string Title { get {
-                return Name + "  " + PluginInfo.Version + ((Enabled || InstallOnClose) ? "" : "  (Disabled)");
+                return Name + "  " + PluginInfo.Version;
             } }
-            public string Author { get { return "by " + PluginInfo.Author; } }
+            public string Author { get { return PluginInfo.Author; } }
             public string Desc { get { return PluginInfo.Description; } }
             public bool IsSelected { get; set; }
             public double IconOpacity { get { return Enabled ? 1.0 : 0.5; } }
@@ -234,17 +234,14 @@ namespace QTTabBarLib {
                         : Visibility.Collapsed;
             }}
             public string StatusText { get {
-                if(UninstallOnClose) return Name + " has been removed.";
-                if(InstallOnClose) return "This plugin will be installed when you press OK or Apply.";
-                if(EnableOnClose) return "This plugin will be enabled when you press OK or Apply.";
-                if(DisableOnClose) return "This plugin will be disabled when you press OK or Apply.";
+                if(UninstallOnClose) return string.Format(QTUtility.TextResourcesDic["Options_Page12_Plugins"][4], Name);
+                if(InstallOnClose)  return QTUtility.TextResourcesDic["Options_Page12_Plugins"][5];
+                if(EnableOnClose)   return QTUtility.TextResourcesDic["Options_Page12_Plugins"][6];
+                if(DisableOnClose)  return QTUtility.TextResourcesDic["Options_Page12_Plugins"][7];
                 return "";
             }}
             public Visibility MainBodyVisibility { get {
                 return UninstallOnClose ? Visibility.Collapsed : Visibility.Visible;
-            }}
-            public Color TextColor { get {
-                return Enabled ? Colors.Black : SystemColors.GrayTextBrush.Color;
             }}
             public Color BackgroundColor { get {
                 if(StatusVisibility == Visibility.Visible) return Color.FromArgb(0x10, 0x60, 0xA0, 0xFF);
@@ -256,9 +253,13 @@ namespace QTTabBarLib {
                 if(DisableOnClose || UninstallOnClose) return Color.FromRgb(0x80, 0x80, 0x80);
                 return Colors.Transparent;
             }}
-            public string DisableToggleText { get {
-                return Enabled || EnableOnClose ? "Disable" : "Enable";
+            public bool ShowEnableButton { get {
+                if(DisableOnClose) return true;
+                if(EnableOnClose) return false;
+                return !Enabled;
             }}
+            public bool ShowDisabledTitle { get { return !(Enabled || InstallOnClose); } }
+            public bool ShowDisableButton { get { return !ShowEnableButton; } }
 
             private bool cachedHasOptions;
             private bool optionsQueried;

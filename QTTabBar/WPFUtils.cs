@@ -16,10 +16,12 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Markup;
 
 namespace QTTabBarLib {
@@ -130,19 +132,120 @@ namespace QTTabBarLib {
         }
     }
 
+    public class BindableRun : Run {
+        public static readonly DependencyProperty TextProperty =
+                DependencyProperty.Register("Text", typeof(string),
+                typeof(BindableRun), new PropertyMetadata(OnTextChanged));
+
+        private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            ((Run)d).Text = (string)e.NewValue;
+        }
+
+        public new string Text {
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
+        }
+    }
+
     [MarkupExtensionReturnType(typeof(string))]
     class Resx : MarkupExtension {
+       
+        // Use weak events to avoid memory leaks.
+        private class ResxEventManager : WeakEventManager {
+            private static EventHandler mHandler = (s, e) => CurrentManager.DeliverEvent(s, e);
+            private static ResxEventManager CurrentManager {
+                get {
+                    var manager = GetCurrentManager(typeof(ResxEventManager)) as ResxEventManager;
+                    if(manager == null) {
+                        manager = new ResxEventManager();
+                        SetCurrentManager(typeof(ResxEventManager), manager);
+                    }
+                    return manager;
+                }
+            }
+            public static void AddListener(IWeakEventListener listener) {
+                CurrentManager.ProtectedAddListener(typeof(Resx), listener);
+            }
+            protected override void StartListening(object source) {
+                OnUpdate += mHandler;
+            }
+            protected override void StopListening(object source) {
+                OnUpdate -= mHandler;
+            }           
+        }
+
+        private class ResxListener : INotifyPropertyChanged, IWeakEventListener {
+            public event PropertyChangedEventHandler PropertyChanged;
+            // ReSharper disable MemberCanBePrivate.Local
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            public string Value { get; set; }
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+            // ReSharper restore MemberCanBePrivate.Local
+            private Resx parent;
+
+            public ResxListener(Resx parent) {
+                this.parent = parent;
+                Value = parent.GetValue();
+            }
+
+            public bool ReceiveWeakEvent(Type managerType, object sender, EventArgs e) {
+                Value = parent.GetValue();
+                return true;
+            }
+        }
+
+        private static event EventHandler OnUpdate; 
+        private static bool debug;
+        public static bool DebugMode {
+            get { return debug; }
+            set { debug = value; UpdateAll(); }
+        }
+        public static void UpdateAll() {
+            if(OnUpdate != null) {
+                OnUpdate(typeof(Resx), new EventArgs());
+            }
+        }
+
+        public static readonly DependencyProperty ParamProperty = DependencyProperty.RegisterAttached(
+                "Param", typeof(string), typeof(Resx), new PropertyMetadata(null));
+
+        public static void SetParam(UIElement element, string value) {
+            element.SetValue(ParamProperty, value);
+        }
+        public static string GetParam(UIElement element) {
+            return (string)element.GetValue(ParamProperty);
+        }
+
         public Resx() { }
         public Resx(string key, int index = 0) {
             Key = key;
             Index = index;
         }
-
         public string Key { get; set; }
         public int Index { get; set; }
+        private DependencyObject targetObject;
 
-        public override object ProvideValue(IServiceProvider serviceProvider) {
-            return QTUtility.TextResourcesDic[Key][Index].Replace("&", "_");
+        public override object ProvideValue(IServiceProvider serviceProvider) {            
+            IProvideValueTarget target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
+            if (target != null) {
+                targetObject = target.TargetObject as DependencyObject;
+                if(targetObject == null && !(target.TargetObject is Setter)) return this;
+            }
+            ResxListener listener = new ResxListener(this);
+            ResxEventManager.AddListener(listener);
+            return (new Binding("Value") { Source = listener }).ProvideValue(serviceProvider);
+        }
+
+        private string GetValue() {
+            if(DebugMode) return Key + "[" + Index + "]";
+            string[] res;
+            if(!QTUtility.TextResourcesDic.TryGetValue(Key, out res) || Index >= res.Length) return "";
+            string ret = res[Index];
+            string param = targetObject == null
+                    ? null
+                    : (string)targetObject.GetValue(ParamProperty);
+            if(param != null) ret = string.Format(ret, param);
+            return ret.Replace("&", "_");
         }
     }
 }
