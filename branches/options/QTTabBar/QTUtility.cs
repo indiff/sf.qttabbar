@@ -359,6 +359,14 @@ namespace QTTabBarLib {
             return dt;
         }
 
+        public static IEnumerable<KeyValuePair<string, string>> GetResourceStrings(this ResourceManager res) {
+            var dict = res.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
+            var e = dict.GetEnumerator();
+            while(e.MoveNext()) {
+                yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
+            }
+        }
+
         public static T[] GetSettingValue<T>(T[] inputValues, T[] defaultValues, bool fClone) {
             if((inputValues == null) || (inputValues.Length == 0)) {
                 if(!fClone) {
@@ -671,14 +679,6 @@ namespace QTTabBarLib {
             return value;
         }
 
-        public static IEnumerable<KeyValuePair<string, string>> GetStrings(this ResourceManager res) {
-            var dict = res.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
-            var e = dict.GetEnumerator();
-            while(e.MoveNext()) {
-                yield return new KeyValuePair<string, string>((string)e.Key, (string)e.Value);
-            }
-        }
-
         public static void ValidateTextResources() {
             ValidateTextResources(ref TextResourcesDic);
             ResMain = TextResourcesDic["TabBar_Menu"];
@@ -690,7 +690,7 @@ namespace QTTabBarLib {
             if(dict == null) {
                 dict = new Dictionary<string, string[]>();
             }
-            foreach(var pair in Resources_String.ResourceManager.GetStrings()) {
+            foreach(var pair in Resources_String.ResourceManager.GetResourceStrings()) {
                 if(urlKeys.Contains(pair.Key)) continue;
                 string[] english = pair.Value.Split(SEPARATOR_CHAR);
                 string[] res;

@@ -15,35 +15,11 @@
 //    You should have received a copy of the GNU General Public License
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
-
 namespace QTTabBarLib {
     internal partial class Options02_Tabs : OptionsDialogTab {
 
-        #region ToLocalize
-
-        private readonly static Dictionary<TabPos, string> NewTabPosItems
-                = new Dictionary<TabPos, string> {
-            {TabPos.Left,       "Left of the current tab"   },
-            {TabPos.Right,      "Right of the current tab"  },
-            {TabPos.Leftmost,   "In the leftmost position"  },
-            {TabPos.Rightmost,  "In the rightmost position" },
-        };
-        private readonly static Dictionary<TabPos, string> NextAfterCloseItems
-                = new Dictionary<TabPos, string> {
-            {TabPos.Left,       "Tab to the left"   },
-            {TabPos.Right,      "Tab to the right"  },
-            {TabPos.Leftmost,   "Leftmost tab"      },
-            {TabPos.Rightmost,  "Rightmost tab"     },
-            {TabPos.LastActive, "Last activated tab"},
-        };
-
-        #endregion
-
         public Options02_Tabs() {
             InitializeComponent();
-            cmbNewTabPos.ItemsSource = NewTabPosItems;
-            cmbNextAfterClosed.ItemsSource = NextAfterCloseItems;
         }
 
         public override void InitializeConfig() {

@@ -77,7 +77,6 @@ namespace QTTabBarLib {
             WorkingConfig.lang.PluginLangFiles = PluginFiles.ToArray();
         }
 
-
         private void btnPluginAdd_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
                 ofd.Filter = "Language files (*.xml)|*.xml";

@@ -308,6 +308,10 @@ namespace QTTabBarLib {
             return true;
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            Resx.DebugMode = !Resx.DebugMode;
+        }
+
         #region ---------- Converters ----------
 
         // Inverts the value of a boolean

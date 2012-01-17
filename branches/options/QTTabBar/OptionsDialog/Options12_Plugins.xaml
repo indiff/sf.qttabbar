@@ -131,7 +131,7 @@
                                         FontWeight="Bold"
                                         MouseUp="txtUndo_MouseUp"
                                         TextDecorations="Underline"
-                                        Text="Undo">
+                                        Text="{qt:Resx Key=DialogButtons, Index=13}">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}">
                                                 <Setter Property="Foreground" Value="RoyalBlue"/>
@@ -149,11 +149,11 @@
                                     Visibility="{Binding Path=MainBodyVisibility}">
                                     <DockPanel.Resources>
                                         <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="Foreground">
-                                                <Setter.Value>
-                                                    <SolidColorBrush Color="{Binding Path=TextColor}"/>
-                                                </Setter.Value>
-                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=Enabled}" Value="False">
+                                                    <Setter Property="Foreground" Value="{x:Static SystemColors.GrayTextBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
                                         </Style>
                                     </DockPanel.Resources>
                                     <!-- Icon -->
@@ -180,38 +180,53 @@
                                             FontWeight="ExtraBold"
                                             Margin="2"
                                             VerticalAlignment="Bottom"/>
+                                        <TextBlock 
+                                            Text="{qt:Resx Key=Options_Page12_Plugins, Index=2}"
+                                            FontSize="15"
+                                            FontWeight="ExtraBold"
+                                            Margin="8,2"
+                                            VerticalAlignment="Bottom"
+                                            Visibility="{Binding Path=ShowDisabledTitle, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         <TextBlock
-                                            Text="{Binding Path=Author}"
+                                            Text="{qt:Resx Key=Options_Page12_Plugins, Index=3}"
                                             Margin="10,2"
-                                            VerticalAlignment="Bottom"/>
+                                            VerticalAlignment="Bottom">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <!-- If I set this directly, it doesn't work.  No idea why... -->
+                                                    <Setter Property="qt:Resx.Param" Value="{Binding Path=Author}"/>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </StackPanel>
                                     <!-- Buttons -->
                                     <StackPanel
                                         VerticalAlignment="Bottom"
                                         Orientation="Horizontal"
                                         DockPanel.Dock="Right">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="{x:Type Button}">
+                                                <Setter Property="DockPanel.Dock" Value="Right"/>
+                                                <Setter Property="Height" Value="22"/>
+                                                <Setter Property="Width" Value="70"/>
+                                                <Setter Property="Margin" Value="3,0"/>
+                                            </Style>
+                                        </StackPanel.Resources>
                                         <Button x:Name="btnPluginOptions"
                                             Click="btnPluginOptions_Click"
-                                            Content="Options"
-                                            DockPanel.Dock="Right"
-                                            Height="22"
-                                            Width="70"
-                                            Margin="3,0"
+                                            Content="{qt:Resx Key=DialogButtons, Index=10}"
                                             Visibility="{Binding Path=HasOptions, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         <Button x:Name="btnPluginDisable"
-                                            Click="btnPluginDisable_Click"
-                                            Content="{Binding Path=DisableToggleText}"
-                                            DockPanel.Dock="Right"
-                                            Height="22"
-                                            Width="70"
-                                            Margin="3,0"/>
+                                            Click="btnPluginEnableDisable_Click"
+                                            Content="{qt:Resx Key=DialogButtons, Index=12}"
+                                            Visibility="{Binding Path=ShowDisableButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Button x:Name="btnPluginEnable"
+                                            Click="btnPluginEnableDisable_Click"
+                                            Content="{qt:Resx Key=DialogButtons, Index=11}"
+                                            Visibility="{Binding Path=ShowEnableButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         <Button x:Name="btnPluginRemove"
                                             Click="btnPluginRemove_Click"
-                                            Content="Uninstall"
-                                            DockPanel.Dock="Right"
-                                            Height="22"
-                                            Margin="3,0"
-                                            Width="70"/>
+                                            Content="{qt:Resx Key=DialogButtons, Index=9}"/>
                                     </StackPanel>
                                     <!-- Description -->
                                     <TextBlock 

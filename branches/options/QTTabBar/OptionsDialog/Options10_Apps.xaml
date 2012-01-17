@@ -85,14 +85,14 @@
                 Width="100"/>
             <Button x:Name="btnAppsAddNode"
                 Click="btnAddApp_Click"
-                Content="Add"
+                Content="{qt:Resx Key=DialogButtons, Index=8}"
                 Grid.Column="4"
                 Height="23"
                 Margin="4"
                 Width="70"/>
             <Button x:Name="btnAppsRemoveNode"
                 Click="btnRemoveApp_Click"
-                Content="Remove"
+                Content="{qt:Resx Key=DialogButtons, Index=9}"
                 Grid.Column="5"
                 Height="23"
                 Margin="4"

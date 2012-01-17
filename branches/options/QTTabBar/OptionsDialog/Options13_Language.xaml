@@ -107,11 +107,11 @@
                     VerticalAlignment="Top">
                     <Button x:Name="btnPluginAdd"
                         Click="btnPluginAdd_Click"
-                        Content="Add..."
+                        Content="{qt:Resx Key=DialogButtons, Index=8}"
                         Margin="5,0,0,5"/>
                     <Button x:Name="btnPluginRemove"
                         Click="btnPluginRemove_Click"
-                        Content="Remove"
+                        Content="{qt:Resx Key=DialogButtons, Index=9}"
                         Margin="5,5,0,0"/>
                 </StackPanel>
                 <ListBox x:Name="lstPluginFiles"/>
@@ -147,13 +147,13 @@
                 </StackPanel.Resources>
                 <Button x:Name="btnClear"
                     Click="btnClear_Click"
-                    Content="Clear"/>
+                    Content="{qt:Resx Key=DialogButtons, Index=6}"/>
                 <Button x:Name="btnLoad"
                     Click="btnLoad_Click"
-                    Content="Load..."/>
+                    Content="{qt:Resx Key=DialogButtons, Index=14}"/>
                 <Button x:Name="btnSave"
                     Click="btnSave_Click"
-                    Content="Save..."/>
+                    Content="{qt:Resx Key=DialogButtons, Index=15}"/>
             </StackPanel>
         </StackPanel>
         <qt:RestrictDesiredSize
