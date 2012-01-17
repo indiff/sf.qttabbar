@@ -159,32 +159,48 @@
                 Grid.Row="1"
                 Height="23"
                 Margin="8, 1, 0, 1"
+                Tag="True"
                 Width="26">
                 <Button.ContextMenu>
-                    <ContextMenu>
+                    <ContextMenu DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget}">
+                        <ContextMenu.Resources>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <EventSetter Event="Click" Handler="miVars_Click"/>
+                                <Setter Property="HeaderTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Inlines> 
+                                                    <qt:BindableRun Text="{Binding Path=Tag, RelativeSource={RelativeSource AncestorType={x:Type MenuItem}}}"/>
+                                                    <qt:BindableRun Text="-"/>
+                                                    <qt:BindableRun Text="{Binding}"/>
+                                                </TextBlock.Inlines>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ContextMenu.Resources>
                         <MenuItem
-                            Header="The following keywords are replaced with double-quoted path strings at runtime."
-                            IsEnabled="False"/>
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=8}"
+                            IsEnabled="False"
+                            HeaderTemplate="{x:Null}"/>
                         <Separator/>
                         <MenuItem
-                            Click="miArgVars_Click"
-                            Header="%f% - Selected files."
-                            Tag="%f%"/>
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=9}"
+                            Tag="%f%"
+                            IsEnabled="{Binding Path=Tag}"/>
                         <MenuItem
-                            Click="miArgVars_Click"
-                            Header="%d% - Selected folders."
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=10}"
                             Tag="%d%"/>
                         <MenuItem
-                            Click="miArgVars_Click"
-                            Header="%s% - Selected files and folders."
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=11}"
                             Tag="%s%"/>
                         <MenuItem
-                            Click="miArgVars_Click"
-                            Header="%c% - Current folder."
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=12}"
                             Tag="%c%"/>
                         <MenuItem
-                            Click="miArgVars_Click"
-                            Header="%cd% - Current folder if no selection, otherwise selected folder."
+                            Header="{qt:Resx Key=Options_Page10_Apps, Index=13}"
                             Tag="%cd%"/>
                     </ContextMenu>
                 </Button.ContextMenu>
@@ -206,41 +222,13 @@
             <Button x:Name="btnWorkingVars"
                 Click="btnVars_Click"
                 Content="%"
+                ContextMenu="{Binding Path=ContextMenu, ElementName=btnArgVars}"
+                Tag="False"
                 Grid.Column="2"
                 Grid.Row="2"
                 Height="23"
                 Margin="8, 1, 0, 1"
-                Width="26">
-                <Button.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem
-                            Header="The following keywords are replaced with double-quoted path strings at runtime."
-                            IsEnabled="False"/>
-                        <Separator/>
-                        <MenuItem
-                            Click="miWorkingVars_Click"
-                            IsEnabled="False"
-                            Header="%f% - Selected files."
-                            Tag="%f%"/>
-                        <MenuItem
-                            Click="miWorkingVars_Click"
-                            Header="%d% - Selected folders."
-                            Tag="%d%"/>
-                        <MenuItem
-                            Click="miWorkingVars_Click"
-                            Header="%s% - Selected files and folders."
-                            Tag="%s%"/>
-                        <MenuItem
-                            Click="miWorkingVars_Click"
-                            Header="%c% - Current folder."
-                            Tag="%c%"/>
-                        <MenuItem
-                            Click="miWorkingVars_Click"
-                            Header="%cd% - Current folder if no selection, otherwise selected folder."
-                            Tag="%cd%"/>
-                    </ContextMenu>
-                </Button.ContextMenu>
-            </Button>
+                Width="26"/>
         </Grid>
         <qt:RestrictDesiredSize MinHeight="200">
             <r:TreeListView x:Name="tvwApps"
@@ -277,7 +265,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="{qt:Resx Key=Options_Page10_Apps, Index=6}" Width="100">
+                    <GridViewColumn Header="{qt:Resx Key=Options_Page10_Apps, Index=7}" Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock x:Name="txtHotkey"

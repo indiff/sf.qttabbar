@@ -163,7 +163,7 @@
     <value>Create and manage tab groups.;To assign a Shortcut Key to a group, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Group;Folder;Startup;Shortcut Key</value>
   </data>
   <data name="Options_Page10_Apps" xml:space="preserve">
-    <value>Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key</value>
+    <value>Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key;The following keywords are replaced with double-quoted path strings at runtime.;Selected files.;Selected folders.;Selected files and folders.;Current folder.;Current folder if no selection, otherwise selected folder.</value>
   </data>
   <data name="Options_Page11_ButtonBar" xml:space="preserve">
     <value>Customize the Button Bar.;Buttons;Button Bar Options;Large icons;Show labels on buttons;Lock the order of dropdown button menus;Lock the size of the search box;Custom Button Images</value>
