@@ -208,12 +208,20 @@ namespace QTTabBarLib {
 
         public static readonly DependencyProperty ParamProperty = DependencyProperty.RegisterAttached(
                 "Param", typeof(string), typeof(Resx), new PropertyMetadata(null));
-
-        public static void SetParam(UIElement element, string value) {
+        public static void SetParam(DependencyObject element, string value) {
             element.SetValue(ParamProperty, value);
         }
-        public static string GetParam(UIElement element) {
+        public static string GetParam(DependencyObject element) {
             return (string)element.GetValue(ParamProperty);
+        }
+
+        public static readonly DependencyProperty IndexProperty = DependencyProperty.RegisterAttached(
+                "Index", typeof(int), typeof(Resx), new PropertyMetadata(-1));
+        public static void SetIndex(DependencyObject element, int value) {
+            element.SetValue(IndexProperty, value);
+        }
+        public static int GetIndex(DependencyObject element) {
+            return (int)element.GetValue(IndexProperty);
         }
 
         public Resx() { }
@@ -237,13 +245,13 @@ namespace QTTabBarLib {
         }
 
         private string GetValue() {
-            if(DebugMode) return Key + "[" + Index + "]";
+            int idx = targetObject == null ? -1 : GetIndex(targetObject);
+            if(idx < 0) idx = Index;
+            if(DebugMode) return Key + "[" + idx + "]";
             string[] res;
-            if(!QTUtility.TextResourcesDic.TryGetValue(Key, out res) || Index >= res.Length) return "";
-            string ret = res[Index];
-            string param = targetObject == null
-                    ? null
-                    : (string)targetObject.GetValue(ParamProperty);
+            if(!QTUtility.TextResourcesDic.TryGetValue(Key, out res) || idx >= res.Length) return "";
+            string ret = res[idx];
+            string param = targetObject == null ? null : GetParam(targetObject);
             if(param != null) ret = string.Format(ret, param);
             return ret.Replace("&", "_");
         }

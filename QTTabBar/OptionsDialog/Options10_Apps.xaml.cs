@@ -150,15 +150,11 @@ namespace QTTabBarLib {
             menu.IsOpen = true;
         }
 
-        private void miArgVars_Click(object sender, RoutedEventArgs e) {
-            InsertVar(txtAppArgs, (string)((MenuItem)sender).Tag);
-        }
-
-        private void miWorkingVars_Click(object sender, RoutedEventArgs e) {
-            InsertVar(txtAppDir, (string)((MenuItem)sender).Tag);
-        }
-
-        private static void InsertVar(TextBox textbox, string var) {
+        private void miVars_Click(object sender, RoutedEventArgs e) {
+            MenuItem mi = (MenuItem)sender;
+            Button source = (Button)mi.DataContext;
+            TextBox textbox = source == btnArgVars ? txtAppArgs : txtAppDir;
+            string var = (string)mi.Tag;
             int caret = textbox.CaretIndex;
             textbox.Text = textbox.Text.Insert(caret, var);
             textbox.CaretIndex = caret + var.Length;
