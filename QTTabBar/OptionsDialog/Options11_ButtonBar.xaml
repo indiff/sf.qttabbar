@@ -116,10 +116,22 @@
                                     </Style>
                                 </Image.Style>
                             </Image>
-                            <TextBlock
+                            <TextBlock x:Name="txtName"
                                 Margin="5,0"
-                                Text="{Binding Path=Text}"
-                                VerticalAlignment="Center"/>
+                                Tag="{qt:Resx Key=ButtonBar_BtnName}"
+                                VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="qt:Resx.Index" Value="{Binding Path=Index}"/>
+                                        <Setter Property="Text" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsPluginButton}" Value="True">
+                                                <Setter Property="Text" Value="{Binding Path=PluginButtonText}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </DataTemplate>
                 </Grid.Resources>

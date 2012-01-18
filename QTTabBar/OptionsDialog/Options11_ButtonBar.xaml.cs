@@ -29,7 +29,6 @@ namespace QTTabBarLib {
     internal partial class Options11_ButtonBar : OptionsDialogTab {
         private ImageStrip imageStripLarge;
         private ImageStrip imageStripSmall;
-        private string[] ButtonItemsDisplayName;
         private ObservableCollection<ButtonEntry> ButtonPool;
         private ObservableCollection<ButtonEntry> CurrentButtons;
 
@@ -39,7 +38,6 @@ namespace QTTabBarLib {
 
         public override void InitializeConfig() {
             // Initialize the button bar tab.
-            ButtonItemsDisplayName = QTUtility.TextResourcesDic["ButtonBar_BtnName"];
             imageStripLarge = new ImageStrip(new Size(24, 24));
             using(Bitmap b = Resources_Image.ButtonStrip24) {
                 imageStripLarge.AddStrip(b);
@@ -216,27 +214,21 @@ namespace QTTabBarLib {
 
             public PluginInformation PluginInfo { get; private set; }
             public int Index { get; private set; }
+            public bool IsPluginButton { get { return Index >= QTButtonBar.BUTTONINDEX_PLUGIN; } }
             public int PluginButtonIndex { get; private set; }
-            public string Text {
+            public string PluginButtonText {
                 get {
-                    if(Index >= QTButtonBar.BUTTONINDEX_PLUGIN) {
-                        if(PluginInfo.PluginType == PluginType.BackgroundMultiple && PluginButtonIndex != -1) {
-                            Plugin plugin;
-                            if(parent.pluginManager.TryGetPlugin(PluginInfo.PluginID, out plugin)) {
-                                try {
-                                    return ((IBarMultipleCustomItems)plugin.Instance).GetName(PluginButtonIndex);
-                                }
-                                catch { }
+                    if(!IsPluginButton) return "";
+                    if(PluginInfo.PluginType == PluginType.BackgroundMultiple && PluginButtonIndex != -1) {
+                        Plugin plugin;
+                        if(parent.pluginManager.TryGetPlugin(PluginInfo.PluginID, out plugin)) {
+                            try {
+                                return ((IBarMultipleCustomItems)plugin.Instance).GetName(PluginButtonIndex);
                             }
+                            catch { }
                         }
-                        return PluginInfo.Name;
                     }
-                    else if(Index < parent.ButtonItemsDisplayName.Length) {
-                        return parent.ButtonItemsDisplayName[Index];
-                    }
-                    else {
-                        return "";
-                    }
+                    return PluginInfo.Name;
                 }
             }
 
