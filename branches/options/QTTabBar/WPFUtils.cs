@@ -133,10 +133,16 @@ namespace QTTabBarLib {
     }
 
     public class BindableRun : Run {
+        public BindableRun() {
+            // Workaround for stupid framework weirdness
+            // http://msdn.microsoft.com/en-us/magazine/dd569761.aspx#id0420040
+            SetBinding(DataContextProperty, new Binding(DataContextProperty.Name) {
+                RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(FrameworkElement), 1)
+            });
+        }
         public static readonly DependencyProperty TextProperty =
                 DependencyProperty.Register("Text", typeof(string),
                 typeof(BindableRun), new PropertyMetadata(OnTextChanged));
-
         private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             ((Run)d).Text = (string)e.NewValue;
         }
@@ -233,7 +239,8 @@ namespace QTTabBarLib {
         public int Index { get; set; }
         private DependencyObject targetObject;
 
-        public override object ProvideValue(IServiceProvider serviceProvider) {            
+        public override object ProvideValue(IServiceProvider serviceProvider) {
+            if(targetObject != null) return new Resx(Key, Index).ProvideValue(serviceProvider);
             IProvideValueTarget target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
             if (target != null) {
                 targetObject = target.TargetObject as DependencyObject;
