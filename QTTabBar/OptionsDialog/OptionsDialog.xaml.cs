@@ -172,7 +172,8 @@ namespace QTTabBarLib {
 
         private void btnResetPage_Click(object sender, RoutedEventArgs e) {
             MessageBoxResult response = MessageBox.Show(
-                    "Reset all options on this page to their default values?", "Confirm",
+                    QTUtility.TextResourcesDic["OptionsDialog"][1],
+                    QTUtility.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(response == MessageBoxResult.OK) {
                 ((OptionsDialogTab)tabbedPanel.SelectedItem).ResetConfig();   
@@ -181,7 +182,8 @@ namespace QTTabBarLib {
 
         private void btnResetAll_Click(object sender, RoutedEventArgs e) {
             MessageBoxResult response = MessageBox.Show(
-                    "Reset all options to their default values?  This will not affect Groups, Applications, or Plugins.", "Confirm",
+                    QTUtility.TextResourcesDic["OptionsDialog"][2],
+                    QTUtility.TextResourcesDic["OptionsDialog"][3],
                     MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(response == MessageBoxResult.OK) {
                 foreach(OptionsDialogTab tab in tabbedPanel.Items) {
@@ -287,8 +289,10 @@ namespace QTTabBarLib {
             }
 
             // check for key conflicts
-            const string Conflict = "This key is already assigned to:\n{0}\n\nReassign?";
-            const string MsgTitle = "Keystroke conflict";
+            string Conflict =
+                    QTUtility.TextResourcesDic["Options_Page08_Keys"][6] +
+                    Environment.NewLine + "{0}" + Environment.NewLine + Environment.NewLine +
+                    QTUtility.TextResourcesDic["Options_Page08_Keys"][7];
             IHotkeyEntry conflictingEntry = tabbedPanel.Items
                     .OfType<IHotkeyContainer>()
                     .SelectMany(hc => hc.GetHotkeyEntries())
@@ -296,14 +300,12 @@ namespace QTTabBarLib {
             if(conflictingEntry != null) {
                 if(MessageBoxResult.OK != MessageBox.Show(
                         string.Format(Conflict, conflictingEntry.KeyActionText),
-                        MsgTitle,
-                        MessageBoxButton.OKCancel,
-                        MessageBoxImage.Warning)) {
+                        QTUtility.TextResourcesDic["Options_Page08_Keys"][8],
+                        MessageBoxButton.OKCancel, MessageBoxImage.Warning)) {
                     return false;
                 }
                 conflictingEntry.ShortcutKey = Keys.None;              
             }
-
             finalKey = modkey;
             return true;
         }

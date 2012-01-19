@@ -41,8 +41,9 @@ namespace QTTabBarLib {
         private void btnRecentFilesClear_Click(object sender, RoutedEventArgs e) {
             // TODO: sync
             var resp = MessageBox.Show(
-                    "Clear file history?", "Confirmation", MessageBoxButton.OKCancel,
-                    MessageBoxImage.Question, MessageBoxResult.Cancel);
+                    QTUtility.TextResourcesDic["Options_Page05_General"][13],
+                    QTUtility.TextResourcesDic["OptionsDialog"][3],
+                    MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(resp == MessageBoxResult.Cancel) return;
             QTUtility.ExecutedPathsList.Clear();
             btnRecentFilesClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
@@ -51,8 +52,9 @@ namespace QTTabBarLib {
         private void btnRecentTabsClear_Click(object sender, RoutedEventArgs e) {
             // TODO: sync
             var resp = MessageBox.Show(
-                    "Clear tab history?", "Confirmation", MessageBoxButton.OKCancel,
-                    MessageBoxImage.Question, MessageBoxResult.Cancel);
+                    QTUtility.TextResourcesDic["Options_Page05_General"][14],
+                    QTUtility.TextResourcesDic["OptionsDialog"][3],
+                    MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
             if(resp == MessageBoxResult.Cancel) return;
             QTUtility.ClosedTabHistoryList.Clear();
             btnRecentTabsClear.GetBindingExpression(IsEnabledProperty).UpdateTarget();
@@ -64,6 +66,7 @@ namespace QTTabBarLib {
 
         private void btnExport_Click(object sender, RoutedEventArgs e) {
             using(SaveFileDialog sf = new SaveFileDialog()) {
+                // todo: localize?
                 sf.Filter = "Registry file (*.reg)|*.reg";
                 sf.RestoreDirectory = true;
                 DateTime dt = DateTime.Now;

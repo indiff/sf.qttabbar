@@ -213,7 +213,7 @@ namespace QTTabBarLib {
         }
 
         public static readonly DependencyProperty ParamProperty = DependencyProperty.RegisterAttached(
-                "Param", typeof(string), typeof(Resx), new PropertyMetadata(null));
+                "Param", typeof(string), typeof(Resx), new PropertyMetadata(null, OnAttachedPropertyChanged));
         public static void SetParam(DependencyObject element, string value) {
             element.SetValue(ParamProperty, value);
         }
@@ -222,12 +222,26 @@ namespace QTTabBarLib {
         }
 
         public static readonly DependencyProperty IndexProperty = DependencyProperty.RegisterAttached(
-                "Index", typeof(int), typeof(Resx), new PropertyMetadata(-1));
+                "Index", typeof(int), typeof(Resx), new PropertyMetadata(-1, OnAttachedPropertyChanged));
         public static void SetIndex(DependencyObject element, int value) {
             element.SetValue(IndexProperty, value);
         }
         public static int GetIndex(DependencyObject element) {
             return (int)element.GetValue(IndexProperty);
+        }
+
+        public static readonly DependencyProperty InstanceProperty = DependencyProperty.RegisterAttached(
+                "Instance", typeof(Resx), typeof(Resx), new PropertyMetadata(null));
+        public static void SetInstance(DependencyObject element, Resx value) {
+            element.SetValue(InstanceProperty, value);
+        }
+        public static Resx GetInstance(DependencyObject element) {
+            return (Resx)element.GetValue(InstanceProperty);
+        }
+
+        private static void OnAttachedPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs) {
+            Resx resx = GetInstance(dependencyObject);
+            if(resx != null) resx.listener.Value = resx.GetValue();
         }
 
         public Resx() { }
@@ -238,6 +252,7 @@ namespace QTTabBarLib {
         public string Key { get; set; }
         public int Index { get; set; }
         private DependencyObject targetObject;
+        private ResxListener listener;
 
         public override object ProvideValue(IServiceProvider serviceProvider) {
             if(targetObject != null) return new Resx(Key, Index).ProvideValue(serviceProvider);
@@ -246,7 +261,8 @@ namespace QTTabBarLib {
                 targetObject = target.TargetObject as DependencyObject;
                 if(targetObject == null && !(target.TargetObject is Setter)) return this;
             }
-            ResxListener listener = new ResxListener(this);
+            listener = new ResxListener(this);
+            SetInstance(targetObject, this);
             ResxEventManager.AddListener(listener);
             return (new Binding("Value") { Source = listener }).ProvideValue(serviceProvider);
         }

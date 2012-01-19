@@ -30,121 +30,40 @@ using System.Windows.Threading;
 namespace QTTabBarLib {
     internal partial class Options07_Mouse : OptionsDialogTab {
 
-        // todo: localize all of these
-        #region ToLocalize
-        
-        private readonly static Dictionary<MouseTarget, string> MouseTargetItems
-                = new Dictionary<MouseTarget, string> {
-            {MouseTarget.Anywhere,          "Anywhere"              },
-            {MouseTarget.Tab,               "Tab"                   },
-            {MouseTarget.TabBarBackground,  "Tab Bar Background"    },
-            {MouseTarget.FolderLink,        "Folder Link"           },
-            {MouseTarget.ExplorerItem,      "File or Folder"        },
-            {MouseTarget.ExplorerBackground,"Explorer Background"   },
-        };
-        private readonly static Dictionary<BindAction, string> MouseActionItems
-                = new Dictionary<BindAction, string> {
-            {BindAction.Nothing,                "Do nothing"},
-            {BindAction.GoBack,                 "Go back"},
-            {BindAction.GoForward,              "Go forward"},
-            {BindAction.GoFirst,                "Go to back to start"},
-            {BindAction.GoLast,                 "Go forward to end"},
-            {BindAction.NextTab,                "Next tab"},
-            {BindAction.PreviousTab,            "Previous tab"},
-            {BindAction.FirstTab,               "First tab"},
-            {BindAction.LastTab,                "Last tab"},
-            {BindAction.CloseCurrent,           "Close current tab"},
-            {BindAction.CloseAllButCurrent,     "Close all tabs except current"},
-            {BindAction.CloseLeft,              "Close tabs to the left of current"},
-            {BindAction.CloseRight,             "Close tabs to the right of current"},
-            {BindAction.CloseWindow,            "Close window"},
-            {BindAction.RestoreLastClosed,      "Restore last closed tab"},
-            {BindAction.CloneCurrent,           "Clone current tab"},
-            {BindAction.TearOffCurrent,         "Open current tab in new window"},
-            {BindAction.LockCurrent,            "Lock current tab"},
-            {BindAction.LockAll,                "Lock all tabs"},
-            {BindAction.BrowseFolder,           "Browse for folder"},
-            {BindAction.CreateNewGroup,         "Create new group"},
-            {BindAction.ShowOptions,            "Show options"},
-            {BindAction.ShowToolbarMenu,        "Show Toolbar menu"},
-            {BindAction.ShowTabMenuCurrent,     "Show current tab context menu"},
-            {BindAction.ShowGroupMenu,          "Show Button Bar Group menu"},
-            {BindAction.ShowRecentFolderMenu,   "Show Button Bar Recently Closed menu" },
-            {BindAction.ShowUserAppsMenu,       "Show Button Bar Apps menu"},
-            {BindAction.ToggleMenuBar,          "Toggle Explorer Menu Bar"},
-            {BindAction.CopySelectedPaths,      "Copy paths of selected files"},
-            {BindAction.CopySelectedNames,      "Copy names of selected files"},
-            {BindAction.ChecksumSelected,       "View checksums selected files"},
-            {BindAction.ToggleTopMost,          "Toggle always on top"},
-            {BindAction.TransparencyPlus,       "Transparency +"},
-            {BindAction.TransparencyMinus,      "Transparency -"},
-            {BindAction.FocusFileList,          "Focus file list"},
-            {BindAction.FocusSearchBarReal,     "Focus Explorer search box"},
-            {BindAction.FocusSearchBarBBar,     "Focus Button Bar search box"},
-            {BindAction.ShowSDTSelected,        "Show Subdirectory Tip menu for selected folder"},
-            {BindAction.SendToTray,             "Send window to tray"},
-            {BindAction.FocusTabBar,            "Focus tab bar"},
-            {BindAction.NewTab,                 "Open new tab"},
-            {BindAction.NewWindow,              "Open new window"},
-            {BindAction.NewFolder,              "Create new folder"},
-            {BindAction.NewFile,                "Create new empty file"},
-            {BindAction.SwitchToLastActivated,  "Switch to last activated tab"},
-            {BindAction.MergeWindows,           "Merge open windows"},
-            {BindAction.ShowRecentFilesMenu,    "Show Button Bar Recent Files menu"},
-            {BindAction.SortTabsByName,         "Sort tabs by name"},
-            {BindAction.SortTabsByPath,         "Sort tabs by path"},
-            {BindAction.SortTabsByActive,       "Sort tabs by last activated"},
-            {BindAction.UpOneLevel,             "Up one level"},
-            {BindAction.Refresh,                "Refresh"},
-            {BindAction.Paste,                  "Paste"},
-            {BindAction.Maximize,               "Maximize"},
-            {BindAction.Minimize,               "Minimize"},
-            {BindAction.ItemOpenInNewTab,       "Open in new tab"},
-            {BindAction.ItemOpenInNewTabNoSel,  "Open in new tab without activating"},
-            {BindAction.ItemOpenInNewWindow,    "Open in new window"},
-            {BindAction.ItemCut,                "Cut"},
-            {BindAction.ItemCopy,               "Copy"},
-            {BindAction.ItemDelete,             "Delete"},
-            {BindAction.ItemProperties,         "Properties"},
-            {BindAction.CopyItemPath,           "Copy path"},
-            {BindAction.CopyItemName,           "Copy name"},
-            {BindAction.ChecksumItem,           "View checksum"},
-            {BindAction.CloseTab,               "Close tab"},
-            {BindAction.CloseLeftTab,           "Close tabs to left"},
-            {BindAction.CloseRightTab,          "Close tabs to right"},
-            {BindAction.UpOneLevelTab,          "Up one level"},
-            {BindAction.LockTab,                "Lock"},
-            {BindAction.ShowTabMenu,            "Context menu"},
-            {BindAction.TearOffTab,             "Open in new window"},
-            {BindAction.CloneTab,               "Clone"},
-            {BindAction.CopyTabPath,            "Copy path"},
-            {BindAction.TabProperties,          "Properties"},
-            {BindAction.ShowTabSubfolderMenu,   "Show Subdirectory Tip menu"},
-            {BindAction.CloseAllButThis,        "Close all but this"}
-        };
-        private static readonly Dictionary<MouseChord, string> MouseButtonItems
-                = new Dictionary<MouseChord, string> {
-            {MouseChord.Left,   "Left Click"},
-            {MouseChord.Right,  "Right Click"},
-            {MouseChord.Middle, "Middle Click"},
-            {MouseChord.Double, "Double Click"},
-            {MouseChord.X1,     "X1 Click"},
-            {MouseChord.X2,     "X2 Click"},
-        };
-        private static readonly Dictionary<MouseChord, string> MouseModifierItems
-                = new Dictionary<MouseChord, string> {
-            {MouseChord.None,   "-"},
-            {MouseChord.Shift,  "Shift"},
-            {MouseChord.Ctrl,   "Ctrl"},
-            {MouseChord.Alt,    "Alt"},
-        };
-        #endregion
+        #region Dictionaries
 
-        #region Mouse Action dictionaries
+        // Mappings to Resx indices.
+        private readonly static Dictionary<MouseTarget, int> MouseTargetResx
+                = new Dictionary<MouseTarget, int> {
+            {MouseTarget.Anywhere,              6},
+            {MouseTarget.Tab,                   7},
+            {MouseTarget.TabBarBackground,      8},
+            {MouseTarget.FolderLink,            9},
+            {MouseTarget.ExplorerItem,          10},
+            {MouseTarget.ExplorerBackground,    11},
+        };
+        private static readonly Dictionary<MouseChord, int> MouseButtonResx
+                = new Dictionary<MouseChord, int> {
+            {MouseChord.Left,   12},
+            {MouseChord.Right,  13},
+            {MouseChord.Middle, 14},
+            {MouseChord.Double, 15},
+            {MouseChord.X1,     16},
+            {MouseChord.X2,     17},
+        };
+
+        // I don't think these need to be localized.
+        private static readonly Dictionary<MouseChord, string> MouseModifierStrings
+                = new Dictionary<MouseChord, string> {
+            {MouseChord.None,   ""},
+            {MouseChord.Shift,  "Shift + "},
+            {MouseChord.Ctrl,   "Ctrl + "},
+            {MouseChord.Alt,    "Alt + "},
+        };
 
         // Which actions are valid for which targets?
-        private readonly static Dictionary<MouseTarget, Dictionary<BindAction, string>> MouseTargetActions
-                = new Dictionary<MouseTarget, Dictionary<BindAction, string>> {
+        private readonly static Dictionary<MouseTarget, BindAction[]> MouseTargetActions
+                = new Dictionary<MouseTarget, BindAction[]> {
             {MouseTarget.Anywhere, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.GoBack,
@@ -153,7 +72,7 @@ namespace QTTabBarLib {
                 BindAction.GoLast,
                 BindAction.NextTab,
                 BindAction.PreviousTab
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
             {MouseTarget.Tab, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.CloseTab,
@@ -166,7 +85,7 @@ namespace QTTabBarLib {
                 BindAction.CopyTabPath,
                 BindAction.TabProperties,
                 BindAction.ShowTabSubfolderMenu,
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
             {MouseTarget.TabBarBackground, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.NewTab,
@@ -184,7 +103,7 @@ namespace QTTabBarLib {
                 BindAction.SortTabsByName,
                 BindAction.SortTabsByPath,
                 BindAction.SortTabsByActive,
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
             {MouseTarget.FolderLink, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.ItemOpenInNewTab,
@@ -193,7 +112,7 @@ namespace QTTabBarLib {
                 BindAction.ItemProperties,
                 BindAction.CopyItemPath,
                 BindAction.CopyItemName,
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
             {MouseTarget.ExplorerItem, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.ItemOpenInNewTab,
@@ -206,7 +125,7 @@ namespace QTTabBarLib {
                 BindAction.CopyItemPath,
                 BindAction.CopyItemName,
                 BindAction.ChecksumItem,
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
             {MouseTarget.ExplorerBackground, new BindAction[] {
                 BindAction.Nothing,
                 BindAction.BrowseFolder,
@@ -217,37 +136,37 @@ namespace QTTabBarLib {
                 BindAction.Paste,
                 BindAction.Maximize,
                 BindAction.Minimize,
-            }.ToDictionary(k => k, k => MouseActionItems[k])},
+            }},
         };
 
         // Which buttons are valid for which targets?
-        private static readonly Dictionary<MouseTarget, Dictionary<MouseChord, string>> MouseTargetButtons
-                = new Dictionary<MouseTarget, Dictionary<MouseChord, string>> {
+        private static readonly Dictionary<MouseTarget, MouseChord[]> MouseTargetButtons
+                = new Dictionary<MouseTarget, MouseChord[]> {
             {MouseTarget.Anywhere, new MouseChord[] {
                 MouseChord.X1,
                 MouseChord.X2,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
             {MouseTarget.ExplorerBackground, new MouseChord[] {
                 MouseChord.Middle,
                 MouseChord.Double,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
             {MouseTarget.ExplorerItem, new MouseChord[] {
                 MouseChord.Middle,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
             {MouseTarget.FolderLink, new MouseChord[] {
                 MouseChord.Left,
                 MouseChord.Middle,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
             {MouseTarget.Tab, new MouseChord[] {
                 MouseChord.Left,
                 MouseChord.Middle,
                 MouseChord.Double,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
             {MouseTarget.TabBarBackground, new MouseChord[] {
                 MouseChord.Left,
                 MouseChord.Middle,
                 MouseChord.Double,
-            }.ToDictionary(k => k, k => MouseButtonItems[k])},
+            }},
         };
 
         private static Dictionary<MouseButton, MouseChord> MouseButtonMappings =
@@ -263,6 +182,19 @@ namespace QTTabBarLib {
 
         private ObservableCollection<MouseEntry> MouseBindings;
         private DispatcherTimer mouseTimer;
+
+        private static int ActionToResx(BindAction ba) {
+            int i = (int)ba;
+            return i < (int)BindAction.KEYBOARD_ACTION_COUNT
+                    ? i
+                    : i + (int)BindAction.KEYBOARD_ACTION_COUNT - QTUtility.FIRST_MOUSE_ONLY_ACTION;
+        }
+
+        private static BindAction ResxToAction(int i) {
+            return i < (int)BindAction.KEYBOARD_ACTION_COUNT
+                    ? (BindAction)i
+                    : (BindAction)(i - (int)BindAction.KEYBOARD_ACTION_COUNT + QTUtility.FIRST_MOUSE_ONLY_ACTION);
+        }
 
         public Options07_Mouse() {
             InitializeComponent();
@@ -289,10 +221,11 @@ namespace QTTabBarLib {
                 MouseBindings.Add(new MouseEntry(MouseTarget.TabBarBackground, p.Key, p.Value));
             }
             ICollectionView view = CollectionViewSource.GetDefaultView(MouseBindings);
-            PropertyGroupDescription groupDescription = new PropertyGroupDescription("TargetText");
+            PropertyGroupDescription groupDescription = new PropertyGroupDescription("TargetIdx");
             foreach(MouseTarget target in Enum.GetValues(typeof(MouseTarget))) {
-                groupDescription.GroupNames.Add(MouseTargetItems[target]);
+                groupDescription.GroupNames.Add(MouseTargetResx[target]);
             }
+
             view.GroupDescriptions.Add(groupDescription);
             lvwMouseBindings.ItemsSource = view;
         }
@@ -337,7 +270,7 @@ namespace QTTabBarLib {
                 chord |= MouseChord.Alt;
             }
             // ugh.  wish there was a better way to do this, but I don't think there is one...
-            MouseTarget target = MouseTargetItems.First(kv => kv.Value == (string)control.Tag).Key;
+            MouseTarget target = MouseTargetResx.First(kv => kv.Value == (int)control.Tag).Key;
 
             // watch out for double clicks
             if(e.ChangedButton == MouseButton.Left) {
@@ -374,12 +307,14 @@ namespace QTTabBarLib {
 
         private void AddMouseAction(MouseChord chord, MouseTarget target) {
             MouseChord button = chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
-            if(!MouseTargetButtons[target].ContainsKey(button)) {
+            if(!MouseTargetButtons[target].Contains(button)) {
+                var dict = QTUtility.TextResourcesDic["Options_Page07_Mouse"];
                 MessageBox.Show(
-                        "This mouse button cannot be used for this target.  " +
-                        "The valid mouse buttons for this target are:\r\n" +
-                        MouseTargetButtons[target].Keys.Select(k => MouseButtonItems[k]).StringJoin("\r\n"),
-                        "Invalid Button", MessageBoxButton.OK, MessageBoxImage.Hand);
+                        dict[18] + Environment.NewLine +
+                        dict[19] + Environment.NewLine +
+                        MouseTargetButtons[target].Select(k => "  " + dict[MouseButtonResx[k]])
+                            .StringJoin(Environment.NewLine),
+                        dict[20], MessageBoxButton.OK, MessageBoxImage.Hand);
                 return;
             }
             MouseEntry entry = MouseBindings.FirstOrDefault(e => e.Chord == chord && e.Target == target);
@@ -440,26 +375,28 @@ namespace QTTabBarLib {
                     if(isEditing) IsSelected = true;
                 }
             }
-            public Dictionary<BindAction, string> ComboBoxItems {
-                get { return MouseTargetActions[Target]; }
+            public IEnumerable<int> ComboBoxItems {
+                get { return MouseTargetActions[Target].Select(ActionToResx); }
             }
-            public string GestureText {
+            public string GestureModifiers {
                 get {
-                    string ret = "";
-                    foreach(var mod in new MouseChord[] { MouseChord.Ctrl, MouseChord.Shift, MouseChord.Alt }) {
-                        if((Chord & mod) == mod) {
-                            ret += MouseModifierItems[mod] + " + ";
-                        }
-                    }
-                    MouseChord button = Chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift);
-                    return ret + MouseButtonItems[button];
+                    return new MouseChord[] {MouseChord.Ctrl, MouseChord.Shift, MouseChord.Alt}
+                            .Where(mod => (Chord & mod) == mod)
+                            .Select(c => MouseModifierStrings[c])
+                            .StringJoin("");
                 }
             }
-            public string TargetText { get { return MouseTargetItems[Target]; } }
-            public string ActionText { get { return MouseActionItems[Action]; } }
+            public int ButtonIdx { get {
+                return MouseButtonResx[Chord & ~(MouseChord.Alt | MouseChord.Ctrl | MouseChord.Shift)];
+            }}
+            public int TargetIdx { get { return MouseTargetResx[Target]; } }
             public MouseTarget Target { get; private set; }
             public BindAction Action { get; set; }
             public MouseChord Chord { get; private set; }
+            public int ActionIdx {
+                get { return ActionToResx(Action); }
+                set { Action = ResxToAction(value); }
+            }
 
             public MouseEntry(MouseTarget target, MouseChord chord, BindAction action) {
                 Target = target;

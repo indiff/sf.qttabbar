@@ -33,12 +33,10 @@ namespace QTTabBarLib {
         }
 
         public override void InitializeConfig() {
-            string[] arrActions = QTUtility.TextResourcesDic["ShortcutKeys_ActionNames"];
-            string[] arrGrps = QTUtility.TextResourcesDic["ShortcutKeys_Groups"];
             int[] keys = WorkingConfig.keys.Shortcuts;
             HotkeyEntries = new List<HotkeyEntry>();
-            for(int i = 0; i <= (int)QTUtility.LAST_KEYBOARD_ACTION; ++i) {
-                HotkeyEntries.Add(new HotkeyEntry(keys, i, arrActions[i], arrGrps[0]));
+            for(int i = 0; i < (int)BindAction.KEYBOARD_ACTION_COUNT; ++i) {
+                HotkeyEntries.Add(new HotkeyEntry(keys, i));
             }
 
             foreach(string pluginID in QTUtility.dicPluginShortcutKeys.Keys) {
@@ -47,7 +45,7 @@ namespace QTTabBarLib {
                 if(!pluginManager.TryGetPlugin(pluginID, out p)) continue;
                 PluginInformation pi = p.PluginInformation;
                 if(pi.ShortcutKeyActions == null) continue;
-                string group = pi.Name + " (" + arrGrps[1] + ")";
+                string group = pi.Name;
                 if(keys == null && keys.Length == pi.ShortcutKeyActions.Length) {
                     Array.Resize(ref keys, pi.ShortcutKeyActions.Length);
                     // Hmm, I don't like this...
@@ -56,7 +54,7 @@ namespace QTTabBarLib {
                 HotkeyEntries.AddRange(pi.ShortcutKeyActions.Select((act, i) => new HotkeyEntry(keys, i, act, group)));
             }
             ICollectionView view = CollectionViewSource.GetDefaultView(HotkeyEntries);
-            PropertyGroupDescription groupDescription = new PropertyGroupDescription("Group");
+            PropertyGroupDescription groupDescription = new PropertyGroupDescription("PluginName");
             view.GroupDescriptions.Add(groupDescription);
             lvwHotkeys.ItemsSource = view;
         }
@@ -118,14 +116,20 @@ namespace QTTabBarLib {
             public string HotkeyString {
                 get { return QTUtility2.MakeKeyString(ShortcutKey); }
             }
-            public string Group { get; set; }
-            public string KeyActionText { get; set; }
+            public string PluginName { get; set; }
+            public string KeyActionText { get {
+                return PluginName == "" 
+                        ? QTUtility.TextResourcesDic["ShortcutKeys_ActionNames"][Index] 
+                        : pluginAction;
+            } }
             public int Index { get; set; }
-            public HotkeyEntry(int[] raws, int index, string action, string group) {
+
+            private string pluginAction;
+            public HotkeyEntry(int[] raws, int index, string action = "", string pluginName = "") {
                 this.raws = raws;
                 Index = index;
-                KeyActionText = action;
-                Group = group;
+                pluginAction = action;
+                PluginName = pluginName;
             }
         }
 

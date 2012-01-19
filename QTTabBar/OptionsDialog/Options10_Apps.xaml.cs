@@ -99,7 +99,7 @@ namespace QTTabBarLib {
             AppEntry sel = tvwApps.SelectedItem as AppEntry;
             IList list = sel == null ? CurrentApps : sel.IsFolder ? sel.Children : sel.ParentList;
             int idx = sel == null ? 0 : list.IndexOf(sel) + 1;
-            AppEntry entry = new AppEntry("New Folder", new AppEntry[0]);
+            AppEntry entry = new AppEntry(QTUtility.TextResourcesDic["Options_Page10_Apps"][14], new AppEntry[0]);
             list.Insert(idx, entry);
             if(sel != null && sel.IsFolder) sel.IsExpanded = true;
             tvwApps.Focus();
@@ -112,7 +112,8 @@ namespace QTTabBarLib {
             if(sel == null) return;
             if(sel.IsFolder && sel.Children.Count > 0) {
                 var resp = MessageBox.Show(
-                        "Remove this folder and its contents?", "Confirmation",
+                        QTUtility.TextResourcesDic["Options_Page10_Apps"][15],
+                        QTUtility.TextResourcesDic["OptionsDialog"][3],
                         MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel);
                 if(resp == MessageBoxResult.Cancel) return;
             }
@@ -182,7 +183,7 @@ namespace QTTabBarLib {
             public Keys ShortcutKey { get; set; }
             public string KeyActionText {
                 get {
-                    const string AppPrefix = "Launch application \"{0}\"";
+                    string AppPrefix = QTUtility.TextResourcesDic["Options_Page10_Apps"][17];
                     return string.Format(AppPrefix, Name);
                 }
             }
