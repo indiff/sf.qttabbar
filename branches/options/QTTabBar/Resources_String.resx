@@ -123,14 +123,14 @@
   <data name="ButtonBar_Misc" xml:space="preserve">
     <value>Path;Name;Current folder path;Current folder name;MD5; items;Paths of all open tabs</value>
   </data>
-  <data name="ButtonBar_Option" xml:space="preserve">
-    <value>&amp;Add;&amp;Remove;&amp;Close;&amp;Reset;&amp;Up;&amp;Down;&amp;Browse image...;Small icon;Large icon;&amp;Customize...;&amp;Lock menus;Re&amp;set image;Show text labels;Selective text;No text labels;Lock the size of the search box</value>
-  </data>
   <data name="DialogButtons" xml:space="preserve">
     <value>OK;Cancel;&amp;Apply;&amp;Default;Reset &amp;Page;&amp;Reset All;Reset;Add;Add...;Remove;Options;Enable;Disable;Undo;Load...;Save...</value>
   </data>
   <data name="DragDropToolTip" xml:space="preserve">
     <value>Copy to:;Move to:;Create shortcut in:</value>
+  </data>
+  <data name="FileFilters" xml:space="preserve">
+    <value>Image Files;Language Files;Plugin Files</value>
   </data>
   <data name="Misc_Strings" xml:space="preserve">
     <value>Desktop Search;Image file is invalid.\r\n\r\nPlease specify 432 x 40 px image file.;Search Results in;shortcut</value>
@@ -172,7 +172,7 @@
     <value>Customize the Button Bar.;Buttons;Button Bar Options;Large icons;Show labels on buttons;Lock the order of dropdown button menus;Lock the size of the search box;Custom Button Images</value>
   </data>
   <data name="Options_Page12_Plugins" xml:space="preserve">
-    <value>Manage third-party plugins.;Install a Plugin;(Disabled);by {0};{0} has been removed.;This plugin will be installed when you press OK or Apply.;This plugin will be enabled when you press OK or Apply.;This plugin will be disabled when you press OK or Apply.</value>
+    <value>Manage third-party plugins.;Install a Plugin;(Disabled);by {0};{0} has been removed.;This plugin will be installed when you press OK or Apply.;This plugin will be enabled when you press OK or Apply.;This plugin will be disabled when you press OK or Apply.;Uninstalling this plugin will also uninstall the following plugins:;Proceed?</value>
   </data>
   <data name="Options_Page13_Language" xml:space="preserve">
     <value>Change the language.;Main language;Use built-in language:;Use language file:;Plugin language files;Language File Editor;Show Language Editor...;Original;Translated</value>
@@ -184,12 +184,7 @@
     <value>Go back;Go forward;Go back to start;Go forward to end;Select next tab;Select previous tab;Select first tab;Select last tab;Close current tab;Close all but current;Close left;Close right;Close window;Undo close;Clone current tab;Open current folder in new window;Lock / unlock current;Lock / unlock all;Browse folder;Create new group;Open option dialog;Show toolbar menu;Show current tab menu;Show group menu (Button Bar);Show recent folder menu (Button Bar);Show user application menu (Button Bar);Show / hide menu bar;Copy selected files path;Copy selected files name;Copy current folder path;Copy current folder name;Check MD5 of selected files;Bring window to topmost;Transparency +;Transparency -;Focus file list;Focus search bar (Explorer);Focus search box (Button Bar);Show Subfolder Tip Menu for selected folder;Send window to Task Tray;Focus the Tab Bar;Open new tab;Open new window;Create new folder;Create new empty file;Switch to last activated tab;Merge tabs from other windows;Show recent files menu (Button Bar);Sort tabs by name;Sort tabs by path;Sort tabs by last activation;Nothing;Up one level;Refresh;Paste;Maximize;Minimize;Open in new tab;Open in new tab without activating;Open in new window;Cut;Copy;Delete;Properties;Copy path;Copy name;View checksum;Close tab;Close tabs to left;Close tabs to right;Up one level;Lock;Show context menu;Clone;Copy path;Properties;Show Subdirectory Tip menu;Close all but this</value>
   </data>
   <data name="ShortcutKeys_Groups" xml:space="preserve">
-    <value>QTTabBar;{0} (Plugin);User commands</value>
-  </data>
-  <data name="ShortcutKeys_MsgReassign" xml:space="preserve">
-    <value>"{0}" is already assigned for "{1}".
-
-Do you want to reassign?;Confirmation of reassignment</value>
+    <value>QTTabBar;{0} (Plugin)</value>
   </data>
   <data name="SiteURL" xml:space="preserve">
     <value>http://qttabbar.sourceforge.net</value>
@@ -204,22 +199,6 @@ Do you want to reassign?;Confirmation of reassignment</value>
   </data>
   <data name="TabBar_NewGroup" xml:space="preserve">
     <value>Create New Group;Group name:;Add all tabs</value>
-  </data>
-  <data name="TabBar_Option" xml:space="preserve">
-    <value>Activate new tab;Reuse existing tab;Close all tabs when group opened;Show tooltips;Capture mouse X1/X2 buttons;Show navigation buttons;Tab history;Recent files;Use file Drag &amp;&amp; Drop onto tabs;Language file:;New tab location:;After current tab closed, activate:;When tab double-clicked:;When background double-clicked:;Path/Group name:;Multiple rows of tab;Rename ambiguous tabs automatically;When mouse wheel clicked on folder:;Up one level when dbl clicked on folder margin;No window resizing;Save window transparency;Capture new Explorer processes;Show folder tree when new process captured;Do not capture window as a new tab when opened from outside;Horizontal scroll with Shift + Wheel;Change view mode with Ctrl + Wheel (XP);Prevent window closing when tabs exist;Prevent window closing when tabs locked;Restore tabs;Restore locked tabs;Use tab image;Highlight color;Tab size:;Width;Height;Max;Min;Font;Bold active tab title;Tab title color;Active;Inactive;Default;Toolbar background color;Folder icon;Path;Arguments;Working directory;Plugin language file:;Hide menu bar;XP-compatibile BS key(Vista);Full row selection in details view;Grid lines for details view;Alternate row color in details view;Show preview tooltip;with Shift key down;Enable 'Sub folder tip';Show hidden objects;Show files;Eliminate file extension from selection when renaming(XP);Show system objects;Send window to Task Tray by clicking Close button;Max Width;Max Height;Toolbar background image;Change selection by F2 when renaming files;Show close button on tabs;When tab wheel-clicked:;Enable 'Sub folder tip' on Tabs;Open new window at...;With Alt key down;On mouse hover;Export settings...;Cursor loop;Network max timeout (seconds, 0 for system value);Send window to Task Tray on minimized;Text alignment;Menu renderer</value>
-  </data>
-  <data name="TabBar_Option2" xml:space="preserve">
-    <value>On Folder Tree, open a new tab by wheel-click or click with shift key down (XP);Show tab switcher by Ctrl+Tab;Text shadow;Check for updates periodically;Remove original tab when creating new window;Indicate drive letter;Sound;Install a plugin;Options;Disable;Enable;Uninstall;About {0};If you uninstall this plugin, you must also uninstall 
-
-{0}
-
-Are you sure you want to do this?;Display file information below images;Use old ListView control (Win7);Display column headers in all views (Win7)</value>
-  </data>
-  <data name="TabBar_Option_Buttons" xml:space="preserve">
-    <value>Clear;Up;Down;Add separator;Start Up;Plugin Option;Bg color;Txt color;Default;Set;Delete;Check now;Copy to clipboard</value>
-  </data>
-  <data name="TabBar_Option_DropDown" xml:space="preserve">
-    <value>Left;Right;Most right;Most left;Last activated;Up One Level;Close;Lock;Show menu;New window;Clone;Copy path;Properties; - ;Browse folder;Close all but current;Lock all;Restore last closed;Options;Close window;Clone current;multiple;New tab;Auto;Fixed;Limit tab width;Stretch;Tile;Real size;Left;Center;Vista;XP;Stretch on each band</value>
   </data>
   <data name="TabBar_Option_Genre" xml:space="preserve">
     <value>Window;Tabs;Tweaks;Tooltips;General;Appearance;Mouse;Keys;Groups;Applications;Button Bar;Plugins;Language;About</value>

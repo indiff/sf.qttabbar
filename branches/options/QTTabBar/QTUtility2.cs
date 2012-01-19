@@ -100,7 +100,22 @@ namespace QTTabBarLib {
             QTUtility.TMPIDLList.Clear();
             QTUtility.TMPTargetIDL = null;
         }
-        
+
+        internal static IEnumerable<T> Interleave<T>(this IEnumerable<T> first, IEnumerable<T> second) {
+            using(var enumerator1 = first.GetEnumerator())
+            using(var enumerator2 = second.GetEnumerator()) {
+                while(enumerator1.MoveNext()) {
+                    yield return enumerator1.Current;
+                    if(enumerator2.MoveNext()) {
+                        yield return enumerator2.Current;
+                    }
+                }
+                while(enumerator2.MoveNext()) {
+                    yield return enumerator2.Current;
+                }
+            }
+        }
+
         public static bool IsExecutable(string ext) {
             const string EXTS = ".COM|.EXE|.BAT|.CMD|.VBS|.VBE|.JS|.JSE|.WSF|.WSH|.MSC|.LNK";
             return ext != null && ext.Length > 2 && -1 != EXTS.IndexOf(ext.ToUpper());

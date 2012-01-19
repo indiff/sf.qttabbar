@@ -120,10 +120,16 @@
                                     <TextBlock
                                         FontWeight="Bold"
                                         Margin="0,0,10,0"
-                                        Text="{Binding Path=StatusText}">
+                                        Text="{qt:Resx Key=Options_Page12_Plugins}">
                                         <TextBlock.Foreground>
                                             <SolidColorBrush Color="{Binding Path=StatusColor}"/>
                                         </TextBlock.Foreground>
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="qt:Resx.Index" Value="{Binding Path=StatusTextIdx}"/>
+                                                <Setter Property="qt:Resx.Param" Value="{Binding Path=Name}"/>
+                                            </Style>
+                                        </TextBlock.Style>
                                     </TextBlock>
                                     <!-- Undo link -->
                                     <TextBlock

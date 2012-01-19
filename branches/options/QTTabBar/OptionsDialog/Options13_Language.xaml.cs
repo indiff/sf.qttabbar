@@ -79,7 +79,7 @@ namespace QTTabBarLib {
 
         private void btnPluginAdd_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = "Language files (*.xml)|*.xml";
+                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
                 var dict = QTUtility.ReadLanguageFile(ofd.FileName);
@@ -113,7 +113,7 @@ namespace QTTabBarLib {
 
         private void btnLoad_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = "Language files (*.xml)|*.xml";
+                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 ofd.RestoreDirectory = true;
                 if(DialogResult.OK != ofd.ShowDialog()) return;
                 var dict = QTUtility.ReadLanguageFile(ofd.FileName);

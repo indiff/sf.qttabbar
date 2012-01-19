@@ -88,6 +88,8 @@
                     <ComboBoxItem Content="English"/>
                 </ComboBox>
                 <qt:FileFolderEntryBox
+                    FilterText="{qt:Resx Key=FileFilters, Index=1}"
+                    FilterExtensions="*.xml"
                     Grid.Column="1"
                     Grid.Row="1"
                     Height="23"

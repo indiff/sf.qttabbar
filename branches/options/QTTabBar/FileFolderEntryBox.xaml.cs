@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -33,6 +34,10 @@ namespace QTTabBarLib {
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 OnSelectedIDLChanged));
 
+        public static readonly DependencyProperty FilterTextProperty =
+                DependencyProperty.Register("FilterText", typeof(string), typeof(FileFolderEntryBox),
+                new PropertyMetadata(""));
+
         public string SelectedPath {
             get { return (string)GetValue(SelectedPathProperty); }
             set { SetValue(SelectedPathProperty, value); }
@@ -47,11 +52,9 @@ namespace QTTabBarLib {
             }
         }
 
-        private static object OnCoerceSelectedIDL(DependencyObject d, object baseValue) {
-            var box = (FileFolderEntryBox)d;
-            using(IDLWrapper wrapper = new IDLWrapper(box.SelectedPath)) {
-                return wrapper.IDL;
-            }
+        public string FilterText {
+            get { return (string)GetValue(FilterTextProperty); }
+            set { SetValue(FilterTextProperty, value); }
         }
 
         private static void OnSelectedIDLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
@@ -93,6 +96,8 @@ namespace QTTabBarLib {
             }
             box.Update();
         }
+
+        public string FilterExtensions { get; set; }
 
         // PENDING: the "!File" expression does not explicitly mean using the folder chooser,
         // so I think the class should have both of them
@@ -145,6 +150,7 @@ namespace QTTabBarLib {
         }
 
         public FileFolderEntryBox() {
+            FilterExtensions = "";
             InitializeComponent();
             ShowIcon = false;
             Update();
@@ -231,7 +237,15 @@ namespace QTTabBarLib {
         }
 
         private bool BrowseForFile() {
-            OpenFileDialog ofd = new OpenFileDialog { FileName = SelectedPath };
+            string[] text = FilterText.Split('|');
+            string[] ext = FilterExtensions.Split('|');
+            if(text.Length != ext.Length) {
+                throw new ArgumentException("Filter text length much match filter extension length!");
+            }
+            OpenFileDialog ofd = new OpenFileDialog {
+                FileName = SelectedPath,
+                Filter = text.Interleave(ext).StringJoin("|")
+            };
             if(DialogResult.OK != ofd.ShowDialog()) {
                 return false;
             }
@@ -249,7 +263,7 @@ namespace QTTabBarLib {
 
         private bool BrowseForFolder() {
             FolderBrowserDialogEx fbd = new FolderBrowserDialogEx();
-            if(System.Windows.Forms.DialogResult.OK != fbd.ShowDialog()) {
+            if(DialogResult.OK != fbd.ShowDialog()) {
                 return false;
             }
 
