@@ -62,7 +62,7 @@ namespace QTTabBarLib {
         }
 
         private void btnGroupsAddGroup_Click(object sender, RoutedEventArgs e) {
-            GroupEntry item = new GroupEntry("New Group");
+            GroupEntry item = new GroupEntry(QTUtility.TextResourcesDic["Options_Page09_Groups"][6]);
             tvwGroups.Focus();
             IList col = (IList)tvwGroups.ItemsSource;
             object sel = tvwGroups.SelectedItem;
@@ -87,7 +87,7 @@ namespace QTTabBarLib {
             int index;
             bool editGroup;
             if(tvwGroups.Items.Count == 0) {
-                group = new GroupEntry("New Group");
+                group = new GroupEntry(QTUtility.TextResourcesDic["Options_Page09_Groups"][6]);
                 CurrentGroups.Add(group);
                 group.IsSelected = true;
                 index = 0;
@@ -199,7 +199,7 @@ namespace QTTabBarLib {
 
             public string KeyActionText {
                 get {
-                    const string GroupPrefix = "Open group \"{0}\"";
+                    string GroupPrefix = QTUtility.TextResourcesDic["Options_Page09_Groups"][7];
                     return string.Format(GroupPrefix, Name);
                 }
             }

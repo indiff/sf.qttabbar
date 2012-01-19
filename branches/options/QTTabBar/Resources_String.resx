@@ -135,6 +135,9 @@
   <data name="Misc_Strings" xml:space="preserve">
     <value>Desktop Search;Image file is invalid.\r\n\r\nPlease specify 432 x 40 px image file.;Search Results in;shortcut</value>
   </data>
+  <data name="OptionsDialog" xml:space="preserve">
+    <value>QTTabBar Options;Reset all options on this page to their default values?;Reset all options to their default values?  This will not affect Groups, Applications, or Plugins.;Confirmation</value>
+  </data>
   <data name="Options_Page01_Window" xml:space="preserve">
     <value>Change how Explorer Windows behave.;Single Window mode;Capture new Explorer windows as new tabs;Do not capture new Explorer windows;Default location for new windows and tabs;Session saving;Start a new session each time;Restore all tabs from the previous session;Restore only the locked tabs from the previous session;When the close button is clicked;Close the window;Close the current tab;Close all unlocked tabs;Send the window to the Task Tray on;Close;Minimize</value>
   </data>
@@ -148,22 +151,22 @@
     <value>Change the behavior of Subfolder and Preview tooltips.;Subfolder Tips;Enable Subfolder Tips;Only with the Shift key is down;Show files;Show preview tooltips when mousing over menu items;Preview tooltips;Enable preview tooltips;Only with the Shift key is down;Show file information below images;Maximum Width x Height:;Font:;Text filetypes;Image and Video filetypes</value>
   </data>
   <data name="Options_Page05_General" xml:space="preserve">
-    <value>General options for QTTabBar's behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Clear now;Keep history of opened files;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings...</value>
+    <value>General options for QTTabBar's behavoir.;Taskbar integration;Show tab previews on the Taskbar;History;Keep history of closed tabs;Clear now;Keep history of opened files;Network;Network timeout (Enter 0 for system default):;Check for updates periodically;Check now;Export;Export Settings...;Clear file history?;Clear tab history?</value>
   </data>
   <data name="Options_Page06_Appearance" xml:space="preserve">
-    <value>Change the appearance of tabs or the tab bar.;Tab image;Use custom tab image:;Sizing margins:;Overlap area:;Content margins:;Hit test transparent areas;Tab size;Height:;Min Width:;Max Width:;Sizing mode:;Full width;Same size;Tab text;Text Colors:;Shadow Colors:;Active Color;Inactive Color;Mouseover Color;Text Font:;Alignment:;Left;Center;Toolbar Background;Image;Solid color;Image each bar separately;Stretch mode:;Sizing margins:;Skin file;Import Skin...;Export Skin...</value>
+    <value>Change the appearance of tabs or the tab bar.;Tab image;Use custom tab image:;Sizing margins:;Overlap area:;Content margins:;Hit test transparent areas;Tab size;Height:;Min Width:;Max Width:;Sizing mode:;Full width;Same size;Tab text;Text Colors:;Shadow Colors:;Active Color;Inactive Color;Mouseover Color;Text Font:;Alignment:;Left;Center;Toolbar Background;Image;Solid color;Image each bar separately;Stretch mode:;Sizing margins:;Skin file;Import Skin...;Export Skin...;Stretch;True size;Tile</value>
   </data>
   <data name="Options_Page07_Mouse" xml:space="preserve">
-    <value>Assign commands to different mouse actions.;To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key.;Other mouse options;Mouse wheel scrolls the window under the mouse;Mouse Chord;Action</value>
+    <value>Assign commands to different mouse actions.;To add a mouse binding, perform a mouse action on the plus icon to the left of the appropriate target type.  To remove a binding, select it in the list and press the Delete key.;Other mouse options;Mouse wheel scrolls the window under the mouse;Mouse Chord;Action;Anywhere;Tab;Tab Bar Background;Folder Link;File or Folder;Explorer Background;Left Click;Right Click;Middle Click;Double Click;X1 Click;X2 Click;This mouse button cannot be used for this target.;The valid mouse buttons for this target are:;Invalid Button</value>
   </data>
   <data name="Options_Page08_Keys" xml:space="preserve">
-    <value>Change keyboard shortcuts.;Select an action from the list and press the key gesture you would like to bind to it.  Press Escape to clear the binding.;Other keyboard options;Show the Tab Switcher window when Ctrl + Tab is pressed;Action;Keystroke</value>
+    <value>Change keyboard shortcuts.;Select an action from the list and press the key gesture you would like to bind to it.  Press Escape to clear the binding.;Other keyboard options;Show the Tab Switcher window when Ctrl + Tab is pressed;Action;Keystroke;This key is already assigned to:;Should it be reassigned?;Keystroke conflict</value>
   </data>
   <data name="Options_Page09_Groups" xml:space="preserve">
-    <value>Create and manage tab groups.;To assign a Shortcut Key to a group, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Group;Folder;Startup;Shortcut Key</value>
+    <value>Create and manage tab groups.;To assign a Shortcut Key to a group, select it and press the appropriate key gesture.  Press Escape to clear the binding.;Create New Group;Folder;Startup;Shortcut Key;New Group;Open group "{0}"</value>
   </data>
   <data name="Options_Page10_Apps" xml:space="preserve">
-    <value>Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key;The following keywords are replaced with double-quoted path strings at runtime.;Selected files.;Selected folders.;Selected files and folders.;Current folder.;Current folder if no selection, otherwise selected folder.</value>
+    <value>Create shortcuts to commonly used files or applications.;To assign a Shortcut Key to an application, select it and press the appropriate key gesture.  Press Escape to clear the binding.;Create New Folder;Path:;Arguments:;Working Directory:;Application;Shortcut Key;The following keywords are replaced with double-quoted path strings at runtime.;Selected files.;Selected folders.;Selected files and folders.;Current folder.;Current folder if no selection, otherwise selected folder.;New Folder;Remove this folder and its contents?;Launch application "{0}"</value>
   </data>
   <data name="Options_Page11_ButtonBar" xml:space="preserve">
     <value>Customize the Button Bar.;Buttons;Button Bar Options;Large icons;Show labels on buttons;Lock the order of dropdown button menus;Lock the size of the search box;Custom Button Images</value>
@@ -178,10 +181,10 @@
     <value>https://sourceforge.net/donate/index.php?group_id=312930</value>
   </data>
   <data name="ShortcutKeys_ActionNames" xml:space="preserve">
-    <value>Go back ( Alt + Left );Go forward ( Alt + Right );Go back to start;Go forward to end;Select next tab;Select previous tab;Select first tab;Select last tab;Close current tab;Close all but current;Close left;Close right;Close window ( Alt + F4 );Undo close;Clone current tab;Open current folder in new window;Lock / unlock current;Lock / unlock all;Browse folder;Create new group;Open option dialog;Show toolbar menu;Show current tab menu;Show group menu ( button bar );Show recent folder menu ( button bar );Show user application menu ( button bar );Show / hide menu bar;Copy selected files path;Copy selected files name;Copy current folder path;Copy current folder name;Check MD5 of selected files;Bring window to topmost;Transparency +;Transparency -;Focus file list;Focus search bar (Vista);Focus search box ( button bar );Show Subfolder Tip Menu for selected folder;Send window to Task Tray;Focus the Tab Bar</value>
+    <value>Go back;Go forward;Go back to start;Go forward to end;Select next tab;Select previous tab;Select first tab;Select last tab;Close current tab;Close all but current;Close left;Close right;Close window;Undo close;Clone current tab;Open current folder in new window;Lock / unlock current;Lock / unlock all;Browse folder;Create new group;Open option dialog;Show toolbar menu;Show current tab menu;Show group menu (Button Bar);Show recent folder menu (Button Bar);Show user application menu (Button Bar);Show / hide menu bar;Copy selected files path;Copy selected files name;Copy current folder path;Copy current folder name;Check MD5 of selected files;Bring window to topmost;Transparency +;Transparency -;Focus file list;Focus search bar (Explorer);Focus search box (Button Bar);Show Subfolder Tip Menu for selected folder;Send window to Task Tray;Focus the Tab Bar;Open new tab;Open new window;Create new folder;Create new empty file;Switch to last activated tab;Merge tabs from other windows;Show recent files menu (Button Bar);Sort tabs by name;Sort tabs by path;Sort tabs by last activation;Nothing;Up one level;Refresh;Paste;Maximize;Minimize;Open in new tab;Open in new tab without activating;Open in new window;Cut;Copy;Delete;Properties;Copy path;Copy name;View checksum;Close tab;Close tabs to left;Close tabs to right;Up one level;Lock;Show context menu;Clone;Copy path;Properties;Show Subdirectory Tip menu;Close all but this</value>
   </data>
   <data name="ShortcutKeys_Groups" xml:space="preserve">
-    <value>QTTabBar;Plugin;User commands</value>
+    <value>QTTabBar;{0} (Plugin);User commands</value>
   </data>
   <data name="ShortcutKeys_MsgReassign" xml:space="preserve">
     <value>"{0}" is already assigned for "{1}".

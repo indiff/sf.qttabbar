@@ -102,8 +102,14 @@
                                     <TextBlock 
                                         DockPanel.Dock="Left"
                                         Foreground="MediumBlue"
-                                        Margin="2, 1, 4, 4"
-                                        Text="{Binding Path=Name}"/>
+                                        Margin="2,1,4,4"
+                                        Text="{qt:Resx Key=Options_Page07_Mouse}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="qt:Resx.Index" Value="{Binding Path=Name}"/>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <Border
                                         BorderBrush="LightGray"
                                         BorderThickness="1"
@@ -121,8 +127,21 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Foreground="#FF000000"
-                                        Text="{Binding Path=GestureText}"/>
+                                        Foreground="#FF000000">
+                                        <TextBlock.Inlines>
+                                            <!-- The second Run needs to be on the same line as the first,
+                                                 or there will be an extra space inserted between them.
+                                                 Who's dumb idea was that?! -->
+                                            <qt:BindableRun Text="{Binding Path=GestureModifiers}"/><qt:BindableRun
+                                                            Text="{qt:Resx Key=Options_Page07_Mouse}">
+                                                <Run.Style>
+                                                    <Style TargetType="{x:Type Run}">
+                                                        <Setter Property="qt:Resx.Index" Value="{Binding Path=ButtonIdx}"/>
+                                                    </Style>
+                                                </Run.Style>
+                                            </qt:BindableRun>
+                                        </TextBlock.Inlines>
+                                    </TextBlock>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -133,19 +152,35 @@
                                         <TextBlock x:Name="txtMouseAction"
                                             Foreground="#FF000000"
                                             Padding="4,0,0,0"
-                                            Text="{Binding Path=ActionText}"
-                                            TextAlignment="Left"/>
+                                            Text="{qt:Resx Key=ShortcutKeys_ActionNames}"
+                                            TextAlignment="Left">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="qt:Resx.Index" Value="{Binding Path=ActionIdx}"/>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         <ComboBox x:Name="cmbInlineMouseAction"
-                                            DisplayMemberPath="Value"
                                             Height="22"
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{Binding Path=ComboBoxItems}"
                                             IsDropDownOpen="{Binding Path=IsEditing, Mode=TwoWay}"
                                             Loaded="cmbInlineMouseAction_Loaded"
                                             Margin="0,-3"
-                                            SelectedValue="{Binding Path=Action, Mode=TwoWay}"
-                                            SelectedValuePath="Key"
-                                            Visibility="Collapsed"/>
+                                            SelectedValue="{Binding Path=ActionIdx, Mode=TwoWay}"
+                                            Visibility="Collapsed">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{qt:Resx Key=ShortcutKeys_ActionNames}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="{x:Type TextBlock}">
+                                                                <Setter Property="qt:Resx.Index" Value="{Binding}"/>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                     </Grid>
                                     <DataTemplate.Triggers>
                                         <DataTrigger Binding="{Binding Path=IsEditing}" Value="True">

@@ -79,7 +79,19 @@
                                         DockPanel.Dock="Left"
                                         Foreground="MediumBlue"
                                         Margin="20, 1, 4, 4"
-                                        Text="{Binding Path=Name}"/>
+                                        Text="{qt:Resx Key=ShortcutKeys_Groups}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="qt:Resx.Index" Value="1"/>
+                                                <Setter Property="qt:Resx.Param" Value="{Binding Path=Name}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=Name}" Value="">
+                                                        <Setter Property="qt:Resx.Index" Value="0"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <Border
                                         BorderBrush="LightGray"
                                         BorderThickness="1"
@@ -104,8 +116,20 @@
                                             VerticalAlignment="Center"/>
                                         <TextBlock x:Name="txtKeyAction"
                                             Foreground="#FF000000"
-                                            Text="{Binding Path=KeyActionText}"
-                                            Margin="6,0"/>
+                                            Tag="{qt:Resx Key=ShortcutKeys_ActionNames}"
+                                            Margin="6,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="{Binding Path=KeyActionText}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=PluginName}" Value="">
+                                                            <Setter Property="qt:Resx.Index" Value="{Binding Path=Index}"/>
+                                                            <Setter Property="Text" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </StackPanel>
                                     <DataTemplate.Triggers>
                                         <DataTrigger

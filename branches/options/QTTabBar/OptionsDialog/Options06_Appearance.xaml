@@ -440,13 +440,22 @@
                 Margin="0,0,15,0"
                 Padding="0"/>
             <ComboBox x:Name="cmbRebarStretchMode"
-                DisplayMemberPath="Value"
                 Grid.Column="3"
                 Grid.Row="1"
                 Height="23"
                 HorizontalAlignment="Stretch"
                 SelectedValue="{Binding Path=RebarStretchMode}"
-                SelectedValuePath="Key"/>
+                SelectedValuePath="Tag">
+                <ComboBoxItem
+                    Content="{qt:Resx Key=Options_Page06_Appearance, Index=33}"
+                    Tag="{x:Static qt:StretchMode.Full}"/>
+                <ComboBoxItem
+                    Content="{qt:Resx Key=Options_Page06_Appearance, Index=34}"
+                    Tag="{x:Static qt:StretchMode.Real}"/>
+                <ComboBoxItem
+                    Content="{qt:Resx Key=Options_Page06_Appearance, Index=35}"
+                    Tag="{x:Static qt:StretchMode.Tile}"/>
+            </ComboBox>
             <Label
                 Content="{qt:Resx Key=Options_Page06_Appearance, Index=29}"
                 Grid.Column="2"

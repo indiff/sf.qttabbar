@@ -93,7 +93,7 @@ namespace QTTabBarLib {
     // WARNING
     // reordering these will break existing settings.
     public enum BindAction {
-        GoBack,
+        GoBack = 0,
         GoForward,
         GoFirst,
         GoLast,
@@ -147,8 +147,10 @@ namespace QTTabBarLib {
         SortTabsByPath,
         SortTabsByActive,
         
+        KEYBOARD_ACTION_COUNT,
         // Mouse-only from here on down
-        Nothing,
+
+        Nothing = QTUtility.FIRST_MOUSE_ONLY_ACTION,
         UpOneLevel,
         Refresh,
         Paste,
@@ -509,7 +511,7 @@ namespace QTTabBarLib {
                 Shortcuts = new int[] { 
                   0, 0, 0x160025, 0x160027, 0x120009, 0x130009, 0, 0, 0x120057, 0x130057, 0, 0, 0, 0x13005a, 0x12004e, 0x13004e, 
                   0x12004c, 0x13004c, 0x12004f, 0, 0x14004f, 0x1400bc, 0x1400be, 0x140047, 0x140048, 0x140055, 0x14004d, 0, 0, 0, 0, 0, 
-                  0, 0, 0, 0, 0, 0, 0, 0, 0
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                 };
                 UseTabSwitcher = true;
             }
@@ -603,6 +605,9 @@ namespace QTTabBarLib {
             Config.Tips.PreviewFont = Config.Tips.PreviewFont ?? Control.DefaultFont;
             Config.Tips.PreviewMaxWidth = QTUtility.ValidateMaxMin(Config.Tips.PreviewMaxWidth, 1920, 128);
             Config.Tips.PreviewMaxHeight = QTUtility.ValidateMaxMin(Config.Tips.PreviewMaxHeight, 1200, 96);
+            var keys = Config.Keys.Shortcuts;
+            Array.Resize(ref keys, (int)BindAction.KEYBOARD_ACTION_COUNT);
+            Config.Keys.Shortcuts = keys;
         }
         public static void WriteConfig() {
             const string RegPath = RegConst.Root + RegConst.Config;

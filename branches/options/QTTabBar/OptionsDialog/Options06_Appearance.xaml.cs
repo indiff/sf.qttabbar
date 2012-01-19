@@ -15,7 +15,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -26,25 +25,13 @@ using System.Windows.Shapes;
 namespace QTTabBarLib {
     internal partial class Options06_Appearance : OptionsDialogTab {
 
-        #region ToLocalize
-
-        private readonly static Dictionary<StretchMode, string> StretchModeItems = new Dictionary<StretchMode, string> {
-            {StretchMode.Full,  "Stretch"},
-            {StretchMode.Real,  "True size"},
-            {StretchMode.Tile,  "Tile"},
-        };
-
-        #endregion
-
         public Options06_Appearance() {
             InitializeComponent();
-            cmbRebarStretchMode.ItemsSource = StretchModeItems;
 
             // Took me forever to figure out that this was necessary.  Why isn't this the default?!!
             // Bindings in context menus won't work without this.
             NameScope.SetNameScope(ctxTabTextColor, NameScope.GetNameScope(this));
             NameScope.SetNameScope(ctxShadowTextColor, NameScope.GetNameScope(this));
-
         }
 
         public override void InitializeConfig() {

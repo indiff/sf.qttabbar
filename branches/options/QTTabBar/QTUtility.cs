@@ -56,7 +56,7 @@ namespace QTTabBarLib {
         internal static readonly bool IsXP = Environment.OSVersion.Version.Major <= 5;
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
         internal static List<string> LockedTabsToRestoreList = new List<string>();
-        internal const BindAction LAST_KEYBOARD_ACTION = BindAction.FocusTabBar;
+        internal const int FIRST_MOUSE_ONLY_ACTION = 1000;
         internal static List<string> NoCapturePathsList = new List<string>();
         internal static bool NowDebugging = 
 #if DEBUG
