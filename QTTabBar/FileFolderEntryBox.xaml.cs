@@ -150,7 +150,6 @@ namespace QTTabBarLib {
         }
 
         public FileFolderEntryBox() {
-            FilterExtensions = "";
             InitializeComponent();
             ShowIcon = false;
             Update();
@@ -237,8 +236,8 @@ namespace QTTabBarLib {
         }
 
         private bool BrowseForFile() {
-            string[] text = FilterText.Split('|');
-            string[] ext = FilterExtensions.Split('|');
+            string[] text = string.IsNullOrEmpty(FilterText) ? new string[0] : FilterText.Split('|');
+            string[] ext = string.IsNullOrEmpty(FilterExtensions) ? new string[0] : FilterExtensions.Split('|');
             if(text.Length != ext.Length) {
                 throw new ArgumentException("Filter text length much match filter extension length!");
             }
