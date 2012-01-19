@@ -51,7 +51,7 @@ namespace QTTabBarLib {
             LangItems.Add(new LangEntry("Author", -1));
             LangItems.Add(new LangEntry("Language", -1));
             LangItems.Add(new LangEntry("Country", -1));
-            foreach(var kv in QTUtility.TextResourcesDic) {
+            foreach(var kv in QTUtility.TextResourcesDic.OrderBy(kv => kv.Key)) {
                 if(metatags.Contains(kv.Key)) continue;
                 for(int i = 0; i < kv.Value.Length; i++) {
                     LangItems.Add(new LangEntry(kv.Key, i));

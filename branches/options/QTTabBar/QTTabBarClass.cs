@@ -1757,17 +1757,13 @@ namespace QTTabBarLib {
                     return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
                             1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)3);
 
-                case BindAction.ShowRecentFolderMenu:
+                case BindAction.ShowRecentTabsMenu:
                     return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
                             1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)4);
 
                 case BindAction.ShowUserAppsMenu:
                     return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
                             1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)5);
-
-                case BindAction.ToggleMenuBar:
-                    rebarController.MenuBarShown = !rebarController.MenuBarShown;
-                    break;
 
                 case BindAction.CopySelectedPaths:
                     if(listView.SubDirTipMenuIsShowing() || (subDirTip_Tab != null && subDirTip_Tab.MenuIsShowing)) {

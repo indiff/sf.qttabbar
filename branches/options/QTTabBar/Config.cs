@@ -26,6 +26,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Padding = System.Windows.Forms.Padding;
+using Key = System.Windows.Forms.Keys;
 
 namespace QTTabBarLib {
 
@@ -101,6 +102,10 @@ namespace QTTabBarLib {
         PreviousTab,
         FirstTab,
         LastTab,
+        SwitchToLastActivated,
+        NewTab,
+        NewWindow,
+        MergeWindows,
         CloseCurrent,
         CloseAllButCurrent,
         CloseLeft,
@@ -117,9 +122,11 @@ namespace QTTabBarLib {
         ShowToolbarMenu,
         ShowTabMenuCurrent,
         ShowGroupMenu,
-        ShowRecentFolderMenu,
         ShowUserAppsMenu,
-        ToggleMenuBar,
+        ShowRecentTabsMenu,
+        ShowRecentFilesMenu,
+        NewFile,
+        NewFolder,
         CopySelectedPaths,
         CopySelectedNames,
         CopyCurrentFolderPath,
@@ -134,15 +141,6 @@ namespace QTTabBarLib {
         ShowSDTSelected,
         SendToTray,
         FocusTabBar,
-
-        // New
-        NewTab,
-        NewWindow,
-        NewFolder,
-        NewFile,
-        SwitchToLastActivated,
-        MergeWindows,
-        ShowRecentFilesMenu,
         SortTabsByName,
         SortTabsByPath,
         SortTabsByActive,
@@ -507,12 +505,35 @@ namespace QTTabBarLib {
             public bool UseTabSwitcher           { get; set; }
 
             public _Keys() {
-                // todo
-                Shortcuts = new int[] { 
-                  0, 0, 0x160025, 0x160027, 0x120009, 0x130009, 0, 0, 0x120057, 0x130057, 0, 0, 0, 0x13005a, 0x12004e, 0x13004e, 
-                  0x12004c, 0x13004c, 0x12004f, 0, 0x14004f, 0x1400bc, 0x1400be, 0x140047, 0x140048, 0x140055, 0x14004d, 0, 0, 0, 0, 0, 
-                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                var dict = new Dictionary<BindAction, Keys> {
+                    {BindAction.GoBack,             Key.Left  | Key.Alt},
+                    {BindAction.GoForward,          Key.Right | Key.Alt},
+                    {BindAction.GoFirst,            Key.Left  | Key.Control | Key.Alt},
+                    {BindAction.GoLast,             Key.Right | Key.Control | Key.Alt},
+                    {BindAction.NextTab,            Key.Tab   | Key.Control},
+                    {BindAction.PreviousTab,        Key.Tab   | Key.Control | Key.Shift},
+                    {BindAction.NewTab,             Key.T     | Key.Control},
+                    {BindAction.NewWindow,          Key.T     | Key.Control | Key.Shift},
+                    {BindAction.CloseCurrent,       Key.W     | Key.Control},
+                    {BindAction.CloseAllButCurrent, Key.W     | Key.Control | Key.Shift},
+                    {BindAction.RestoreLastClosed,  Key.Z     | Key.Control | Key.Shift},
+                    {BindAction.LockCurrent,        Key.L     | Key.Control},
+                    {BindAction.LockAll,            Key.L     | Key.Control | Key.Shift},
+                    {BindAction.BrowseFolder,       Key.O     | Key.Control},
+                    {BindAction.ShowOptions,        Key.O     | Key.Alt},
+                    {BindAction.ShowToolbarMenu,    Key.Oemcomma  | Key.Alt},
+                    {BindAction.ShowTabMenuCurrent, Key.OemPeriod | Key.Alt},
+                    {BindAction.ShowGroupMenu,      Key.G     | Key.Alt},
+                    {BindAction.ShowUserAppsMenu,   Key.H     | Key.Alt},
+                    {BindAction.ShowRecentTabsMenu, Key.U     | Key.Alt},
+                    {BindAction.ShowRecentFilesMenu,Key.F     | Key.Alt},
+                    {BindAction.NewFile,            Key.N     | Key.Control},
+                    {BindAction.NewFolder,          Key.N     | Key.Control | Key.Shift},
                 };
+                Shortcuts = new int[(int)BindAction.KEYBOARD_ACTION_COUNT];
+                foreach(var pair in dict) {
+                    Shortcuts[(int)pair.Key] = (int)pair.Value | QTUtility.FLAG_KEYENABLED;
+                }
                 UseTabSwitcher = true;
             }
         }
