@@ -124,10 +124,13 @@ namespace QTTabBarLib {
             PluginEntry entry = (PluginEntry)((Button)sender).DataContext; 
             PluginAssembly pluginAssembly = entry.PluginAssembly;
             if(pluginAssembly.PluginInformations.Count > 1) {
-                string str = pluginAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
-                // todo localize
-                const string removePlugin = "Uninstalling this plugin will also uninstall the following plugins:\n\n{0}\n\nProceed?";
-                if(MessageBox.Show(string.Format(removePlugin, str), string.Empty, MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
+                string plugins = pluginAssembly.PluginInformations.Select(info => info.Name).StringJoin(", ");
+                if(MessageBox.Show(
+                        QTUtility.TextResourcesDic["Options_Page12_Plugins"][8] +
+                        Environment.NewLine + Environment.NewLine + plugins + Environment.NewLine + Environment.NewLine +
+                        QTUtility.TextResourcesDic["Options_Page12_Plugins"][9],
+                        QTUtility.TextResourcesDic["OptionsDialog"][3],
+                        MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
                     return;
                 }
             }
@@ -148,7 +151,7 @@ namespace QTTabBarLib {
 
         private void btnBrowsePlugin_Click(object sender, RoutedEventArgs e) {
             using(OpenFileDialog ofd = new OpenFileDialog()) {
-                ofd.Filter = "Plugin files (*.dll)|*.dll";
+                ofd.Filter = QTUtility.TextResourcesDic["FileFilters"][2] + "|*.dll";
                 ofd.RestoreDirectory = true;
                 ofd.Multiselect = true;
 
@@ -233,12 +236,12 @@ namespace QTTabBarLib {
                         ? Visibility.Visible
                         : Visibility.Collapsed;
             }}
-            public string StatusText { get {
-                if(UninstallOnClose) return string.Format(QTUtility.TextResourcesDic["Options_Page12_Plugins"][4], Name);
-                if(InstallOnClose)  return QTUtility.TextResourcesDic["Options_Page12_Plugins"][5];
-                if(EnableOnClose)   return QTUtility.TextResourcesDic["Options_Page12_Plugins"][6];
-                if(DisableOnClose)  return QTUtility.TextResourcesDic["Options_Page12_Plugins"][7];
-                return "";
+            public int StatusTextIdx { get {
+                if(UninstallOnClose) return 4;
+                if(InstallOnClose)   return 5;
+                if(EnableOnClose)    return 6;
+                if(DisableOnClose)   return 7;
+                return int.MaxValue;
             }}
             public Visibility MainBodyVisibility { get {
                 return UninstallOnClose ? Visibility.Collapsed : Visibility.Visible;

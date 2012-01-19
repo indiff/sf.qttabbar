@@ -79,15 +79,6 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &amp;Add;&amp;Remove;&amp;Close;&amp;Reset;&amp;Up;&amp;Down;&amp;Browse image...;Small icon;Large icon;&amp;Customize...;&amp;Lock menus;Re&amp;set image;Show text labels;Selective text;No text labels;Lock the size of the search box.
-        /// </summary>
-        public static string ButtonBar_Option {
-            get {
-                return ResourceManager.GetString("ButtonBar_Option", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to OK;Cancel;&amp;Apply;&amp;Default;Reset &amp;Page;&amp;Reset All;Reset;Add;Add...;Remove;Options;Enable;Disable;Undo;Load...;Save....
         /// </summary>
         public static string DialogButtons {
@@ -102,6 +93,15 @@ namespace QTTabBarLib {
         public static string DragDropToolTip {
             get {
                 return ResourceManager.GetString("DragDropToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image Files;Language Files;Plugin Files.
+        /// </summary>
+        public static string FileFilters {
+            get {
+                return ResourceManager.GetString("FileFilters", resourceCulture);
             }
         }
         
@@ -214,7 +214,7 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Manage third-party plugins.;Install a Plugin;(Disabled);by {0};{0} has been removed.;This plugin will be installed when you press OK or Apply.;This plugin will be enabled when you press OK or Apply.;This plugin will be disabled when you press OK or Apply..
+        ///   Looks up a localized string similar to Manage third-party plugins.;Install a Plugin;(Disabled);by {0};{0} has been removed.;This plugin will be installed when you press OK or Apply.;This plugin will be enabled when you press OK or Apply.;This plugin will be disabled when you press OK or Apply.;Uninstalling this plugin will also uninstall the following plugins:;Proceed?.
         /// </summary>
         public static string Options_Page12_Plugins {
             get {
@@ -259,22 +259,11 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to QTTabBar;{0} (Plugin);User commands.
+        ///   Looks up a localized string similar to QTTabBar;{0} (Plugin).
         /// </summary>
         public static string ShortcutKeys_Groups {
             get {
                 return ResourceManager.GetString("ShortcutKeys_Groups", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &quot;{0}&quot; is already assigned for &quot;{1}&quot;.
-        ///
-        ///Do you want to reassign?;Confirmation of reassignment.
-        /// </summary>
-        public static string ShortcutKeys_MsgReassign {
-            get {
-                return ResourceManager.GetString("ShortcutKeys_MsgReassign", resourceCulture);
             }
         }
         
@@ -317,51 +306,11 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Activate new tab;Reuse existing tab;Close all tabs when group opened;Show tooltips;Capture mouse X1/X2 buttons;Show navigation buttons;Tab history;Recent files;Use file Drag &amp;&amp; Drop onto tabs;Language file:;New tab location:;After current tab closed, activate:;When tab double-clicked:;When background double-clicked:;Path/Group name:;Multiple rows of tab;Rename ambiguous tabs automatically;When mouse wheel clicked on folder:;Up one level when dbl clicked on folder margin;No window resizing;Save window transp [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string TabBar_Option {
-            get {
-                return ResourceManager.GetString("TabBar_Option", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Clear;Up;Down;Add separator;Start Up;Plugin Option;Bg color;Txt color;Default;Set;Delete;Check now;Copy to clipboard.
-        /// </summary>
-        public static string TabBar_Option_Buttons {
-            get {
-                return ResourceManager.GetString("TabBar_Option_Buttons", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Left;Right;Most right;Most left;Last activated;Up One Level;Close;Lock;Show menu;New window;Clone;Copy path;Properties; - ;Browse folder;Close all but current;Lock all;Restore last closed;Options;Close window;Clone current;multiple;New tab;Auto;Fixed;Limit tab width;Stretch;Tile;Real size;Left;Center;Vista;XP;Stretch on each band.
-        /// </summary>
-        public static string TabBar_Option_DropDown {
-            get {
-                return ResourceManager.GetString("TabBar_Option_DropDown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Window;Tabs;Tweaks;Tooltips;General;Appearance;Mouse;Keys;Groups;Applications;Button Bar;Plugins;Language;About.
         /// </summary>
         public static string TabBar_Option_Genre {
             get {
                 return ResourceManager.GetString("TabBar_Option_Genre", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to On Folder Tree, open a new tab by wheel-click or click with shift key down (XP);Show tab switcher by Ctrl+Tab;Text shadow;Check for updates periodically;Remove original tab when creating new window;Indicate drive letter;Sound;Install a plugin;Options;Disable;Enable;Uninstall;About {0};If you uninstall this plugin, you must also uninstall 
-        ///
-        ///{0}
-        ///
-        ///Are you sure you want to do this?;Display file information below images;Use old ListView control (Win7);Display column headers in all views (Win7).
-        /// </summary>
-        public static string TabBar_Option2 {
-            get {
-                return ResourceManager.GetString("TabBar_Option2", resourceCulture);
             }
         }
         
