@@ -101,6 +101,8 @@
                 Grid.Row="1"
                 HorizontalAlignment="Left"
                 Margin="5,1"
+                Max="20"
+                Min="0"
                 Value="{Binding Path=OverlapPixels}"
                 Width="80"/>
             <Label

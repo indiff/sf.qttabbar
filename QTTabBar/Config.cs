@@ -371,7 +371,7 @@ namespace QTTabBarLib {
                 TabHistoryCount = 15;
                 KeepRecentFiles = true;
                 FileHistoryCount = 15;
-                NetworkTimeout = 0; // TODO
+                NetworkTimeout = 0;
                 AutoUpdate = true;
             }
         }
@@ -550,7 +550,7 @@ namespace QTTabBarLib {
         [Serializable]
         public class _Lang {
             public string[] PluginLangFiles      { get; set; }
-            public bool UseLangFile               { get; set; }
+            public bool UseLangFile              { get; set; }
             public string LangFile               { get; set; }
             public string BuiltInLang            { get; set; }
 
@@ -613,19 +613,42 @@ namespace QTTabBarLib {
                 }
             }
 
-            // TODO non-props   
-
-            // TODO: more validation
-            if(Config.Skin.TabHeight > 50) {
-                Config.Skin.TabHeight = 50;
+            using(IDLWrapper wrapper = new IDLWrapper(Config.Window.DefaultLocation)) {
+                if(!wrapper.Available) {
+                    Config.Window.DefaultLocation = new Config._Window().DefaultLocation;
+                }
             }
-            if(Config.Skin.TabHeight < 10) {
-                Config.Skin.TabHeight = 10;
-            }
-            Config.Skin.TabTextFont = Config.Skin.TabTextFont ?? Control.DefaultFont;
             Config.Tips.PreviewFont = Config.Tips.PreviewFont ?? Control.DefaultFont;
-            Config.Tips.PreviewMaxWidth = QTUtility.ValidateMaxMin(Config.Tips.PreviewMaxWidth, 1920, 128);
-            Config.Tips.PreviewMaxHeight = QTUtility.ValidateMaxMin(Config.Tips.PreviewMaxHeight, 1200, 96);
+            Config.Tips.PreviewMaxWidth = QTUtility.ValidateMinMax(Config.Tips.PreviewMaxWidth, 128, 1920);
+            Config.Tips.PreviewMaxHeight = QTUtility.ValidateMinMax(Config.Tips.PreviewMaxHeight, 96, 1200);
+            Config.Misc.TabHistoryCount = QTUtility.ValidateMinMax(Config.Misc.TabHistoryCount, 1, 30);
+            Config.Misc.FileHistoryCount = QTUtility.ValidateMinMax(Config.Misc.FileHistoryCount, 1, 30);
+            Config.Misc.NetworkTimeout = QTUtility.ValidateMinMax(Config.Misc.NetworkTimeout, 0, 120);
+            Config.Skin.TabHeight = QTUtility.ValidateMinMax(Config.Skin.TabHeight, 10, 50);
+            Config.Skin.TabMinWidth = QTUtility.ValidateMinMax(Config.Skin.TabMinWidth, 10, 50);
+            Config.Skin.TabMaxWidth = QTUtility.ValidateMinMax(Config.Skin.TabMaxWidth, 50, 999);
+            Config.Skin.OverlapPixels = QTUtility.ValidateMinMax(Config.Skin.TabHeight, 0, 20);
+            Config.Skin.TabTextFont = Config.Skin.TabTextFont ?? Control.DefaultFont;
+            Func<Padding, Padding> validatePadding = p => {
+                p.Left   = QTUtility.ValidateMinMax(p.Left,   0, 99);
+                p.Top    = QTUtility.ValidateMinMax(p.Top,    0, 99);
+                p.Right  = QTUtility.ValidateMinMax(p.Right,  0, 99);
+                p.Bottom = QTUtility.ValidateMinMax(p.Bottom, 0, 99);
+                return p;
+            };
+            Config.Skin.RebarSizeMargin = validatePadding(Config.Skin.RebarSizeMargin);
+            Config.Skin.TabContentMargin = validatePadding(Config.Skin.TabContentMargin);
+            Config.Skin.TabSizeMargin = validatePadding(Config.Skin.TabSizeMargin);
+            using(IDLWrapper wrapper = new IDLWrapper(Config.Skin.TabImageFile)) {
+                if(!wrapper.Available) Config.Skin.TabImageFile = "";
+            }
+            using(IDLWrapper wrapper = new IDLWrapper(Config.Skin.RebarImageFile)) {
+                if(!wrapper.Available) Config.Skin.RebarImageFile = "";
+            }
+            using(IDLWrapper wrapper = new IDLWrapper(Config.BBar.ImageStripPath)) {
+                // todo: check dimensions
+                if(!wrapper.Available) Config.BBar.ImageStripPath = "";
+            }
             var keys = Config.Keys.Shortcuts;
             Array.Resize(ref keys, (int)BindAction.KEYBOARD_ACTION_COUNT);
             Config.Keys.Shortcuts = keys;
@@ -673,8 +696,6 @@ namespace QTTabBarLib {
                     }
                 }
             }
-
-            // TODO non-props
         }
     }
 }
