@@ -232,6 +232,15 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to View credits and version information.;Original code by {0};Lead Developer:;Other Developers:;Icons and graphics:;If you find QTTabBar useful, please consider making a small donation..
+        /// </summary>
+        public static string Options_Page14_About {
+            get {
+                return ResourceManager.GetString("Options_Page14_About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to QTTabBar Options;Reset all options on this page to their default values?;Reset all options to their default values?  This will not affect Groups, Applications, or Plugins.;Confirmation.
         /// </summary>
         public static string OptionsDialog {
@@ -268,7 +277,7 @@ namespace QTTabBarLib {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to http://qttabbar.sourceforge.net.
+        ///   Looks up a localized string similar to http://www.qttabbar.sf.net.
         /// </summary>
         public static string SiteURL {
             get {

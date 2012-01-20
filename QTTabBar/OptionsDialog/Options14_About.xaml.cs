@@ -15,6 +15,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Diagnostics;
+
 namespace QTTabBarLib {
     internal partial class Options14_About : OptionsDialogTab {
         public Options14_About() {
@@ -23,12 +26,19 @@ namespace QTTabBarLib {
 
         public override void InitializeConfig() {
             lblVersion.Content = "QTTabBar " + QTUtility2.MakeVersionString();
+            runSite.Text = Resources_String.SiteURL;
+            hypSite.NavigateUri = new Uri(Resources_String.SiteURL);
+            hypSite.RequestNavigate += (sender, args) => Process.Start(Resources_String.SiteURL);
         }
 
         public override void ResetConfig() {    
         }
 
         public override void CommitConfig() {
+        }
+
+        private void imgPaypal_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            Process.Start(Resources_String.PayPalURL);
         }
     }
 }
