@@ -177,6 +177,9 @@
   <data name="Options_Page13_Language" xml:space="preserve">
     <value>Change the language.;Main language;Use built-in language:;Use language file:;Plugin language files;Language File Editor;Show Language Editor...;Original;Translated</value>
   </data>
+  <data name="Options_Page14_About" xml:space="preserve">
+    <value>View credits and version information.;Original code by {0};Lead Developer:;Other Developers:;Icons and graphics:;If you find QTTabBar useful, please consider making a small donation.</value>
+  </data>
   <data name="PayPalURL" xml:space="preserve">
     <value>https://sourceforge.net/donate/index.php?group_id=312930</value>
   </data>
@@ -187,7 +190,7 @@
     <value>QTTabBar;{0} (Plugin)</value>
   </data>
   <data name="SiteURL" xml:space="preserve">
-    <value>http://qttabbar.sourceforge.net</value>
+    <value>http://www.qttabbar.sf.net</value>
   </data>
   <data name="TabBar_Menu" xml:space="preserve">
     <value>Close;Close right;Close left;Close all but this;Add to Group;Create new Group;Lock;Clone this;New window;Copy path;Properties;Tab history;Groups;Undo closed;Last activated;Recently opened files;Browse folder;Close all but current;Close Window;Options;Unlock;Add to Application menu : ;items;Cancel;Branches;Remove this item from menu;O&amp;pen containing folder;Tab label;Tab order;Name;Path;Active;Lock the Toolbars;Merge tabs of other windows;Invert</value>

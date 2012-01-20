@@ -42,38 +42,57 @@
                 Source="{Binding Source={x:Static qt:Resources_Image.imgTabAbout}, Converter={StaticResource BitmapToImageSourceConverter}}"
                 Style="{StaticResource PageHeaderImageStyle}"/>
             <Label
-                Content="View credits and version information"
+                Content="{qt:Resx Key=Options_Page14_About, Index=0}"
                 FontSize="13"
                 VerticalAlignment="Bottom"/>
         </StackPanel>
-        <Image
-            Height="150"
-            HorizontalAlignment="Center"
-            Stretch="Fill"
-            Width="200"/>
-        <Label x:Name="lblVersion"
-            Height="28"
-            HorizontalAlignment="Center"/>
-        <Label
-            Content="Original code by Quizo"
-            Height="28"
-            HorizontalAlignment="Center"/>
-        <Label
-            Content="Developer: Paul Accisano"
-            Height="28"
-            HorizontalAlignment="Center"/>
-        <Label
-            Content="Web page: www.qttabbar.sf.net"
-            Height="28"
-            HorizontalAlignment="Center"/>
-        <Label
-            Content="If you enjoy using QTTabBar, please consider a small donation."
-            Height="28"
-            HorizontalAlignment="Center"/>
-        <Image
-            Height="150"
-            HorizontalAlignment="Center"
-            Stretch="Fill"
-            Width="200"/>
+        <StackPanel
+            Margin="0,50,0,0"
+            Orientation="Vertical">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Label}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="Padding" Value="0"/>
+                </Style>
+                <Style TargetType="{x:Type StackPanel}">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </StackPanel.Resources>
+            <Label x:Name="lblVersion"
+                Height="28"/>
+            <Label
+                Height="28">
+                <Hyperlink x:Name="hypSite">
+                    <Run x:Name="runSite"/>
+                </Hyperlink>
+            </Label>
+            <Label
+                Content="{qt:Resx Key=Options_Page14_About, Index=1}"
+                qt:Resx.Param="Quizo"
+                Margin="10"/>
+            <StackPanel Margin="10">
+                <Label Content="{qt:Resx Key=Options_Page14_About, Index=2}" FontWeight="Bold"/>
+                <Label Content="Paul Accisano"/>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label Content="{qt:Resx Key=Options_Page14_About, Index=3}" FontWeight="Bold"/>
+                <Label Content="Mokuzu Kawano"/>
+                <Label Content="Jerome Doby"/>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label Content="{qt:Resx Key=Options_Page14_About, Index=4}" FontWeight="Bold"/>
+                <Label Content="Kemie Guaida"/>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label Content="{qt:Resx Key=Options_Page14_About, Index=5}"/>
+                <Image x:Name="imgPaypal"
+                    MouseUp="imgPaypal_MouseUp"
+                    Cursor="Hand"
+                    HorizontalAlignment="Center"
+                    Margin="10"
+                    Stretch="None"
+                    Source="{Binding Source={x:Static qt:Resources_Image.paypalBtn}, Converter={StaticResource BitmapToImageSourceConverter}}"/>
+            </StackPanel>
+        </StackPanel>
     </StackPanel>
 </qt:OptionsDialogTab>
