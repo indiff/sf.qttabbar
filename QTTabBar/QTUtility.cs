@@ -53,6 +53,7 @@ namespace QTTabBarLib {
         internal static ImageList ImageListGlobal;
         internal static int InstancesCount;
         internal static readonly bool IsRTL = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
+        internal static readonly bool IsWin7 = Environment.OSVersion.Version >= new Version(6, 1);
         internal static readonly bool IsXP = Environment.OSVersion.Version.Major <= 5;
         internal static Dictionary<string, byte[]> ITEMIDLIST_Dic_Session = new Dictionary<string, byte[]>();
         internal static List<string> LockedTabsToRestoreList = new List<string>();

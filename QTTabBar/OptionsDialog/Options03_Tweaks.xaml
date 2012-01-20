@@ -53,14 +53,17 @@
         <CheckBox x:Name="chkAlwaysShowHeaders"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=2}"
             IsChecked="{Binding Path=AlwaysShowHeaders}"
+            IsEnabled="{x:Static qt:Options03_Tweaks.IsNotXP}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkRedirectLibraryFolders"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=3}"
             IsChecked="{Binding Path=RedirectLibraryFolders}"
+            IsEnabled="{x:Static qt:Options03_Tweaks.IsWin7}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkKillExtWhileRenaming"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=4}"
             IsChecked="{Binding Path=KillExtWhileRenaming}"
+            IsEnabled="{x:Static qt:Options03_Tweaks.IsXP}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkF2Selection"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=5}"
@@ -73,6 +76,7 @@
         <CheckBox x:Name="chkBackspaceUpLevel"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=7}"
             IsChecked="{Binding Path=BackspaceUpLevel}"
+            IsEnabled="{x:Static qt:Options03_Tweaks.IsNotXP}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkHorizontalScroll"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=8}"
@@ -84,6 +88,7 @@
         <CheckBox x:Name="chkForceSysListView"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=10}"
             IsChecked="{Binding Path=ForceSysListView}"
+            IsEnabled="{x:Static qt:Options03_Tweaks.IsWin7}"
             Style="{StaticResource CheckStyle}"/>
         <CheckBox x:Name="chkToggleFullRowSelect"
             Content="{qt:Resx Key=Options_Page03_Tweaks, Index=11}"

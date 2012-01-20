@@ -24,6 +24,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+             xmlns:qt="clr-namespace:QTTabBarLib" 
              mc:Ignorable="d" 
              x:Name="MarginComboControl"
              Height="22">
@@ -65,16 +66,28 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <Label Content="All"    Grid.Row="0" Padding="0" Margin="05,0,10,0"/>
-                    <Label Content="Left"   Grid.Row="1" Padding="0" Margin="15,0,10,0"/>
-                    <Label Content="Top"    Grid.Row="2" Padding="0" Margin="15,0,10,0"/>
-                    <Label Content="Right"  Grid.Row="3" Padding="0" Margin="15,0,10,0"/>
-                    <Label Content="Bottom" Grid.Row="4" Padding="0" Margin="15,0,10,0"/>
-                    <TextBox x:Name="txtAll"    Grid.Row="0" Grid.Column="1" Width="50" PreviewTextInput="txtLTRB_PreviewTextInput" TextChanged="txtLTRB_TextChanged"/>
-                    <TextBox x:Name="txtLeft"   Grid.Row="1" Grid.Column="1" Width="50" PreviewTextInput="txtLTRB_PreviewTextInput" TextChanged="txtLTRB_TextChanged" />
-                    <TextBox x:Name="txtTop"    Grid.Row="2" Grid.Column="1" Width="50" PreviewTextInput="txtLTRB_PreviewTextInput" TextChanged="txtLTRB_TextChanged" />
-                    <TextBox x:Name="txtRight"  Grid.Row="3" Grid.Column="1" Width="50" PreviewTextInput="txtLTRB_PreviewTextInput" TextChanged="txtLTRB_TextChanged" />
-                    <TextBox x:Name="txtBottom" Grid.Row="4" Grid.Column="1" Width="50" PreviewTextInput="txtLTRB_PreviewTextInput" TextChanged="txtLTRB_TextChanged" />
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Label}">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="15,0,10,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="Grid.Column" Value="1"/>
+                            <Setter Property="Width" Value="50"/>
+                            <EventSetter Event="PreviewTextInput" Handler="txtLTRB_PreviewTextInput"/>
+                            <EventSetter Event="TextChanged" Handler="txtLTRB_TextChanged"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Label Content="{qt:Resx Key=MarginDropDown, Index=0}" Grid.Row="0" Margin="05,0,10,0"/>
+                    <Label Content="{qt:Resx Key=MarginDropDown, Index=1}" Grid.Row="1"/>
+                    <Label Content="{qt:Resx Key=MarginDropDown, Index=2}" Grid.Row="2"/>
+                    <Label Content="{qt:Resx Key=MarginDropDown, Index=3}" Grid.Row="3"/>
+                    <Label Content="{qt:Resx Key=MarginDropDown, Index=4}" Grid.Row="4"/>
+                    <TextBox x:Name="txtAll"    Grid.Row="0"/>
+                    <TextBox x:Name="txtLeft"   Grid.Row="1"/>
+                    <TextBox x:Name="txtTop"    Grid.Row="2"/>
+                    <TextBox x:Name="txtRight"  Grid.Row="3"/>
+                    <TextBox x:Name="txtBottom" Grid.Row="4"/>
                 </Grid>
             </Border>
         </Popup>

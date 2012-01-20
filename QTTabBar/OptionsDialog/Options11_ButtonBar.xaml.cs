@@ -137,6 +137,8 @@ namespace QTTabBarLib {
             PluginManager.SaveButtonOrder();
             WorkingConfig.bbar.ButtonIndexes = CurrentButtons.Select(
                     e => Math.Min(e.Index, QTButtonBar.BUTTONINDEX_PLUGIN)).ToArray();
+
+            // TODO: Validate image strip
         }
 
         private void btnBBarAdd_Click(object sender, RoutedEventArgs e) {
