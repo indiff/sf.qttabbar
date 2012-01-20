@@ -96,8 +96,11 @@ namespace QTTabBarLib {
                 Monitor.Pulse(instanceThread);
             }
             instance.Closed += (sender, e) => {
+                // We can't immediately shut down here, because ForceClose may be holding the lock.
+                Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Input);
+            };
+            Dispatcher.CurrentDispatcher.ShutdownStarted += (sender, e) => {
                 lock(typeof(OptionsDialog)) {
-                    instance.Dispatcher.InvokeShutdown();
                     instance = null;
                 }
             };

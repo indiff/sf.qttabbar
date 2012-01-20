@@ -51,8 +51,8 @@ namespace QTTabBarLib {
         }
 
         public override void CommitConfig() {
-            WorkingConfig.tips.TextExt = TextFileTypes.Select(entry => entry.Extension).ToList();
-            WorkingConfig.tips.ImageExt = MediaFileTypes.Select(entry => entry.Extension).ToList();
+            WorkingConfig.tips.TextExt = TextFileTypes.Select(entry => entry.DotExtension).ToList();
+            WorkingConfig.tips.ImageExt = MediaFileTypes.Select(entry => entry.DotExtension).ToList();
         }
 
         private void AddNewFileType(ListBox control) {

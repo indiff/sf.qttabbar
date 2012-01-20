@@ -308,12 +308,12 @@ namespace QTTabBarLib {
             public Color AltRowForegroundColor   { get; set; }
 
             public _Tweaks() {
-                AlwaysShowHeaders = false;
+                AlwaysShowHeaders = !QTUtility.IsXP && !QTUtility.IsWin7;
                 KillExtWhileRenaming = true;
                 RedirectLibraryFolders = false;
                 F2Selection = true;
                 WrapArrowKeySelection = false;
-                BackspaceUpLevel = false;
+                BackspaceUpLevel = QTUtility.IsXP;
                 HorizontalScroll = true;
                 ForceSysListView = false;
                 ToggleFullRowSelect = false;
@@ -629,6 +629,11 @@ namespace QTTabBarLib {
             var keys = Config.Keys.Shortcuts;
             Array.Resize(ref keys, (int)BindAction.KEYBOARD_ACTION_COUNT);
             Config.Keys.Shortcuts = keys;
+            if(QTUtility.IsXP) Config.Tweaks.AlwaysShowHeaders = false;
+            if(!QTUtility.IsWin7) Config.Tweaks.RedirectLibraryFolders = false;
+            if(!QTUtility.IsXP) Config.Tweaks.KillExtWhileRenaming = true;
+            if(QTUtility.IsXP) Config.Tweaks.BackspaceUpLevel = true;
+            if(!QTUtility.IsWin7) Config.Tweaks.ForceSysListView = true;
         }
         public static void WriteConfig() {
             const string RegPath = RegConst.Root + RegConst.Config;

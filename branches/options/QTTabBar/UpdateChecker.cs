@@ -46,7 +46,9 @@ namespace QTTabBarLib {
 
                     if(code == 2) {
                         MessageForm.Show(
-                                String.Format(QTUtility.TextResourcesDic["UpdateCheck"][0], msg),
+                                QTUtility.TextResourcesDic["UpdateCheck"][0] +
+                                Environment.NewLine + Environment.NewLine + msg + Environment.NewLine + Environment.NewLine +
+                                QTUtility.TextResourcesDic["UpdateCheck"][1],
                                 strMsgCaption,
                                 Resources_String.SiteURL,
                                 MessageBoxIcon.Information,
@@ -54,7 +56,6 @@ namespace QTTabBarLib {
                     }
                 }
             }
-
         }
 
         private static int CheckInternal(out string msg) {
@@ -185,20 +186,20 @@ namespace QTTabBarLib {
 
                 case 0:
                     // current is up to date.
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][1];
+                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][2];
                     break;
 
                 case 1:
-                    // current is up to date.
                     // beta found.
-                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][1] + "\n\n" +
-                            QTUtility.TextResourcesDic["UpdateCheck"][2] + " " + strOptional;
+                    strMsg = QTUtility.TextResourcesDic["UpdateCheck"][3] + " " + strOptional;
                     break;
 
                 case 2:
                     // New version found.
                     if(DialogResult.OK == MessageBox.Show(
-                            String.Format(QTUtility.TextResourcesDic["UpdateCheck"][0], strOptional),
+                            QTUtility.TextResourcesDic["UpdateCheck"][0] +
+                            Environment.NewLine + Environment.NewLine + strOptional + Environment.NewLine + Environment.NewLine +
+                            QTUtility.TextResourcesDic["UpdateCheck"][1],
                             strMsgCaption,
                             MessageBoxButtons.OKCancel,
                             MessageBoxIcon.Information)) {

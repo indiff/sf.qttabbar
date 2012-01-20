@@ -110,10 +110,12 @@
                     <Button x:Name="btnPluginAdd"
                         Click="btnPluginAdd_Click"
                         Content="{qt:Resx Key=DialogButtons, Index=8}"
+                        Padding="6,1"
                         Margin="5,0,0,5"/>
                     <Button x:Name="btnPluginRemove"
                         Click="btnPluginRemove_Click"
                         Content="{qt:Resx Key=DialogButtons, Index=9}"
+                        Padding="6,1"
                         Margin="5,5,0,0"/>
                 </StackPanel>
                 <ListBox x:Name="lstPluginFiles"/>
@@ -124,6 +126,7 @@
             <ToggleButton x:Name="btnToggleLangEditor"
                 Content="{qt:Resx Key=Options_Page13_Language, Index=6}"
                 HorizontalAlignment="Left"
+                Padding="6,1"
                 Margin="13,2,5,2">
                 <ToggleButton.Style>
                     <Style TargetType="{x:Type ToggleButton}">
