@@ -663,19 +663,18 @@ namespace QTTabBarLib {
             // TODO
         }
 
-        public static void ValidateMaxMin(ref int value, int max, int min) {
-            value = ValidateMaxMin(value, min, max);
+        public static void ValidateMinMax(ref int value, int min, int max) {
+            value = ValidateMinMax(value, min, max);
         }
 
-        public static int ValidateMaxMin(int value, int max, int min) {
-            int num = Math.Max(max, min);
-            int num2 = Math.Min(max, min);
-            if(value < num2) {
-                value = num2;
-                return value;
+        public static int ValidateMinMax(int value, int min, int max) {
+            int a = Math.Min(min, max);
+            int b = Math.Max(min, max);
+            if(value < a) {
+                value = a;
             }
-            if(value > num) {
-                value = num;
+            else if(value > b) {
+                value = b;
             }
             return value;
         }

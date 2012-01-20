@@ -132,7 +132,7 @@ namespace QTTabBarLib {
         private void btnSave_Click(object sender, RoutedEventArgs e) {
             string path;
             using(SaveFileDialog sfd = new SaveFileDialog()) {
-                sfd.Filter = "Language files (*.xml)|*.xml";
+                sfd.Filter = QTUtility.TextResourcesDic["FileFilters"][1] + "|*.xml";
                 sfd.RestoreDirectory = true;
                 sfd.FileName = "Lng_QTTabBar_" + LangItems[1].Translated + ".xml";
                 if(DialogResult.OK != sfd.ShowDialog()) return;
@@ -193,8 +193,8 @@ namespace QTTabBarLib {
                     writer.WriteWhitespace(Environment.NewLine);
                 }
             }
-            catch(XmlException exception) {
-                MessageBox.Show("Error saving file.");
+            catch(XmlException) {
+                MessageBox.Show(QTUtility.TextResourcesDic["Options_Page13_Language"][10]);
             }
             catch(Exception exception2) {
                 QTUtility2.MakeErrorLog(exception2);
