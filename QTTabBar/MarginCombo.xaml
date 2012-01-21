@@ -32,7 +32,7 @@
         Height="{Binding Path=Height, ElementName=MarginComboControl}" 
         Width="{Binding Path=Width, ElementName=MarginComboControl}">
         <TextBox x:Name="txtMargin" 
-            Padding="0, 0, 20, 0"
+            Padding="2,2,20,0"
             PreviewTextInput="txtMargin_PreviewTextInput"
             TextChanged="txtMargin_TextChanged"/>
         <ToggleButton 
@@ -41,14 +41,8 @@
             IsChecked="{Binding ElementName=MyPopup, Path=IsOpen}"
             Width="28">
             <ToggleButton.Resources>
-                <ScaleTransform x:Key="FontStretchExpanded" ScaleX="0.8" ScaleY="0.55" />
                 <Style TargetType="theme:ButtonChrome">
                     <Setter Property="RoundCorners" Value="False" />
-                </Style>
-                <Style TargetType="ToggleButton">
-                    <Style.Setters>
-                        <Setter Property="LayoutTransform" Value="{StaticResource FontStretchExpanded}" />
-                    </Style.Setters>
                 </Style>
             </ToggleButton.Resources>
         </ToggleButton>

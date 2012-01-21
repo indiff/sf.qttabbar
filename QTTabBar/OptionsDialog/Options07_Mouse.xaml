@@ -69,6 +69,11 @@
                 BorderThickness="1.000001"
                 KeyDown="lvwMouseBindings_KeyDown"
                 SelectionMode="Single">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListView}">
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Style>
+                </ListBox.Style>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
                         <Setter Property="IsSelected" Value="{Binding Path=IsSelected, Mode=TwoWay}"/>
@@ -83,7 +88,7 @@
                                 <DockPanel LastChildFill="True">
                                     <Grid
                                         DockPanel.Dock="Left"
-                                        Margin="4,1">
+                                        Margin="4,2,0,1">
                                         <Rectangle x:Name="rctAddMouseAction"
                                             MouseDown="rctAddMouseAction_MouseDown"
                                             Fill="LightGray"
@@ -94,6 +99,7 @@
                                             Tag="{Binding Path=Name}"/>
                                         <TextBlock
                                             MouseDown="rctAddMouseAction_MouseDown"
+                                            FontWeight="Bold"
                                             Tag="{Binding Path=Name}"
                                             Text="+"
                                             HorizontalAlignment="Center"
@@ -126,8 +132,7 @@
                         <GridViewColumn Header="{qt:Resx Key=Options_Page07_Mouse, Index=4}" Width="235">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock
-                                        Foreground="#FF000000">
+                                    <TextBlock>
                                         <TextBlock.Inlines>
                                             <!-- The second Run needs to be on the same line as the first,
                                                  or there will be an extra space inserted between them.
@@ -150,7 +155,6 @@
                                 <DataTemplate>
                                     <Grid HorizontalAlignment="Stretch">
                                         <TextBlock x:Name="txtMouseAction"
-                                            Foreground="#FF000000"
                                             Padding="4,0,0,0"
                                             Text="{qt:Resx Key=ShortcutKeys_ActionNames}"
                                             TextAlignment="Left">

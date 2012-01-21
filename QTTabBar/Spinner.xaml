@@ -14,7 +14,7 @@
     <Grid Height="{Binding Path=Height, ElementName=SpinnerControl}" Width="{Binding Path=Width, ElementName=SpinnerControl}">
         <TextBox x:Name="txtValue"
                  KeyDown="txtValue_KeyDown"                 
-                 Padding="0,0,16,0"
+                 Padding="2,2,16,0"
                  PreviewTextInput="txtValue_PreviewTextInput"
                  Text="{Binding Path=Value, ElementName=SpinnerControl, Converter={StaticResource IntToTextConverter}, Mode=TwoWay}"
                  TextChanged="txtValue_TextChanged"/>

@@ -70,6 +70,23 @@
                 TextInput="lvwHotkeys_TextInput"
                 SelectionMode="Single"
                 BorderThickness="1.000001">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListView}">
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Style>
+                </ListBox.Style>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="Padding" Value="5,2,5,2"/>
+                        <Setter Property="Margin" Value="0,0,0,1"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=Enabled}" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListView.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.HeaderTemplate>
@@ -115,7 +132,6 @@
                                             IsChecked="{Binding Path=Enabled}"
                                             VerticalAlignment="Center"/>
                                         <TextBlock x:Name="txtKeyAction"
-                                            Foreground="#FF000000"
                                             Tag="{qt:Resx Key=ShortcutKeys_ActionNames}"
                                             Margin="6,0">
                                             <TextBlock.Style>
@@ -131,20 +147,6 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                     </StackPanel>
-                                    <DataTemplate.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding Path=Enabled}"
-                                            Value="False">
-                                            <Setter 
-                                                TargetName="chkKeyEnable" 
-                                                Property="Foreground" 
-                                                Value="#FF888888"/>
-                                            <Setter 
-                                                TargetName="txtKeyAction" 
-                                                Property="Foreground" 
-                                                Value="#FF888888"/>
-                                        </DataTrigger>
-                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -152,20 +154,9 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock x:Name="txtKeyString"
-                                        Foreground="#FF000000"
                                         Text="{Binding Path=HotkeyString}"
                                         TextAlignment="Center"
                                         Width="120"/>
-                                    <DataTemplate.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding Path=Enabled}"
-                                            Value="False">
-                                            <Setter 
-                                                TargetName="txtKeyString" 
-                                                Property="Foreground" 
-                                                Value="#FF888888"/>
-                                        </DataTrigger>
-                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
