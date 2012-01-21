@@ -53,7 +53,7 @@
             <Label
                 Content="{qt:Resx Key=Options_Page13_Language, Index=1}"
                 Style="{StaticResource SectionHeaderStyle}"/>
-            <Grid>
+            <Grid Margin="13,1,0,1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -67,7 +67,7 @@
                     Height="16"
                     HorizontalAlignment="Left"
                     IsChecked="{Binding Path=UseLangFile, Converter={StaticResource BoolInverterConverter}}"
-                    Margin="5,9"
+                    Margin="0,9"
                     VerticalAlignment="Top"/>
                 <qt:RadioButtonEx x:Name="radUseLangFileYes"
                     Content="{qt:Resx Key=Options_Page13_Language, Index=3}"
@@ -75,16 +75,17 @@
                     Height="16"
                     HorizontalAlignment="Left"
                     IsChecked="{Binding Path=UseLangFile}"
-                    Margin="5,9"
+                    Margin="0,9"
                     VerticalAlignment="Top"/>
                 <ComboBox
                     Grid.Column="1"
                     Height="23"
-                    HorizontalAlignment="Stretch"
-                    Margin="5"
+                    HorizontalAlignment="Left"
+                    Margin="10,5,0,5"
                     VerticalAlignment="Top"
                     SelectedValue="{Binding Path=BuiltInLang}"
-                    SelectedValuePath="Content">
+                    SelectedValuePath="Content"
+                    Width="150">
                     <ComboBoxItem Content="English"/>
                 </ComboBox>
                 <qt:FileFolderEntryBox
@@ -95,14 +96,14 @@
                     Height="23"
                     HorizontalAlignment="Stretch"
                     IsEnabled="{Binding Path=UseLangFile}"
-                    Margin="5"
+                    Margin="10,5,0,5"
                     SelectedPath="{Binding Path=LangFile}"
                     VerticalAlignment="Top"/>
             </Grid>
             <Label
                 Content="{qt:Resx Key=Options_Page13_Language, Index=4}"
                 Style="{StaticResource SectionHeaderStyle}"/>
-            <DockPanel>
+            <DockPanel Margin="13,1,0,1">
                 <StackPanel
                     DockPanel.Dock="Right"
                     Orientation="Vertical"
@@ -167,8 +168,14 @@
             <ListView x:Name="lvwLangEditor"
                 Margin="0,6"
                 KeyDown="lvwLangEditor_KeyDown">
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListView}">
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Style>
+                </ListBox.Style>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Padding" Value="5,2"/>
                         <EventSetter Event="Selected" Handler="lvwLangEditor_ItemSelected"/>
                     </Style>
                 </ListView.ItemContainerStyle>
@@ -199,7 +206,6 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Foreground="Black"
                                         Margin="6,0"
                                         Text="{Binding Path=Original}"
                                         TextWrapping="Wrap"/>
@@ -214,7 +220,6 @@
                                             <Setter Property="TextWrapping" Value="Wrap"/>
                                         </Style>
                                         <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="Foreground" Value="Black"/>
                                             <Setter Property="TextWrapping" Value="Wrap"/>
                                         </Style>
                                     </DataTemplate.Resources>

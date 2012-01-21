@@ -284,8 +284,8 @@ namespace QTTabBarLib {
                 case Keys.Control | Keys.Z:
                 case Keys.Control | Keys.V:
                 case Keys.Control | Keys.X:
-                case Keys.Alt | Keys.Left:
-                case Keys.Alt | Keys.Right:
+                // case Keys.Alt | Keys.Left:
+                // case Keys.Alt | Keys.Right:
                 case Keys.Alt | Keys.F4:
                     System.Media.SystemSounds.Hand.Play();
                     return false;

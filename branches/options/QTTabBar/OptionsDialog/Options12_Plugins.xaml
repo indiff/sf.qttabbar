@@ -49,6 +49,7 @@
             Click="btnBrowsePlugin_Click"
             Content="{qt:Resx Key=Options_Page12_Plugins, Index=1}"
             DockPanel.Dock="Top"
+            Height="22"
             HorizontalAlignment="Left"
             Margin="0,10"
             Width="120"/>

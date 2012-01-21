@@ -241,11 +241,11 @@
                 Checked="btnShadTextColor_OnChecked"
                 ContextMenuService.Placement="Bottom"
                 Grid.Column="2"
-                Height="23"
+                Height="24"
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Stretch"
                 IsChecked="{Binding ElementName=ctxTabTextColor, Path=IsOpen, Mode=TwoWay}"
-                Margin="10, 5, 30, 5"
+                Margin="10,5,30,5"
                 Width="100"
                 VerticalAlignment="Center">
                 <DockPanel LastChildFill="True">
@@ -256,7 +256,6 @@
                         Text="&#9660;"/>
                     <StackPanel
                         HorizontalAlignment="Center"
-                        Margin="0,1,0,0"
                         Orientation="Horizontal"
                         SnapsToDevicePixels="True">
                         <Rectangle x:Name="rectTabTextActiveColor"
@@ -296,11 +295,11 @@
                 ContextMenuService.Placement="Bottom"
                 Grid.Row="1"
                 Grid.Column="2"
-                Height="23"
+                Height="24"
                 HorizontalAlignment="Left"
                 HorizontalContentAlignment="Stretch"
                 IsChecked="{Binding ElementName=ctxShadowTextColor, Path=IsOpen, Mode=TwoWay}"
-                Margin="10, 5, 30, 5"
+                Margin="10,5,30,5"
                 Width="100"
                 VerticalAlignment="Center">
                 <DockPanel LastChildFill="True">
@@ -311,7 +310,6 @@
                         Text="&#9660;"/>
                     <StackPanel
                         HorizontalAlignment="Center"
-                        Margin="0,1,0,0"
                         Orientation="Horizontal"
                         SnapsToDevicePixels="True">
                         <Rectangle x:Name="rectTabShadActiveColor"
