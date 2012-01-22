@@ -45,10 +45,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1" Grid.Column="0">
-            <Button Content="Toggle Strings" Click="Button_Click"/>
-        </Grid>
-
         <!-- The OK/Cancel/etc buttons -->
         <DockPanel
             HorizontalAlignment="Stretch"

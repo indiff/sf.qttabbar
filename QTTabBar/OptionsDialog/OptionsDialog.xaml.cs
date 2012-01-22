@@ -168,6 +168,9 @@ namespace QTTabBarLib {
                 tabBar.Invoke(new Action(tabBar.RefreshOptions));
             }
             QTButtonBar.BroadcastConfigChanged(fButtonBarNeedsRefresh);
+
+            // TODO: this should probably be moved to where ever the Langauge is set.
+            Resx.UpdateAll();
         }
 
         private void CategoryListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {
@@ -319,10 +322,6 @@ namespace QTTabBarLib {
             }
             finalKey = modkey;
             return true;
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e) {
-            Resx.DebugMode = !Resx.DebugMode;
         }
 
         #region ---------- Converters ----------
