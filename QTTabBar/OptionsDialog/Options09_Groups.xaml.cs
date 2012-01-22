@@ -36,7 +36,7 @@ namespace QTTabBarLib {
         }
 
         public override void InitializeConfig() {
-            tvwGroups.ItemsSource = CurrentGroups = new ParentedCollection<GroupEntry>(
+            tvwGroups.ItemsSource = CurrentGroups = new ParentedCollection<GroupEntry>(null,
                     GroupsManager.Groups.Select(g => new GroupEntry(
                     g.Name, g.ShortcutKey, g.Startup, g.Paths.Select(p => new FolderEntry(p)))));
         }
@@ -56,11 +56,6 @@ namespace QTTabBarLib {
             return CurrentGroups.Cast<IHotkeyEntry>();
         }
 
-
-        private GroupEntry GetParentGroup(FolderEntry folder) {
-            return CurrentGroups.FirstOrDefault(entry => entry.Folders.Contains(folder));
-        }
-
         private void btnGroupsAddGroup_Click(object sender, RoutedEventArgs e) {
             GroupEntry item = new GroupEntry(QTUtility.TextResourcesDic["Options_Page09_Groups"][6]);
             tvwGroups.Focus();
@@ -68,18 +63,14 @@ namespace QTTabBarLib {
             object sel = tvwGroups.SelectedItem;
             int idx = sel == null
                     ? tvwGroups.Items.Count
-                    : CurrentGroups.IndexOf(sel as GroupEntry ?? GetParentGroup((FolderEntry)sel)) + 1;
+                    : CurrentGroups.IndexOf(sel as GroupEntry ?? (GroupEntry)((FolderEntry)sel).ParentItem) + 1;
             col.Insert(idx, item);
             item.IsSelected = true;
             item.IsEditing = true;
         }
 
-        private void btnGroupsMoveNodeUp_Click(object sender, RoutedEventArgs e) {
-            UpDownOnTreeView(tvwGroups, true);
-        }
-
-        private void btnGroupsMoveNodeDown_Click(object sender, RoutedEventArgs e) {
-            UpDownOnTreeView(tvwGroups, false);
+        private void btnGroupsMoveNodeUpDown_Click(object sender, RoutedEventArgs e) {
+            UpDownOnTreeView(tvwGroups, sender == btnGroupsMoveNodeUp, false);
         }
 
         private void btnGroupsAddFolder_Click(object sender, RoutedEventArgs e) {
@@ -98,7 +89,7 @@ namespace QTTabBarLib {
                 if(sel == null) return;
                 if(sel is FolderEntry) {
                     FolderEntry entry = (FolderEntry)sel;
-                    group = GetParentGroup(entry);
+                    group = (GroupEntry)entry.ParentItem;
                     index = group.Folders.IndexOf(entry) + 1;
                 }
                 else {
@@ -159,10 +150,12 @@ namespace QTTabBarLib {
         private class FolderEntry : INotifyPropertyChanged, IEditableEntry, ITreeViewItem {
             public event PropertyChangedEventHandler PropertyChanged;
             public IList ParentList { get; set; }
+            public ITreeViewItem ParentItem { get; set; }
             public string Path { get; set; }
             public bool IsEditing { get; set; }
             public bool IsSelected { get; set; }
             public bool IsExpanded { get; set; }
+            public IList ChildrenList { get { return null; } }
 
             public string DisplayText {
                 get {
@@ -191,6 +184,7 @@ namespace QTTabBarLib {
         private class GroupEntry : INotifyPropertyChanged, IEditableEntry, ITreeViewItem, IHotkeyEntry {
             public event PropertyChangedEventHandler PropertyChanged;
             public IList ParentList { get; set; }
+            public ITreeViewItem ParentItem { get; set; }
             public string Name { get; set; }
             public Image Icon { get; private set; }
             public ParentedCollection<FolderEntry> Folders { get; private set; }
@@ -210,6 +204,7 @@ namespace QTTabBarLib {
             public bool IsEditing { get; set; }
             public bool IsSelected { get; set; }
             public bool IsExpanded { get; set; }
+            public IList ChildrenList { get { return Folders; }}
 
             private void Folders_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
                 if(e.OldItems != null) {
@@ -239,14 +234,14 @@ namespace QTTabBarLib {
                 Name = name;
                 Startup = startup;
                 ShortcutKey = shortcutKey;
-                Folders = new ParentedCollection<FolderEntry>(folders);
+                Folders = new ParentedCollection<FolderEntry>(this, folders);
                 Folders.CollectionChanged += Folders_CollectionChanged;
                 RefreshIcon();
             }
 
             public GroupEntry(string name) {
                 Name = name;
-                Folders = new ParentedCollection<FolderEntry>();
+                Folders = new ParentedCollection<FolderEntry>(this);
                 Folders.CollectionChanged += Folders_CollectionChanged;
                 RefreshIcon();
             }

@@ -108,7 +108,7 @@
                                     <TextBlock 
                                         DockPanel.Dock="Left"
                                         Foreground="MediumBlue"
-                                        Margin="2,1,4,4"
+                                        Margin="6,3,4,2"
                                         Text="{qt:Resx Key=Options_Page07_Mouse}">
                                         <TextBlock.Style>
                                             <Style TargetType="{x:Type TextBlock}">
@@ -120,7 +120,7 @@
                                         BorderBrush="LightGray"
                                         BorderThickness="1"
                                         Height="1"
-                                        Margin="0,0,10,0"
+                                        Margin="0,2,10,0"
                                         SnapsToDevicePixels="True"/>
                                 </DockPanel>
                             </DataTemplate>
@@ -132,7 +132,7 @@
                         <GridViewColumn Header="{qt:Resx Key=Options_Page07_Mouse, Index=4}" Width="235">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock>
+                                    <TextBlock Margin="16,0,0,0">
                                         <TextBlock.Inlines>
                                             <!-- The second Run needs to be on the same line as the first,
                                                  or there will be an extra space inserted between them.

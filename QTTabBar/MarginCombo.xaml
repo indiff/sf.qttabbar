@@ -38,11 +38,11 @@
     <ComboBox.ItemTemplate>
         <DataTemplate>
             <StackPanel
-                    Orientation="Horizontal"
-                    Margin="{Binding Path=GridMargin}"
-                    MouseDown="MouseEater"
-                    MouseUp="MouseEater"
-                    Background="Transparent">
+                Orientation="Horizontal"
+                Margin="{Binding Path=PanelMargin}"
+                MouseDown="MouseEater"
+                MouseUp="MouseEater"
+                Background="Transparent">
                 <Grid Width="75">
                     <Label
                         Content="{qt:Resx Key=MarginDropDown}"

@@ -64,13 +64,13 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="btnAppsMoveNodeUp"
-                Click="btnAppsMoveNodeUp_Click"    
+                Click="btnAppsMoveNodeUpDown_Click"    
                 Content="&#9650;"
                 Height="23"
                 Margin="4"
                 Width="28"/>
             <Button x:Name="btnAppsMoveNodeDown"
-                Click="btnAppsMoveNodeDown_Click" 
+                Click="btnAppsMoveNodeUpDown_Click" 
                 Content="&#9660;"
                 Grid.Column="1"
                 Height="23"

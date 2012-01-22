@@ -37,11 +37,10 @@ namespace QTTabBarLib {
         }
 
         public override void InitializeConfig() {
-            var root = AppsManager.BuildNestedStructure(
+            tvwApps.ItemsSource = CurrentApps = new ParentedCollection<AppEntry>(null,
+                    AppsManager.BuildNestedStructure(
                     app => new AppEntry(app),
-                    (folderName, children) => new AppEntry(folderName, children));
-
-            tvwApps.ItemsSource = CurrentApps = new ParentedCollection<AppEntry>(root);
+                    (folderName, children) => new AppEntry(folderName, children)));
         }
 
         public override void ResetConfig() {
@@ -125,12 +124,8 @@ namespace QTTabBarLib {
             ((ITreeViewItem)list[index]).IsSelected = true;
         }
 
-        private void btnAppsMoveNodeUp_Click(object sender, RoutedEventArgs e) {
-            UpDownOnTreeView(tvwApps, true);
-        }
-
-        private void btnAppsMoveNodeDown_Click(object sender, RoutedEventArgs e) {
-            UpDownOnTreeView(tvwApps, false);
+        private void btnAppsMoveNodeUpDown_Click(object sender, RoutedEventArgs e) {
+            UpDownOnTreeView(tvwApps, sender == btnAppsMoveNodeUp, true);
         }
 
         private void tvwApps_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -171,11 +166,14 @@ namespace QTTabBarLib {
         private class AppEntry : INotifyPropertyChanged, IEditableEntry, ITreeViewItem, IHotkeyEntry {
             public event PropertyChangedEventHandler PropertyChanged;
             public IList ParentList { get; set; }
+            public ITreeViewItem ParentItem { get; set; }
             public ParentedCollection<AppEntry> Children { get; set; }
             public bool IsFolder { get { return Children != null; } }
             public bool IsEditing { get; set; }
             public bool IsSelected { get; set; }
             public bool IsExpanded { get; set; }
+            public IList ChildrenList { get { return Children; } }
+
             public string Name { get; set; }
             public string Path { get; set; }
             public string Args { get; set; }
@@ -202,7 +200,7 @@ namespace QTTabBarLib {
 
             public AppEntry(string folderName, IEnumerable<AppEntry> children) {
                 Name = folderName;
-                Children = new ParentedCollection<AppEntry>(children);
+                Children = new ParentedCollection<AppEntry>(this, children);
             }
 
             public AppEntry(string name, string path) {
