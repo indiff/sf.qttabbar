@@ -157,7 +157,7 @@ namespace QTTabBarLib {
             public event PropertyChangedEventHandler PropertyChanged;
             private MarginCombo Parent;
 
-            public Thickness GridMargin { get {
+            public Thickness PanelMargin { get {
                 Thickness t = new Thickness(5);
                 if(Index > 0) t.Top = 1;
                 if(Index < 4) t.Bottom = 0;

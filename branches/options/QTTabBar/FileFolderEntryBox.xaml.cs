@@ -297,7 +297,7 @@ namespace QTTabBarLib {
             return File ? BrowseForFile() : BrowseForFolder();
         }
 
-        private void btnBrowse_Click(object sender, System.Windows.RoutedEventArgs e) {
+        private void btnBrowse_Click(object sender, RoutedEventArgs e) {
             Browse();
         }
 

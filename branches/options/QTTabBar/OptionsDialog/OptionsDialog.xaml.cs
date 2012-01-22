@@ -113,22 +113,30 @@ namespace QTTabBarLib {
         private OptionsDialog() {
             InitializeComponent();
 
-            string[] tabNames = QTUtility.TextResourcesDic["TabBar_Option_Genre"];
+            int i = 0;
             tabbedPanel.ItemsSource = new OptionsDialogTab[] {
-                new Options01_Window        { TabLabel = tabNames[00] },
-                new Options02_Tabs          { TabLabel = tabNames[01] },
-                new Options03_Tweaks        { TabLabel = tabNames[02] },
-                new Options04_Tooltips      { TabLabel = tabNames[03] },
-                new Options05_General       { TabLabel = tabNames[04] },
-                new Options06_Appearance    { TabLabel = tabNames[05] },
-                new Options07_Mouse         { TabLabel = tabNames[06] },
-                new Options08_Keys          { TabLabel = tabNames[07] },
-                new Options09_Groups        { TabLabel = tabNames[08] },
-                new Options10_Apps          { TabLabel = tabNames[09] },
-                new Options11_ButtonBar     { TabLabel = tabNames[10] },
-                new Options12_Plugins       { TabLabel = tabNames[11] },
-                new Options13_Language      { TabLabel = tabNames[12] },
-                new Options14_About         { TabLabel = tabNames[13] }
+                new Options01_Window        { Index = i++},
+                new Options02_Tabs          { Index = i++},
+                new Options03_Tweaks        { Index = i++},
+                new Options04_Tooltips      { Index = i++},
+                new Options05_General       { Index = i++},
+                new Options06_Appearance    { Index = i++},
+                new Options07_Mouse         { Index = i++},
+                new Options08_Keys          { Index = i++},
+                new Options09_Groups        { Index = i++},
+                new Options10_Apps          { Index = i++},
+                new Options11_ButtonBar     { Index = i++},
+                new Options12_Plugins       { Index = i++},
+                new Options13_Language      { Index = i++},
+                new Options14_About         { Index = i}
+            };
+
+            // For some reason, on XP, the Options dialog starts up with a blank tab
+            // This is the only way I've found to fix it
+            // TODO: Investigate and see if there's a better way
+            Loaded += (sender, args) => {
+                tabbedPanel.SelectedIndex = 1;
+                tabbedPanel.SelectedIndex = 0;
             };
 
             WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
@@ -463,8 +471,8 @@ namespace QTTabBarLib {
             }
         }
 
-        // This is the string that will be displayed in the category list.
-        public string TabLabel { get; set; }
+        // This is the index of the resource string that will be displayed in the category list.
+        public int Index { get; set; }
 
         // Called when the options dialog is first shown, and when the user clicks Apply (after commit)
         public abstract void InitializeConfig();
@@ -486,20 +494,25 @@ namespace QTTabBarLib {
         // Interface for Binding Classes that belong to a ParentedCollection list.
         protected interface IChildItem {
             IList ParentList { get; set; }
+            ITreeViewItem ParentItem { get; set; }
         }
 
         // Interface for TreeView items, to control selectedness and expandedness.
         protected interface ITreeViewItem : IChildItem {
             bool IsSelected { get; set; }
             bool IsExpanded { get; set; }
+            IList ChildrenList { get; }
         }
 
-        // A subclass of ObservableCollection that allows the parent list to be accessed from its children.
+        // A subclass of ObservableCollection that allows the parent list and item to be accessed from its children.
         protected sealed class ParentedCollection<TChild> : ObservableCollection<TChild>
             where TChild : class, IChildItem {
-            public ParentedCollection(IEnumerable<TChild> collection = null) {
+            private ITreeViewItem ParentItem;
+            public ParentedCollection(ITreeViewItem parentItem, IEnumerable<TChild> collection = null) {
+                ParentItem = parentItem;
                 if(collection != null) {
                     foreach(TChild child in collection) {
+                        child.ParentItem = ParentItem;
                         child.ParentList = this;
                         Add(child);
                     }
@@ -510,11 +523,13 @@ namespace QTTabBarLib {
             private void ParentedCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
                 if(e.NewItems != null) {
                     foreach(TChild newItem in e.NewItems) {
+                        newItem.ParentItem = ParentItem;
                         newItem.ParentList = this;
                     }
                 }
                 if(e.OldItems != null) {
                     foreach(TChild oldItem in e.OldItems) {
+                        oldItem.ParentItem = null;
                         oldItem.ParentList = null;
                     }
                 }
@@ -549,30 +564,44 @@ namespace QTTabBarLib {
         }
 
         // Utility method to move nodes up and down in a TreeView.
-        protected static void UpDownOnTreeView(TreeView tvw, bool up) {
-            ITreeViewItem val = tvw.SelectedItem as ITreeViewItem;
-            if(val == null) return;
-            IList list = val.ParentList;
-            int index = list.IndexOf(val);
-            if(index == -1) {
-                return;
+        protected static void UpDownOnTreeView(TreeView tvw, bool up, bool traverseFolders) {
+            ITreeViewItem sel = tvw.SelectedItem as ITreeViewItem;
+            if(sel == null) return;
+            IList list = sel.ParentList;
+            int index = list.IndexOf(sel);
+            if(index == -1) return;
+            bool expanded = sel.IsExpanded;
+            if(up && index == 0) {
+                if(!traverseFolders || sel.ParentItem == null) return;
+                IList parentList = sel.ParentItem.ParentList;
+                int parentIndex = parentList.IndexOf(sel.ParentItem);
+                if(parentIndex == -1) return;
+                list.RemoveAt(index);
+                parentList.Insert(parentIndex, sel);
             }
-            if(up) {
-                if(index == 0) {
-                    return;
-                }
+            else if(!up && index == list.Count - 1) {
+                if(!traverseFolders || sel.ParentItem == null) return;
+                IList parentList = sel.ParentItem.ParentList;
+                int parentIndex = parentList.IndexOf(sel.ParentItem);
+                if(parentIndex == -1) return;
+                list.RemoveAt(index);
+                parentList.Insert(parentIndex + 1, sel);
             }
             else {
-                if(index == list.Count - 1) {
-                    return;
+                ITreeViewItem next = (ITreeViewItem)list[index + (up ? -1 : 1)];
+                if(traverseFolders && next.ChildrenList != null && (next.IsExpanded || next.ChildrenList.Count == 0)) {
+                    list.RemoveAt(index);
+                    list = next.ChildrenList;
+                    list.Insert(up ? list.Count : 0, sel);
+                    next.IsExpanded = true;
+                }
+                else {
+                    list.RemoveAt(index);
+                    list.Insert(index + (up ? -1 : 1), sel);                    
                 }
             }
-
-            bool expanded = val.IsExpanded;
-            list.RemoveAt(index);
-            list.Insert(index + (up ? -1 : 1), val);
-            val.IsExpanded = expanded;
-            val.IsSelected = true;
+            sel.IsExpanded = expanded;
+            sel.IsSelected = true;
         }
     }
 }

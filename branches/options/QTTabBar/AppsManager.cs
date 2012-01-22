@@ -41,16 +41,16 @@ namespace QTTabBarLib {
         }
 
         public UserApp(string name, string path, string args, string workingDir, Keys shortcutKey) {
-            Name = name;
-            Args = args;
+            Name = name ?? "";
+            Args = args ?? "";
             ShortcutKey = shortcutKey;
-            Path = path;
-            WorkingDir = workingDir;
+            Path = path ?? "";
+            WorkingDir = workingDir ?? "";
             ChildrenCount = -1;
         }
 
         public UserApp(string name, int childrenCount = 0) {
-            Name = name;
+            Name = name ?? "";
             ChildrenCount = childrenCount;
         }
     }

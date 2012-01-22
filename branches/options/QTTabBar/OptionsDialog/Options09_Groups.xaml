@@ -68,14 +68,14 @@
                 Height="23"
                 Margin="4"
                 Width="28"
-                Click="btnGroupsMoveNodeUp_Click" />
+                Click="btnGroupsMoveNodeUpDown_Click" />
             <Button x:Name="btnGroupsMoveNodeDown"
                 Content="&#9660;"
                 Grid.Column="1"
                 Height="23"
                 Margin="4"
                 Width="28"
-                Click="btnGroupsMoveNodeDown_Click" />
+                Click="btnGroupsMoveNodeUpDown_Click" />
             <Button x:Name="btnGroupsAddGroup" 
                 Content="{qt:Resx Key=Options_Page09_Groups, Index=2}"
                 Grid.Column="3"
