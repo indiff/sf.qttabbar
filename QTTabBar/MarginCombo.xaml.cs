@@ -16,6 +16,7 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -29,59 +30,60 @@ namespace QTTabBarLib {
     /// <summary>
     /// Interaction logic for MarginCombo.xaml
     /// </summary>
-    public partial class MarginCombo : UserControl {
+    public partial class MarginCombo : ComboBox {
         private const int VAL_MAX = 99;
-
+        private TextBox txtMargin;
+        private MarginEntry[] entries;
         public MarginCombo() {
             InitializeComponent();
-
-            // Set bindings (so much easier doing it here than in xaml...)
-            var boxes = new TextBox[] {txtLeft, txtTop, txtRight, txtBottom};
-            for(int i = 0; i < 4; i++) {
-                boxes[i].SetBinding(TextBox.TextProperty, new Binding("Value") {
-                    Source = this,
-                    Converter = new SingleTextConverter(i, this),
-                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged 
-                });
-            }
-
-            txtMargin.SetBinding(TextBox.TextProperty, new Binding("Value") {
-                    Source = this, 
-                    Converter = new JoinedTextConverter(), 
-                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-            });
-
-            txtAll.SetBinding(TextBox.TextProperty, new MultiBinding {
-                Converter = new CommonMultiConverter(),
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                Bindings = {
-                    new Binding("Text") { Source = txtLeft   },
-                    new Binding("Text") { Source = txtTop    },
-                    new Binding("Text") { Source = txtRight  },
-                    new Binding("Text") { Source = txtBottom },
-                }
-            });
+            ItemsSource = entries = new MarginEntry[] {
+                new MarginEntry(this, 0),
+                new MarginEntry(this, 1),
+                new MarginEntry(this, 2),
+                new MarginEntry(this, 3),
+                new MarginEntry(this, 4)
+            };
         }
 
         // It *really* pisses me off that I can't use the Thickness class instead.
         // The WPF devs forgot to mark it as Serializable!
         public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value",
-                typeof(Padding), typeof(MarginCombo), new FrameworkPropertyMetadata(System.Windows.Forms.Padding.Empty, 
-                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                typeof(Padding), typeof(MarginCombo), new FrameworkPropertyMetadata(System.Windows.Forms.Padding.Empty,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, MarginCombo_ValueChanged));
+
+        private static void MarginCombo_ValueChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs) {
+            MarginCombo combo = (MarginCombo)dependencyObject;
+            Padding p = (Padding)dependencyPropertyChangedEventArgs.NewValue;
+            combo.entries[1].Value = p.Left;
+            combo.entries[2].Value = p.Top;
+            combo.entries[3].Value = p.Right;
+            combo.entries[4].Value = p.Bottom;
+            combo.entries[0].Value = combo.entries.Skip(1).All(e => e.Value == p.Left) ? p.Left : -1;
+        }
 
         public Padding Value {
-            get {
-                return (Padding)GetValue(ValueProperty);
-            }
-            set {
-                SetValue(ValueProperty, value);
+            get { return (Padding)GetValue(ValueProperty); }
+            set { SetValue(ValueProperty, value); }
+        }
+
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            txtMargin = GetTemplateChild("PART_EditableTextBox") as TextBox;
+            if(txtMargin != null) {
+                txtMargin.PreviewTextInput += txtMargin_PreviewTextInput;
+                txtMargin.TextChanged += txtMargin_TextChanged;
+                txtMargin.SetBinding(TextBox.TextProperty, new Binding("Value") {
+                    Source = this,
+                    Converter = new JoinedTextConverter(),
+                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                });
             }
         }
 
         #region Event Handlers
 
         //# The converter will do the validation for us.
-        private void txtMargin_TextChanged(object sender, RoutedEventArgs e) {
+        private void txtMargin_TextChanged(object sender, TextChangedEventArgs textChangedEventArgs) {
             TextBox box = ((TextBox)sender);
             int pos = box.CaretIndex;
             BindingExpression bind = box.GetBindingExpression(TextBox.TextProperty);
@@ -91,7 +93,7 @@ namespace QTTabBarLib {
             }
         }
 
-        //# Make sure the text stays numeric and in range.Z
+        //# Make sure the text stays numeric and in range.
         private void txtLTRB_TextChanged(object sender, RoutedEventArgs e) {
             int i;
             TextBox box = ((TextBox)sender);
@@ -120,9 +122,12 @@ namespace QTTabBarLib {
         private void txtLTRB_PreviewTextInput(object sender, TextCompositionEventArgs e) {
             e.Handled = !e.Text.ToCharArray().All(char.IsDigit);
         }
-        #endregion 
 
-        #region Converters
+        private void MouseEater(object sender, MouseButtonEventArgs e) {
+            e.Handled = true;
+        }
+
+        #endregion
 
         [ValueConversion(typeof(Padding), typeof(string))]
         private class JoinedTextConverter : IValueConverter {
@@ -140,52 +145,61 @@ namespace QTTabBarLib {
             }
         }
 
-        [ValueConversion(typeof(Padding), typeof(string))]
-        private class SingleTextConverter : IValueConverter {
-            private int idx;
-            private MarginCombo parent;
 
-            public SingleTextConverter(int idx, MarginCombo parent) {
-                this.idx = idx;
-                this.parent = parent;
-            }
+        #region ---------- Binding Classes ----------
+        // INotifyPropertyChanged is implemented automatically by Notify Property Weaver!
+        #pragma warning disable 0067 // "The event 'PropertyChanged' is never used"
+        // ReSharper disable MemberCanBePrivate.Local
+        // ReSharper disable UnusedMember.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
 
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-                switch(idx) {
-                    case 0:  return ((Padding)value).Left.ToString();
-                    case 1:  return ((Padding)value).Top.ToString();
-                    case 2:  return ((Padding)value).Right.ToString();
-                    default: return ((Padding)value).Bottom.ToString();
+        private class MarginEntry : INotifyPropertyChanged {
+            public event PropertyChangedEventHandler PropertyChanged;
+            private MarginCombo Parent;
+
+            public Thickness GridMargin { get {
+                Thickness t = new Thickness(5);
+                if(Index > 0) t.Top = 1;
+                if(Index < 4) t.Bottom = 0;
+                return t;
+            }}
+            public Thickness LabelMargin { get {
+                return new Thickness(Index == 0 ? 5 : 15, 0, 10, 0);
+            }}
+
+            public string TextBoxValue {
+                get {
+                    return Value >= 0 ? Value.ToString() : "";
+                }
+                set {
+                    int i;
+                    if(!int.TryParse(value.Trim(), out i) || i < 0 || i > VAL_MAX) return;
+                    Padding current = Parent.Value;
+                    switch(Index) {
+                        case 1: current.Left   = i; break;
+                        case 2: current.Top    = i; break;
+                        case 3: current.Right  = i; break;
+                        case 4: current.Bottom = i; break;
+                        default: current = new Padding(i); break;
+                    }
+                    Parent.Value = current;
                 }
             }
+            public int Value { get; set; }
+            public int Index { get; set; }
 
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-                int i;
-                if(!int.TryParse(value.ToString().Trim(), out i) || i < 0 || i > VAL_MAX) return Binding.DoNothing;
-                Padding current = parent.Value;
-                switch(idx) {
-                    case 0:  current.Left   = i; break;
-                    case 1:  current.Top    = i; break;
-                    case 2:  current.Right  = i; break;
-                    default: current.Bottom = i; break;
-                }
-                return current;
-            }
-        }
-
-        private class CommonMultiConverter : IMultiValueConverter {
-            public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-                return values.All(o => o.Equals(values[0])) ? values[0] : "";
+            public MarginEntry(MarginCombo parent, int idx) {
+                Index = idx;
+                Parent = parent;
             }
 
-            public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
-                int i;
-                return Enumerable.Repeat(
-                        int.TryParse(value.ToString().Trim(), out i) && i >= 0 ? i.ToString() : Binding.DoNothing,
-                        targetTypes.Length).ToArray();
+            public override string ToString() {
+                Padding t = Parent.Value;
+                return t.Left + ", " + t.Top + ", " + t.Right + ", " + t.Bottom;
             }
         }
 
         #endregion
+
     }
 }
