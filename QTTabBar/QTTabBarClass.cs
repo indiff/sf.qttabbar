@@ -3042,7 +3042,7 @@ namespace QTTabBarLib {
                 foreach(Group g in GroupsManager.Groups.Where(g => g.ShortcutKey == mkey)) {
                     OpenGroup(g.Name, false);
                     return true;
-                }    
+                }
             }
 
             // This is important I guess?  Not sure
@@ -4363,9 +4363,10 @@ namespace QTTabBarLib {
                     }
                 }
             }
-        }
+        }    
 
-        private void OpenGroup(string groupName, bool fForceNewWindow) {
+        private void OpenGroup(string groupName, bool fForceNewWindow, bool fDisableOverrides = false) {
+            
             // todo: CLEANNNNNNNNN
             if(!fForceNewWindow) {
                 string str3;
@@ -4378,6 +4379,12 @@ namespace QTTabBarLib {
                 bool flag3 = Config.Tabs.NeverOpenSame == (modifierKeys != Keys.Shift);
                 bool flag4 = Config.Tabs.ActivateNewTab == (modifierKeys != Keys.Control);
                 bool flag5 = false;
+
+                //# Disable group hotkeys clashing with modifierKeys
+                if(fDisableOverrides) {
+                    flag3 = Config.Tabs.NeverOpenSame;
+                    flag4 = Config.Tabs.ActivateNewTab;
+                }
                 if(NowOpenedByGroupOpener) {
                     flag3 = true;
                     NowOpenedByGroupOpener = false;
