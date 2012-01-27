@@ -4577,10 +4577,10 @@ namespace QTTabBarLib {
         internal void OpenNewTabOrWindow(IDLWrapper idlw) {
             Keys modKeys = ModifierKeys;
             if((modKeys & Keys.Control) == 0) {
-                this.OpenNewTab(idlw, (modKeys & Keys.Shift) == Keys.Shift, false);
+                OpenNewTab(idlw, (modKeys & Keys.Shift) == Keys.Shift);
             }
             else {
-                this.OpenNewWindow(idlw);
+                OpenNewWindow(idlw);
             }
         }
 

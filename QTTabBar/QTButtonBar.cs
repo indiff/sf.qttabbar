@@ -1039,15 +1039,14 @@ namespace QTTabBarLib {
         }
 
         private void searchBox_ResizeComplete(object sender, EventArgs e) {
-            SearchBoxWidth = searchBox.Width;
-            // IM!
-            /*
-            foreach(IntPtr ptr in InstanceManager.ButtonBarHandles()) {
-                if((ptr != Handle) && PInvoke.IsWindow(ptr)) {
-                    QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)15, "fromBBBC_sb", IntPtr.Zero);
-                }
-            }*/
+            int width = SearchBoxWidth = searchBox.Width;
             toolStrip.RaiseOnResize();
+            InstanceManager.ButtonBarBroadcast(bbar => {
+                if(bbar.searchBox != null) {
+                    bbar.searchBox.Width = width;
+                    bbar.toolStrip.RaiseOnResize();
+                }
+            });
         }
 
         private void searchBox_TextChanged(object sender, EventArgs e) {
