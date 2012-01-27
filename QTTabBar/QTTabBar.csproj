@@ -86,17 +86,14 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppsManager.cs" />
@@ -149,6 +146,9 @@
       <DependentUpon>Options01_Window.xaml</DependentUpon>
     </Compile>
     <Compile Include="PluginManager.cs" />
+    <Compile Include="PluginServer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ShellContextMenu.cs" />
     <Compile Include="EditableHeader.xaml.cs">
       <DependentUpon>EditableHeader.xaml</DependentUpon>
@@ -358,6 +358,10 @@
     <ProjectReference Include="..\QTPluginLib\QTPluginLib.csproj">
       <Project>{749BE612-0CAA-444E-8704-4CF9D9A6F653}</Project>
       <Name>QTPluginLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QTService\QTService.csproj">
+      <Project>{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}</Project>
+      <Name>QTService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

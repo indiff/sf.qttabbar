@@ -24,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using System.Xml;
 using Microsoft.Win32;
@@ -94,6 +95,9 @@ namespace QTTabBarLib {
                 // Load the config
                 ConfigManager.Initialize();
 
+                // Initialize the instance manager
+                InstanceManager.Initialize();
+
                 // Create and enable the API hooks
                 HookLibManager.Initialize();
 
@@ -152,6 +156,14 @@ namespace QTTabBarLib {
             catch(Exception exception) {
                 // TODO: Any errors here would be very serious.  Alert the user as such.
                 QTUtility2.MakeErrorLog(exception);
+            }
+        }
+
+        public static object ByteArrayToObject(byte[] arrBytes) {
+            using(MemoryStream memStream = new MemoryStream()) {
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                return new BinaryFormatter().Deserialize(memStream);                
             }
         }
 
@@ -487,6 +499,14 @@ namespace QTTabBarLib {
             return button;
         }
 
+        public static byte[] ObjectToByteArray(Object obj) {
+            if(obj == null) return null;
+            using(MemoryStream ms = new MemoryStream()) {
+                new BinaryFormatter().Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
         public static Dictionary<string, string[]> ReadLanguageFile(string path) {
             Dictionary<string, string[]> dictionary = new Dictionary<string, string[]>();
             const string newValue = "\r\n";
@@ -530,7 +550,7 @@ namespace QTTabBarLib {
         }
 
         public static void RegisterPrimaryInstance(IntPtr hwndExplr, QTTabBarClass tabBar) {
-            InstanceManager.PushInstance(hwndExplr, tabBar);
+            InstanceManager.RegisterTabBar(tabBar);
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                 QTUtility2.WriteRegHandle("Handle", key, tabBar.Handle);
             }

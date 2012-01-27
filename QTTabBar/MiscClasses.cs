@@ -17,7 +17,9 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Win32;
 
@@ -166,6 +168,95 @@ namespace QTTabBarLib {
             if(ptr != IntPtr.Zero) {
                 Marshal.FreeHGlobal(ptr);
                 ptr = IntPtr.Zero;
+            }
+        }
+    }
+
+    [Serializable]
+    public class SerializeDelegate : ISerializable {
+        public Delegate Delegate { get; private set; }
+
+        public SerializeDelegate(Delegate del) {
+            Delegate = del;
+        }
+
+        public SerializeDelegate(SerializationInfo info, StreamingContext context) {
+            Type delType = (Type)info.GetValue("delegateType", typeof(Type));
+
+            //If it's a "simple" delegate we just read it straight off
+            if(info.GetBoolean("isSerializable")) {
+                Delegate = (Delegate)info.GetValue("delegate", delType);
+            }
+            //otherwise, we need to read its anonymous class
+            else {
+                MethodInfo method = (MethodInfo)info.GetValue("method", typeof(MethodInfo));
+                AnonymousClassWrapper w = (AnonymousClassWrapper)info.GetValue("class", typeof(AnonymousClassWrapper));
+                Delegate = System.Delegate.CreateDelegate(delType, w.obj, method);
+            }
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+            info.AddValue("delegateType", Delegate.GetType());
+
+            //If it's an "simple" delegate we can serialize it directly
+            if(Delegate != null && (Delegate.Target == null || Delegate.Method.DeclaringType.GetCustomAttributes(
+                    typeof(SerializableAttribute), false).Length > 0)) {
+                info.AddValue("isSerializable", true);
+                info.AddValue("delegate", Delegate);
+            }
+            //otherwise, serialize anonymous class
+            else {
+                info.AddValue("isSerializable", false);
+                info.AddValue("method", Delegate.Method);
+                info.AddValue("class", new AnonymousClassWrapper(Delegate.Method.DeclaringType, Delegate.Target));
+            }
+        }
+
+        [Serializable]
+        private class AnonymousClassWrapper : ISerializable {
+            private Type type;
+            public object obj;
+
+            internal AnonymousClassWrapper(Type bclass, object bobject) {
+                type = bclass;
+                obj = bobject;
+            }
+
+            internal AnonymousClassWrapper(SerializationInfo info, StreamingContext context) {
+                Type classType = (Type)info.GetValue("classType", typeof(Type));
+                obj = Activator.CreateInstance(classType);
+
+                foreach(FieldInfo field in classType.GetFields()) {
+                    //If the field is a delegate
+                    if(typeof(Delegate).IsAssignableFrom(field.FieldType)) {
+                        field.SetValue(obj, ((SerializeDelegate)info.GetValue(field.Name, typeof(SerializeDelegate))).Delegate);
+                    }
+                    //If the field is an anonymous class
+                    else if(!field.FieldType.IsSerializable) {
+                        field.SetValue(obj, ((AnonymousClassWrapper)info.GetValue(field.Name, typeof(AnonymousClassWrapper))).obj);
+                    }
+                    //otherwise
+                    else {
+                        field.SetValue(obj, info.GetValue(field.Name, field.FieldType));
+                    }
+                }
+            }
+
+            void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+                info.AddValue("classType", type);
+
+                foreach(FieldInfo field in type.GetFields()) {
+                    //See corresponding comments above
+                    if(typeof(Delegate).IsAssignableFrom(field.FieldType)) {
+                        info.AddValue(field.Name, new SerializeDelegate((Delegate)field.GetValue(obj)));
+                    }
+                    else if(!field.FieldType.IsSerializable) {
+                        info.AddValue(field.Name, new AnonymousClassWrapper(field.FieldType, field.GetValue(obj)));
+                    }
+                    else {
+                        info.AddValue(field.Name, field.GetValue(obj));
+                    }
+                }
             }
         }
     }

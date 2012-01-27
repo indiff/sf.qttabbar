@@ -19,6 +19,11 @@ IF EXIST QTPluginLib.dll (
     gacutil /if QTPluginLib.dll
 )
 
+cd ..\..\..\QTService\bin\%1
+IF EXIST QTTabBarService.exe (
+    gacutil /if QTTabBarService.exe
+)
+
 cd ..\..\..\BandObjectLib\bin\%1
 IF EXIST BandObjectLib.dll (
     gacutil /if BandObjectLib.dll

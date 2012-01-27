@@ -17,284 +17,194 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.ServiceModel;
 using System.Threading;
 using QTTabBarLib.Interop;
+using QTTabBarService;
 
 namespace QTTabBarLib {
     internal static class InstanceManager {
-        private static Dictionary<IntPtr, IntPtr> dicBtnBarHandle = new Dictionary<IntPtr, IntPtr>();
+        private static Dictionary<Thread, QTTabBarClass> dictTabInstances = new Dictionary<Thread, QTTabBarClass>();
+        private static Dictionary<Thread, QTButtonBar> dictBBarInstances = new Dictionary<Thread, QTButtonBar>();
+        private static Dictionary<IntPtr, QTTabBarClass> dictTabHandles = new Dictionary<IntPtr, QTTabBarClass>();
         private static ReaderWriterLock rwLockBtnBar = new ReaderWriterLock();
         private static ReaderWriterLock rwLockTabBar = new ReaderWriterLock();
-        private static StackDictionary<IntPtr, InstancePair> sdInstancePair = new StackDictionary<IntPtr, InstancePair>();
+        private static QTTabBarClass mainInstance = null; // TODO
 
-        public static void AddButtonBarHandle(IntPtr hwndExplr, IntPtr hwndBtnBar) {
-            try {
-                rwLockBtnBar.AcquireWriterLock(-1);
-                dicBtnBarHandle[hwndExplr] = hwndBtnBar;
-            }
-            finally {
-                rwLockBtnBar.ReleaseWriterLock();
-            }
-        }
+        private static DuplexChannelFactory<IServiceContract> pipeFactory;
+        private static IServiceContract commChannel;
 
-        public static IEnumerable<IntPtr> ButtonBarHandles() {
-            try {
-                rwLockBtnBar.AcquireReaderLock(-1);
-                foreach(IntPtr hwndBB in dicBtnBarHandle.Values) {
-                    yield return hwndBB;
+        private class Keychain : IDisposable {
+            private ReaderWriterLock rwlock;
+            private bool write;
+
+            public Keychain(ReaderWriterLock rwlock, bool write) {
+                this.rwlock = rwlock;
+                this.write = write;
+                if(write) {
+                    rwlock.AcquireWriterLock(Timeout.Infinite);
+                }
+                else {
+                    rwlock.AcquireReaderLock(Timeout.Infinite);
                 }
             }
-            finally {
-                rwLockBtnBar.ReleaseReaderLock();
-            }
-        }
 
-        public static IEnumerable<IntPtr> ExplorerHandles() {
-            try {
-                rwLockTabBar.AcquireReaderLock(-1);
-                foreach(IntPtr hwnd in sdInstancePair.Keys) {
-                    yield return hwnd;
+            public void Dispose() {
+                if(rwlock == null) return;
+                if(write) {
+                    rwlock.ReleaseWriterLock();
                 }
-            }
-            finally {
-                rwLockTabBar.ReleaseReaderLock();
-            }
-        }
-
-        public static QTTabBarClass GetTabBar(IntPtr hwndExplr) {
-            QTTabBarClass class2;
-            try {
-                InstancePair pair;
-                rwLockTabBar.AcquireReaderLock(-1);
-                if((sdInstancePair.TryGetValue(hwndExplr, out pair) && (pair.tabBar != null)) && pair.tabBar.IsHandleCreated) {
-                    return pair.tabBar;
+                else {
+                    rwlock.ReleaseReaderLock();
                 }
-                class2 = null;
+                rwlock = null;
             }
-            finally {
-                rwLockTabBar.ReleaseReaderLock();
-            }
-            return class2;
         }
 
-        public static IntPtr GetTabBarHandle(IntPtr hwndExplr) {
-            IntPtr zero;
-            try {
-                InstancePair pair;
-                rwLockTabBar.AcquireReaderLock(-1);
-                if((sdInstancePair.TryGetValue(hwndExplr, out pair) && (pair.tabBar != null)) && pair.tabBar.IsHandleCreated) {
-                    return pair.hwnd;
-                }
-                zero = IntPtr.Zero;
-            }
-            finally {
-                rwLockTabBar.ReleaseReaderLock();
-            }
-            return zero;
-        }
-
-        public static bool NextInstanceExists() {
-            try {
-                rwLockTabBar.AcquireWriterLock(-1);
-                while(sdInstancePair.Count > 0) {
-                    IntPtr ptr;
-                    InstancePair pair = sdInstancePair.Peek(out ptr);
-                    if(((pair.tabBar != null) && pair.tabBar.IsHandleCreated) && (PInvoke.IsWindow(pair.hwnd) && PInvoke.IsWindow(ptr))) {
+        [CallbackBehavior(UseSynchronizationContext = false)]
+        private class CommCallback : ICallbackContract {
+            public bool SetMain(IntPtr hwnd) {
+                using(new Keychain(rwLockTabBar, true)) {
+                    if(dictTabHandles.ContainsKey(hwnd)) {
+                        mainInstance = dictTabHandles[hwnd];
                         return true;
                     }
-                    sdInstancePair.Pop();
+                    return false;
                 }
             }
-            finally {
-                rwLockTabBar.ReleaseWriterLock();
+
+            public void Execute(byte[] encodedAction) {
+                SerializeDelegate sd = (SerializeDelegate)QTUtility.ByteArrayToObject(encodedAction);
+                sd.Delegate.DynamicInvoke();
             }
+        }
+
+        public static void Initialize() {
+            // todo: mutex?
+            pipeFactory = new DuplexChannelFactory<IServiceContract>(
+                    new CommCallback(),
+                    new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
+                    new EndpointAddress("net.pipe://localhost/" + ServiceConst.PIPE_NAME));
+            commChannel = pipeFactory.CreateChannel();
+            try {
+                commChannel.Subscribe();
+            }
+            catch(EndpointNotFoundException) {
+                // todo: restart service
+            }
+        }
+
+        public static void StaticBroadcast(Action action) {
+            action();
+            commChannel.Broadcast(QTUtility.ObjectToByteArray(new SerializeDelegate(action)));
+        }
+
+        public static void TabBarBroadcast(Action<QTTabBarClass> action) {
+            StaticBroadcast(() => LocalTabBroadcast(action));
+        }
+
+        private static void LocalTabBroadcast(Action<QTTabBarClass> action) {
+            using(new Keychain(rwLockTabBar, false)) {
+                foreach(var pair in dictTabInstances) {
+                    pair.Value.Invoke(action, pair.Value);
+                }
+            }
+        }
+
+        public static void ButtonBarBroadcast(Action<QTButtonBar> action) {
+            StaticBroadcast(() => LocalBBarBroadcast(action));
+        }
+
+        private static void LocalBBarBroadcast(Action<QTButtonBar> action) {
+            using(new Keychain(rwLockBtnBar, false)) {
+                foreach(var pair in dictBBarInstances) {
+                    pair.Value.Invoke(action, pair.Value);
+                }
+            }
+        }
+
+        public static bool EnsureMainProcess(Action action) {
+            if(commChannel.IsMainProcess()) return true;
+            ExecuteOnMainProcess(action);
             return false;
         }
 
-        public static void PushInstance(IntPtr hwndExplr, QTTabBarClass tabBar) {
-            try {
-                rwLockTabBar.AcquireWriterLock(-1);
-                sdInstancePair.Push(hwndExplr, new InstancePair(tabBar, tabBar.Handle));
-            }
-            finally {
-                rwLockTabBar.ReleaseWriterLock();
+        private static void ExecuteOnMainProcess(Action action) {
+            if(commChannel.ExecuteOnMainProcess(QTUtility.ObjectToByteArray(new SerializeDelegate(action)))) {
+                action();
             }
         }
 
-        public static void RemoveButtonBarHandle(IntPtr hwndExplr) {
-            try {
-                rwLockBtnBar.AcquireWriterLock(-1);
-                dicBtnBarHandle.Remove(hwndExplr);
+        public static void InvokeMain(Action<QTTabBarClass> action) {
+            ExecuteOnMainProcess(() => LocalInvokeMain(action));
+        }
+
+        private static void LocalInvokeMain(Action<QTTabBarClass> action) {
+            QTTabBarClass instance;
+            using(new Keychain(rwLockTabBar, false)) {
+                instance = mainInstance;
             }
-            finally {
-                rwLockBtnBar.ReleaseWriterLock();
+            if(instance != null) action(instance);
+        }
+
+        public static void RegisterButtonBar(QTButtonBar bbar) {
+            using(new Keychain(rwLockBtnBar, true)) {
+                dictBBarInstances[Thread.CurrentThread] = bbar;
             }
         }
 
-        public static bool RemoveInstance(IntPtr hwndExplr, QTTabBarClass tabBar) {
-            bool flag2;
-            try {
-                rwLockTabBar.AcquireWriterLock(-1);
-                bool flag = tabBar == CurrentTabBar;
-                sdInstancePair.Remove(hwndExplr);
-                flag2 = flag;
+        public static QTTabBarClass GetThreadTabBar() {
+            using(new Keychain(rwLockTabBar, false)) {
+                QTTabBarClass tab;
+                return dictTabInstances.TryGetValue(Thread.CurrentThread, out tab) ? tab : null;
             }
-            finally {
-                rwLockTabBar.ReleaseWriterLock();
-            }
-            return flag2;
         }
 
-        public static IEnumerable<IntPtr> TabBarHandles() {
-            try {
-                rwLockTabBar.AcquireReaderLock(-1);
-                foreach(InstancePair ip in sdInstancePair.Values) {
-                    yield return ip.hwnd;
+        public static void RegisterTabBar(QTTabBarClass tabbar) {
+            using(new Keychain(rwLockTabBar, true)) {
+                dictTabInstances[Thread.CurrentThread] = tabbar;
+                dictTabHandles[tabbar.Handle] = tabbar;
+                mainInstance = tabbar;
+            }
+            commChannel.PushInstance(tabbar.Handle);
+        }
+
+        public static void UnregisterButtonBar() {
+            using(new Keychain(rwLockBtnBar, true)) {
+                dictBBarInstances.Remove(Thread.CurrentThread);
+            }
+        }
+
+        public static bool UnregisterTabBar() {
+            using(new Keychain(rwLockTabBar, true)) {
+                QTTabBarClass tab;
+                if(dictTabInstances.TryGetValue(Thread.CurrentThread, out tab)) {
+                    dictTabInstances.Remove(Thread.CurrentThread);
+                    dictTabHandles.Remove(tab.Handle);
+                    // The MainInstance will be set by the callback, but just in case, set it here
+                    // so that it's never set to an invalid value.
+                    mainInstance = dictTabInstances.Count > 0 ? dictTabInstances.Values.First() : null;
+                    commChannel.DeleteInstance(tab.Handle);
                 }
-            }
-            finally {
-                rwLockTabBar.ReleaseReaderLock();
+                return false;
             }
         }
 
-        public static bool TryGetButtonBarHandle(IntPtr hwndExplr, out IntPtr hwndButtonBar) {
-            try {
-                IntPtr ptr;
-                rwLockBtnBar.AcquireReaderLock(-1);
-                if(dicBtnBarHandle.TryGetValue(hwndExplr, out ptr) && PInvoke.IsWindow(ptr)) {
-                    hwndButtonBar = ptr;
-                    return true;
-                }
-                hwndButtonBar = IntPtr.Zero;
+        public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) {
+            // todo
+            QTButtonBar bbar;
+            if(dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar)) {
+                ptr = bbar.Handle;
+                return true;
             }
-            finally {
-                rwLockBtnBar.ReleaseReaderLock();
-            }
+            ptr = IntPtr.Zero;
             return false;
-        }
-
-        public static IntPtr CurrentHandle {
-            get {
-                IntPtr zero;
-                try {
-                    rwLockTabBar.AcquireReaderLock(-1);
-                    if(sdInstancePair.Count > 0) {
-                        InstancePair pair = sdInstancePair.Peek();
-                        if((pair.tabBar != null) && pair.tabBar.IsHandleCreated) {
-                            return pair.hwnd;
-                        }
-                    }
-                    zero = IntPtr.Zero;
-                }
-                finally {
-                    rwLockTabBar.ReleaseReaderLock();
-                }
-                return zero;
-            }
-        }
-
-        public static QTTabBarClass CurrentTabBar {
-            get {
-                QTTabBarClass class2;
-                try {
-                    rwLockTabBar.AcquireReaderLock(-1);
-                    if(sdInstancePair.Count > 0) {
-                        return sdInstancePair.Peek().tabBar;
-                    }
-                    class2 = null;
-                }
-                finally {
-                    rwLockTabBar.ReleaseReaderLock();
-                }
-                return class2;
-            }
-        }
-
-        public delegate void TabBarCommand(QTTabBarClass tabBar);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct InstancePair {
-            public QTTabBarClass tabBar;
-            public IntPtr hwnd;
-            public InstancePair(QTTabBarClass tabBar, IntPtr hwnd) {
-                this.tabBar = tabBar;
-                this.hwnd = hwnd;
-            }
-        }
-    }
-
-    internal sealed class StackDictionary<S, T> {
-        private IDictionary<S, T> dictionary;
-        private IList<S> lstKeys;
-
-        public StackDictionary() {
-            lstKeys = new List<S>();
-            dictionary = new Dictionary<S, T>();
-        }
-
-        public T Peek() {
-            S local;
-            return popPeekInternal(false, out local);
-        }
-
-        public T Peek(out S key) {
-            return popPeekInternal(false, out key);
-        }
-
-        public T Pop() {
-            S local;
-            return popPeekInternal(true, out local);
-        }
-
-        public T Pop(out S key) {
-            return popPeekInternal(true, out key);
-        }
-
-        private T popPeekInternal(bool fPop, out S lastKey) {
-            if(lstKeys.Count == 0) {
-                throw new InvalidOperationException("This StackDictionary is empty.");
-            }
-            lastKey = lstKeys[lstKeys.Count - 1];
-            T local = dictionary[lastKey];
-            if(fPop) {
-                lstKeys.RemoveAt(lstKeys.Count - 1);
-                dictionary.Remove(lastKey);
-            }
-            return local;
-        }
-
-        public void Push(S key, T value) {
-            lstKeys.Remove(key);
-            lstKeys.Add(key);
-            dictionary[key] = value;
-        }
-
-        public bool Remove(S key) {
-            lstKeys.Remove(key);
-            return dictionary.Remove(key);
-        }
-
-        public bool TryGetValue(S key, out T value) {
-            return dictionary.TryGetValue(key, out value);
-        }
-
-        public int Count {
-            get {
-                return lstKeys.Count;
-            }
-        }
-
-        public ICollection<S> Keys {
-            get {
-                return dictionary.Keys;
-            }
-        }
-
-        public ICollection<T> Values {
-            get {
-                return dictionary.Values;
-            }
         }
     }
 }

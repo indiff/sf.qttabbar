@@ -49,7 +49,9 @@ namespace QTTabBarLib {
         #region ---------- Static Methods ----------
 
         public static void Open() {
-            // TODO: Primary process only
+            if(!InstanceManager.EnsureMainProcess(Open)) {
+                return;
+            }
             lock(typeof(OptionsDialog)) {
                 // Prevent reentrant calls that might happen during the Wait call below.
                 if(launchingThread == Thread.CurrentThread) return;
@@ -163,10 +165,12 @@ namespace QTTabBarLib {
             bool fButtonBarNeedsRefresh = Config.BBar.LargeButtons != WorkingConfig.bbar.LargeButtons;
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
             ConfigManager.WriteConfig();
+            // IM!
+            /*
             QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
             if(tabBar != null) {
                 tabBar.Invoke(new Action(tabBar.RefreshOptions));
-            }
+            }*/
             QTButtonBar.BroadcastConfigChanged(fButtonBarNeedsRefresh);
 
             // TODO: this should probably be moved to where ever the Langauge is set.
@@ -464,10 +468,12 @@ namespace QTTabBarLib {
         internal PluginManager pluginManager;
         protected OptionsDialogTab() {
             // TODO: Find a way to get rid of this.
+            // IM!
+            /*
             QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
             if(tabBar != null) {
                 pluginManager = tabBar.GetPluginManager();
-            }
+            }*/
         }
 
         // This is the index of the resource string that will be displayed in the category list.

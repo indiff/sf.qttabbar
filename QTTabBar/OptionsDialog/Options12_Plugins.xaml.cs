@@ -82,10 +82,12 @@ namespace QTTabBarLib {
             WorkingConfig.plugin.Enabled = enabled.ToArray();
 
             // todo: redo this crap...
+            // IM!
+            /*
             QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
             if(tabBar != null) {
                 tabBar.Invoke(new Action(() => tabBar.odCallback_ManagePlugin(assemblies)));
-            }
+            }*/
             PluginManager.SavePluginAssemblies();
             PluginManager.SavePluginShortcutKeys();
         }

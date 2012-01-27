@@ -100,14 +100,15 @@ namespace QTTabBarLib {
                                             try {
                                                 string parentPath = Path.GetDirectoryName(idlw.Path) ?? "";				// idlw.Path is guaranteed file system...
                                                 if(Directory.Exists(parentPath)) {
+                                                    // IM!
+                                                    /*
                                                     IntPtr hwndTabBar = InstanceManager.CurrentHandle;
-
                                                     if(PInvoke.IsWindow(hwndTabBar)) {
                                                         QTUtility2.SendCOPYDATASTRUCT(hwndTabBar, (IntPtr)0x10, parentPath, IntPtr.Zero);
                                                     }
                                                     else {
                                                         System.Diagnostics.Process.Start(parentPath);
-                                                    }
+                                                    }*/
                                                     nResult = COMMANDID_OPENPARENT;
                                                 }
                                             }
