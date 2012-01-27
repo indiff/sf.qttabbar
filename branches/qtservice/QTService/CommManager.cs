@@ -31,20 +31,31 @@ namespace QTTabBarService {
                     new Uri[] { new Uri("net.pipe://localhost") });
             serviceHost.AddServiceEndpoint(
                     typeof(IServiceContract),
-                    new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
+                    new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) { ReceiveTimeout = TimeSpan.MaxValue },
                     ServiceConst.PIPE_NAME);
             serviceHost.Open();
         }
 
         [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerCall)]
         private class CommService : IServiceContract {
-            private static List<ICallbackContract> m_Callbacks = new List<ICallbackContract>();
-            private static StackDictionary<IntPtr, ICallbackContract> m_Instances = new StackDictionary<IntPtr, ICallbackContract>();
+            private class User {
+                public List<ICallbackContract> Callbacks = new List<ICallbackContract>();
+                public StackDictionary<IntPtr, ICallbackContract> Instances = new StackDictionary<IntPtr, ICallbackContract>();
+            }
+
+            private static Dictionary<string, User> UserIDs = new Dictionary<string, User>();
+            private static Dictionary<ICallbackContract, User> Users = new Dictionary<ICallbackContract, User>();
 
             private static void CheckConnections() {
-                m_Callbacks.RemoveAll(callback =>
-                        ((ICommunicationObject)callback).State != CommunicationState.Opened);
-                m_Instances.RemoveAllValues(c => !m_Callbacks.Contains(c));
+                Predicate<ICallbackContract> pred = callback =>
+                        ((ICommunicationObject)callback).State != CommunicationState.Opened;
+                foreach(var user in Users.Values) {
+                    user.Callbacks.RemoveAll(pred);
+                    user.Instances.RemoveAllValues(c => !user.Callbacks.Contains(c));                    
+                }
+                foreach(var callback in Users.Keys.Where(c => pred(c)).ToList()) {
+                    Users.Remove(callback);
+                }
             }
 
             private static ICallbackContract GetCallback() {
@@ -57,15 +68,22 @@ namespace QTTabBarService {
                 return callback;
             }
 
+            private static User GetUser() {
+                CheckConnections();
+                ICallbackContract callback = GetCallback();
+                User user = callback == null ? new User() : Users[callback];
+                return user;
+            }
+
             public bool ExecuteOnMainProcess(byte[] encodedAction) {
-                lock(m_Callbacks) {
-                    CheckConnections();
+                lock(Users) {
+                    User user = GetUser();
                     if(IsMainProcess()) {
                         return true;
                     }
                     else {
-                        if(m_Instances.Count > 0) {
-                            m_Instances.Peek().Execute(encodedAction);
+                        if(user.Instances.Count > 0) {
+                            user.Instances.Peek().Execute(encodedAction);
                         }
                         return false;
                     }
@@ -75,9 +93,9 @@ namespace QTTabBarService {
             public void Broadcast(byte[] encodedAction) {
                 ICallbackContract sender = GetCallback();
                 Action async = () => {
-                    lock(m_Callbacks) {
-                        CheckConnections();
-                        foreach(ICallbackContract callback in m_Callbacks) {
+                    lock(Users) {
+                        User user = GetUser();
+                        foreach(ICallbackContract callback in user.Callbacks) {
                             if(callback != sender) {
                                 callback.Execute(encodedAction);
                             }
@@ -88,30 +106,37 @@ namespace QTTabBarService {
             }
 
             public void DeleteInstance(IntPtr hwnd) {
-                lock(m_Callbacks) {
-                    CheckConnections();
+                lock(Users) {
+                    User user = GetUser();
                     IntPtr main = IntPtr.Zero;
-                    if(m_Instances.Count > 0) m_Instances.Peek(out main);
-                    if(!m_Instances.Remove(hwnd) || hwnd != main) return;
-                    while(m_Instances.Count > 0 && !m_Instances.Peek(out main).SetMain(main)) {
-                        m_Instances.Pop();
+                    if(user.Instances.Count > 0) user.Instances.Peek(out main);
+                    if(!user.Instances.Remove(hwnd) || hwnd != main) return;
+                    while(user.Instances.Count > 0 && !user.Instances.Peek(out main).SetMain(main)) {
+                        user.Instances.Pop();
                     }
                 }
             }
 
             public bool IsMainProcess() {
-                lock(m_Callbacks) {
-                    CheckConnections();
-                    return m_Instances.Count > 0 && GetCallback() == m_Instances.Peek();
+                lock(Users) {
+                    User user = GetUser();
+                    return user.Instances.Count > 0 && GetCallback() == user.Instances.Peek();
                 }
             }
 
-            public void Subscribe() {
-                lock(m_Callbacks) {
+            public void Subscribe(string userid) {
+                lock(Users) {
                     try {
-                        ICallbackContract callback = OperationContext.Current.GetCallbackChannel<ICallbackContract>();
-                        if(!m_Callbacks.Contains(callback)) {
-                            m_Callbacks.Add(callback);
+                        CheckConnections();
+                        ICallbackContract callback = GetCallback();
+                        User user;
+                        if(!UserIDs.TryGetValue(userid, out user)) {
+                            user = new User();
+                            UserIDs[userid] = user;
+                        }
+                        Users[callback] = user;
+                        if(!user.Callbacks.Contains(callback)) {
+                            user.Callbacks.Add(callback);
                         }
                     }
                     catch {
@@ -120,10 +145,10 @@ namespace QTTabBarService {
             }
 
             public void PushInstance(IntPtr hwnd) {
-                lock(m_Callbacks) {
-                    CheckConnections();
-                    if(!m_Callbacks.Contains(GetCallback())) return; // hmmm....
-                    m_Instances.Push(hwnd, GetCallback());
+                lock(Users) {
+                    User user = GetUser();
+                    if(!user.Callbacks.Contains(GetCallback())) return; // hmmm....
+                    user.Instances.Push(hwnd, GetCallback());
                 }
             }
         }
@@ -139,7 +164,7 @@ namespace QTTabBarService {
     [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbackContract))]
     public interface IServiceContract {
         [OperationContract]
-        void Subscribe();
+        void Subscribe(string userid);
 
         [OperationContract]
         void PushInstance(IntPtr hwnd);
@@ -217,11 +242,12 @@ namespace QTTabBarService {
         }
 
         public int RemoveAllValues(Predicate<T> match) {
-            int ret = lstKeys.RemoveAll(s => match(dictionary[s]));
-            if(ret > 0) {
-                dictionary = lstKeys.ToDictionary(s => s, s => dictionary[s]);    
+            var removeMe = lstKeys.Where(s => match(dictionary[s])).ToList();
+            foreach(var s in removeMe) {
+                lstKeys.Remove(s);
+                dictionary.Remove(s);
             }
-            return ret;
+            return removeMe.Count;
         }
 
         public bool TryGetValue(S key, out T value) {

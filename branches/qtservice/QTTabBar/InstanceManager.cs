@@ -17,15 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Threading;
-using QTTabBarLib.Interop;
 using QTTabBarService;
 
 namespace QTTabBarLib {
@@ -93,7 +88,7 @@ namespace QTTabBarLib {
                     new EndpointAddress("net.pipe://localhost/" + ServiceConst.PIPE_NAME));
             commChannel = pipeFactory.CreateChannel();
             try {
-                commChannel.Subscribe();
+                commChannel.Subscribe(WindowsIdentity.GetCurrent().User.ToString());
             }
             catch(EndpointNotFoundException) {
                 // todo: restart service
@@ -101,30 +96,35 @@ namespace QTTabBarLib {
         }
 
         public static void StaticBroadcast(Action action) {
-            action();
             commChannel.Broadcast(QTUtility.ObjectToByteArray(new SerializeDelegate(action)));
         }
 
         public static void TabBarBroadcast(Action<QTTabBarClass> action) {
+            LocalTabBroadcast(action, Thread.CurrentThread);
             StaticBroadcast(() => LocalTabBroadcast(action));
         }
 
-        private static void LocalTabBroadcast(Action<QTTabBarClass> action) {
+        private static void LocalTabBroadcast(Action<QTTabBarClass> action, Thread skip = null) {
             using(new Keychain(rwLockTabBar, false)) {
                 foreach(var pair in dictTabInstances) {
-                    pair.Value.Invoke(action, pair.Value);
+                    if(pair.Key != skip) {
+                        pair.Value.Invoke(action, pair.Value);   
+                    }
                 }
             }
         }
 
         public static void ButtonBarBroadcast(Action<QTButtonBar> action) {
+            LocalBBarBroadcast(action, Thread.CurrentThread);
             StaticBroadcast(() => LocalBBarBroadcast(action));
         }
 
-        private static void LocalBBarBroadcast(Action<QTButtonBar> action) {
+        private static void LocalBBarBroadcast(Action<QTButtonBar> action, Thread skip = null) {
             using(new Keychain(rwLockBtnBar, false)) {
                 foreach(var pair in dictBBarInstances) {
-                    pair.Value.Invoke(action, pair.Value);
+                    if(pair.Key != skip) {
+                        pair.Value.Invoke(action, pair.Value);
+                    }
                 }
             }
         }
