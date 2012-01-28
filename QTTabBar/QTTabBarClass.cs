@@ -892,11 +892,7 @@ namespace QTTabBarLib {
                                 where item2.TabLocked
                                 select item2.CurrentPath).ToArray();
                         QTUtility2.WriteRegBinary(list, "TabsLocked", key);
-                        if(InstanceManager.UnregisterTabBar()) {
-                            // IM!
-                            //InstanceManager.NextInstanceExists();
-                            //QTUtility2.WriteRegHandle("Handle", key, InstanceManager.CurrentHandle);
-                        }
+                        InstanceManager.UnregisterTabBar();
                         if(0x80000 != ((int)PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 0x80000))) {
                             QTUtility.WindowAlpha = 0xff;
                         }
@@ -2130,38 +2126,23 @@ namespace QTTabBarLib {
                     }
                 }
                 else {
-                    if(Config.Window.CaptureNewWindows) {
-                        uint num2;
-                        uint num3;
-                        PInvoke.GetWindowThreadProcessId(Handle, out num2);
-                        PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out num3);
-                        if(((num2 != num3) && (num2 != 0)) && (num3 != 0)) {
-                            string nameToSelectFromCommandLineArg = GetNameToSelectFromCommandLineArg();
-                            if(!WindowUtils.IsExplorerProcessSeparated()) {
-                                bool flag = false;
-                                using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                                    IntPtr hWnd = QTUtility2.ReadRegHandle("Handle", key);
-                                    if(PInvoke.IsWindow(hWnd)) {
-                                        string strMsg = path + ((nameToSelectFromCommandLineArg.Length > 0) ? (";" + nameToSelectFromCommandLineArg) : string.Empty);
-                                        QTUtility2.SendCOPYDATASTRUCT(hWnd, new IntPtr(15), strMsg, IntPtr.Zero);
-                                        flag = true;
-                                    }
-                                    else {
-                                        IntPtr ptr2 = QTUtility2.ReadRegHandle("TaskBarHandle", key);
-                                        if(PInvoke.IsWindow(ptr2)) {
-                                            string str6 = path + ((nameToSelectFromCommandLineArg.Length > 0) ? (";" + nameToSelectFromCommandLineArg) : string.Empty);
-                                            QTUtility2.SendCOPYDATASTRUCT(ptr2, IntPtr.Zero, str6, (IntPtr)num2);
-                                            flag = true;
-                                        }
-                                    }
-                                }
-                                if(flag) {
-                                    fNowQuitting = true;
-                                    Explorer.Quit();
-                                    return;
-                                }
+                    if(Config.Window.CaptureNewWindows && ModifierKeys != Keys.Control) {
+                        uint thisPID;
+                        uint desktopPID;
+                        PInvoke.GetWindowThreadProcessId(Handle, out thisPID);
+                        PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
+                        if(thisPID != desktopPID && thisPID != 0 && desktopPID != 0) {
+                            string selectMe = GetNameToSelectFromCommandLineArg();
+                            if(InstanceManager.GetTotalInstanceCount() > 0) {
+                                InstanceManager.InvokeMain(tabbar => {
+                                    QTUtility.PathToSelectInCommandLineArg = selectMe;
+                                    tabbar.OpenNewTab(path);
+                                    tabbar.RestoreWindow();
+                                });
+                                fNowQuitting = true;
+                                Explorer.Quit();
+                                return;
                             }
-                            QTUtility.PathToSelectInCommandLineArg = nameToSelectFromCommandLineArg;
                         }
                     }
                     AddStartUpTabs(string.Empty, path);
@@ -2517,7 +2498,7 @@ namespace QTTabBarLib {
                 case WM.ACTIVATE: {
                     int num3 = ((int) msg.WParam) & 0xffff;
                     if(num3 > 0) {
-                        QTUtility.RegisterPrimaryInstance(ExplorerHandle, this);
+                        InstanceManager.RegisterTabBar(this);
                         if(fNowInTray && notifyIcon != null && dicNotifyIcon != null &&
                                 dicNotifyIcon.ContainsKey(ExplorerHandle)) {
                             ShowTaskbarItem(ExplorerHandle, true);
@@ -3446,7 +3427,7 @@ namespace QTTabBarLib {
 
         private void InitializeOpenedWindow() {
             IsShown = true;
-            QTUtility.RegisterPrimaryInstance(ExplorerHandle, this);
+            InstanceManager.RegisterTabBar(this);
             InstallHooks();
             pluginManager = new PluginManager(this);
             if(!SyncButtonBarCurrent(0x100)) {
@@ -4877,7 +4858,7 @@ namespace QTTabBarLib {
         }
 
         private void RestoreFromTray() {
-            if((dicNotifyIcon != null) && dicNotifyIcon.ContainsKey(ExplorerHandle)) {
+            if(dicNotifyIcon != null && dicNotifyIcon.ContainsKey(ExplorerHandle)) {
                 ShowTaskbarItem(ExplorerHandle, true);
             }
         }
@@ -5470,12 +5451,14 @@ namespace QTTabBarLib {
         }
 
         internal static void SyncTaskBarMenu() {
+            // todo
+            /*
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                 IntPtr hWnd = QTUtility2.ReadRegHandle("TaskBarHandle", key);
                 if((hWnd != IntPtr.Zero) && PInvoke.IsWindow(hWnd)) {
                     QTUtility2.SendCOPYDATASTRUCT(hWnd, (IntPtr)3, string.Empty, IntPtr.Zero);
                 }
-            }
+            }*/
         }
 
         private void SyncToolbarTravelButton() {
@@ -6324,7 +6307,7 @@ namespace QTTabBarLib {
                                     }
                                 }
                                 OpenNewTab(str);
-                                QTUtility.RegisterPrimaryInstance(ExplorerHandle, this);
+                                InstanceManager.RegisterTabBar(this);
                                 flag = true;
                                 goto Label_0B07;
 
@@ -6541,19 +6524,24 @@ namespace QTTabBarLib {
                 return;
             Label_0B07:
                 if(flag) {
-                    bool flag6 = !QTUtility.IsXP && PInvoke.IsIconic(ExplorerHandle);
-                    RestoreFromTray();
-                    WindowUtils.BringExplorerToFront(ExplorerHandle);
-                    if(flag6) {
-                        foreach(QTabItem item2 in tabControl1.TabPages) {
-                            item2.RefreshRectangle();
-                        }
-                        tabControl1.Refresh();
-                    }
+                    RestoreWindow();
                 }
             }
             catch(Exception ex) {
                 QTUtility2.MakeErrorLog(ex, String.Format("Message: {0:x4}", m.Msg));
+            }
+        }
+
+        // todo: This seems like it should go after every new tab creation, no?
+        private void RestoreWindow() {
+            bool fIsIconic = PInvoke.IsIconic(ExplorerHandle);
+            RestoreFromTray();
+            WindowUtils.BringExplorerToFront(ExplorerHandle);
+            if(fIsIconic) {
+                foreach(QTabItem item2 in tabControl1.TabPages) {
+                    item2.RefreshRectangle();
+                }
+                tabControl1.Refresh();
             }
         }
 

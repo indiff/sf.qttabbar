@@ -206,5 +206,9 @@ namespace QTTabBarLib {
             ptr = IntPtr.Zero;
             return false;
         }
+
+        public static int GetTotalInstanceCount() {
+            return commChannel.GetTotalInstanceCount();
+        }
     }
 }

@@ -549,13 +549,6 @@ namespace QTTabBarLib {
             }
         }
 
-        public static void RegisterPrimaryInstance(IntPtr hwndExplr, QTTabBarClass tabBar) {
-            InstanceManager.RegisterTabBar(tabBar);
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                QTUtility2.WriteRegHandle("Handle", key, tabBar.Handle);
-            }
-        }
-
         public static ImageReservationKey ReserveImageKey(QMenuItem qmi, string path, string ext) {
             ImageReservationKey key = null;
             if(string.IsNullOrEmpty(path)) {
