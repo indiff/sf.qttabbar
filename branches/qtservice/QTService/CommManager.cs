@@ -36,7 +36,7 @@ namespace QTTabBarService {
             serviceHost.Open();
         }
 
-        [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, InstanceContextMode = InstanceContextMode.PerCall)]
+        [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall)]
         private class CommService : IServiceContract {
             private class User {
                 public List<ICallbackContract> Callbacks = new List<ICallbackContract>();
@@ -76,31 +76,30 @@ namespace QTTabBarService {
             }
 
             public bool ExecuteOnMainProcess(byte[] encodedAction) {
+                ICallbackContract target;
                 lock(Users) {
                     User user = GetUser();
                     if(IsMainProcess()) {
                         return true;
                     }
                     else {
-                        if(user.Instances.Count > 0) {
-                            user.Instances.Peek().Execute(encodedAction);
-                        }
-                        return false;
+                        if(user.Instances.Count == 0) return false;
+                        target = user.Instances.Peek();
                     }
                 }
+                target.Execute(encodedAction);
+                return false;
             }
 
             public void Broadcast(byte[] encodedAction) {
                 ICallbackContract sender = GetCallback();
                 Action async = () => {
+                    List<ICallbackContract> targets;
                     lock(Users) {
                         User user = GetUser();
-                        foreach(ICallbackContract callback in user.Callbacks) {
-                            if(callback != sender) {
-                                callback.Execute(encodedAction);
-                            }
-                        }
+                        targets = user.Callbacks.Where(c => c != sender).ToList();
                     }
+                    targets.ForEach(c => c.Execute(encodedAction));
                 };
                 async.BeginInvoke(null, null);
             }
@@ -151,6 +150,12 @@ namespace QTTabBarService {
                     user.Instances.Push(hwnd, GetCallback());
                 }
             }
+
+            public int GetTotalInstanceCount() {
+                lock(Users) {
+                    return GetUser().Instances.Count;
+                }                
+            }
         }
 
         public void Dispose() {
@@ -180,6 +185,9 @@ namespace QTTabBarService {
 
         [OperationContract]
         void Broadcast(byte[] encodedAction);
+
+        [OperationContract]
+        int GetTotalInstanceCount();
     }
 
     public interface ICallbackContract {
