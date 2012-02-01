@@ -16,11 +16,14 @@
 //    along with QTTabBar.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using Microsoft.Win32;
 
 namespace QTTabBarLib {
@@ -258,6 +261,104 @@ namespace QTTabBarLib {
                     }
                 }
             }
+        }
+    }
+
+    internal sealed class StackDictionary<S, T> {
+        private Dictionary<S, T> dictionary;
+        private List<S> lstKeys;
+
+        public StackDictionary() {
+            lstKeys = new List<S>();
+            dictionary = new Dictionary<S, T>();
+        }
+
+        public T Peek() {
+            S local;
+            return popPeekInternal(false, out local);
+        }
+
+        public T Peek(out S key) {
+            return popPeekInternal(false, out key);
+        }
+
+        public T Pop() {
+            S local;
+            return popPeekInternal(true, out local);
+        }
+
+        public T Pop(out S key) {
+            return popPeekInternal(true, out key);
+        }
+
+        private T popPeekInternal(bool fPop, out S lastKey) {
+            if(lstKeys.Count == 0) {
+                throw new InvalidOperationException("This StackDictionary is empty.");
+            }
+            lastKey = lstKeys[lstKeys.Count - 1];
+            T local = dictionary[lastKey];
+            if(fPop) {
+                lstKeys.RemoveAt(lstKeys.Count - 1);
+                dictionary.Remove(lastKey);
+            }
+            return local;
+        }
+
+        public void Push(S key, T value) {
+            lstKeys.Remove(key);
+            lstKeys.Add(key);
+            dictionary[key] = value;
+        }
+
+        public bool Remove(S key) {
+            lstKeys.Remove(key);
+            return dictionary.Remove(key);
+        }
+
+        public int RemoveAllValues(Predicate<T> match) {
+            var removeMe = lstKeys.Where(s => match(dictionary[s])).ToList();
+            foreach(var s in removeMe) {
+                lstKeys.Remove(s);
+                dictionary.Remove(s);
+            }
+            return removeMe.Count;
+        }
+
+        public bool TryGetValue(S key, out T value) {
+            return dictionary.TryGetValue(key, out value);
+        }
+
+        public int Count { get { return lstKeys.Count; } }
+
+        public ICollection<S> Keys { get { return dictionary.Keys; } }
+
+        public ICollection<T> Values { get { return dictionary.Values; } }
+    }
+
+    internal class Keychain : IDisposable {
+        private ReaderWriterLock rwlock;
+        private bool write;
+
+        public Keychain(ReaderWriterLock rwlock, bool write) {
+            this.rwlock = rwlock;
+            this.write = write;
+            if(write) {
+                rwlock.AcquireWriterLock(Timeout.Infinite);
+            }
+            else {
+                rwlock.AcquireReaderLock(Timeout.Infinite);
+            }
+        }
+
+        public void Dispose() {
+            if(rwlock == null) return;
+            if(write) {
+                rwlock.ReleaseWriterLock();
+            }
+            else {
+                rwlock.ReleaseReaderLock();
+            }
+            rwlock = null;
         }
     }
 }

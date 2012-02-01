@@ -84,8 +84,6 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "Installer\Inst
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InstallerHelper", "InstallerHelper\InstallerHelper.vcxproj", "{8594AF64-8053-45F5-A3EC-E570860016B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTService", "QTService\QTService.csproj", "{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (No Plugins)|Any CPU = Debug (No Plugins)|Any CPU
@@ -265,18 +263,6 @@ Global
 		{8594AF64-8053-45F5-A3EC-E570860016B7}.Installer|Any CPU.Build.0 = Release|Win32
 		{8594AF64-8053-45F5-A3EC-E570860016B7}.Release|Any CPU.ActiveCfg = Release|Win32
 		{8594AF64-8053-45F5-A3EC-E570860016B7}.x86 QT Only|Any CPU.ActiveCfg = Debug|Win32
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug (No Plugins)|Any CPU.ActiveCfg = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug (No Plugins)|Any CPU.Build.0 = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug (No Reg)|Any CPU.ActiveCfg = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug (No Reg)|Any CPU.Build.0 = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Installer|Any CPU.ActiveCfg = Release|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Installer|Any CPU.Build.0 = Release|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.x86 QT Only|Any CPU.ActiveCfg = Release|Any CPU
-		{555169B7-D73E-4F42-AC0C-D7A1D825EFFA}.x86 QT Only|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
