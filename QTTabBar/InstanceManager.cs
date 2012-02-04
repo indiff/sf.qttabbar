@@ -18,11 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Threading;
-using System.Windows.Threading;
 using QTTabBarLib.Interop;
 
 namespace QTTabBarLib {
@@ -32,23 +30,30 @@ namespace QTTabBarLib {
         private static StackDictionary<IntPtr, QTTabBarClass> sdTabHandles = new StackDictionary<IntPtr, QTTabBarClass>();
         private static ReaderWriterLock rwLockBtnBar = new ReaderWriterLock();
         private static ReaderWriterLock rwLockTabBar = new ReaderWriterLock();
-        private static Dispatcher commDispatch;
-        private static IServiceContract commChannel;
-        private static ICallbackContract commCallback;
+        private static ICommService commChannel { get { return dummyChannel ?? commClient.Channel; } }
+        private static ICommClient commCallback;
         private static bool isServer;
 
         // Server stuff
         private static ServiceHost serviceHost;
-        private static List<ICallbackContract> callbacks = new List<ICallbackContract>();
-        private static StackDictionary<IntPtr, ICallbackContract> sdInstances = new StackDictionary<IntPtr, ICallbackContract>();
+        private static List<ICommClient> callbacks = new List<ICommClient>();
+        private static StackDictionary<IntPtr, ICommClient> sdInstances = new StackDictionary<IntPtr, ICommClient>();
+        private static ICommService dummyChannel;
 
         // Client stuff;
-        private static DuplexChannelFactory<IServiceContract> pipeFactory;
+        private static DuplexClient commClient;
 
-        #region Comm Classes / Interfaces
+        #region Comm Classes and Interfaces
 
-        [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICallbackContract))]
-        private interface IServiceContract {
+        private class DuplexClient : DuplexClientBase<ICommService> {
+            public DuplexClient(InstanceContext callbackInstance, Binding binding, EndpointAddress remoteAddress)
+                : base(callbackInstance, binding, remoteAddress) {
+            }
+            public new ICommService Channel { get { return base.Channel; } }
+        }
+
+        [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ICommClient))]
+        private interface ICommService {
             [OperationContract]
             void Subscribe();
 
@@ -65,7 +70,7 @@ namespace QTTabBarLib {
             int GetTotalInstanceCount();
 
             [OperationContract]
-            bool ExecuteOnMainProcess(byte[] encodedAction);
+            bool ExecuteOnMainProcess(byte[] encodedAction, bool async);
 
             [OperationContract]
             void Broadcast(byte[] encodedAction);
@@ -74,100 +79,104 @@ namespace QTTabBarLib {
         [ServiceBehavior(
                 ConcurrencyMode = ConcurrencyMode.Reentrant,
                 InstanceContextMode = InstanceContextMode.PerSession)]
-        private class CommServer : IServiceContract {
+        private class CommService : ICommService {
+
+            private static bool IsDead(ICommClient client) {
+                ICommunicationObject ico = client as ICommunicationObject;
+                return ico != null && ico.State != CommunicationState.Opened;                
+            }
 
             private static void CheckConnections() {
-                callbacks.RemoveAll(callback => {
-                    ICommunicationObject ico = callback as ICommunicationObject;
-                    return ico != null && ico.State != CommunicationState.Opened;
-                });
+                callbacks.RemoveAll(IsDead);
                 sdInstances.RemoveAllValues(c => !callbacks.Contains(c));
             }
 
-            private static ICallbackContract GetCallback() {
+            private static ICommClient GetCallback() {
                 OperationContext context = OperationContext.Current;
-                return context == null
-                        ? commCallback
-                        : context.GetCallbackChannel<ICallbackContract>();
+                return context == null ? commCallback : context.GetCallbackChannel<ICommClient>();
             }
 
             public int GetTotalInstanceCount() {
-                lock(callbacks) {
-                    CheckConnections();
-                    return sdInstances.Count;
-                }
+                CheckConnections();
+                return sdInstances.Count;
             }
 
-            public bool ExecuteOnMainProcess(byte[] encodedAction) {
-                ICallbackContract callback;
-                lock(callbacks) {
-                    CheckConnections();
-                    if(IsMainProcess()) {
-                        return true;
-                    }
-                    else if(sdInstances.Count == 0) {
-                        return false;
-                    }
-                    callback = sdInstances.Peek();
+            public bool ExecuteOnMainProcess(byte[] encodedAction, bool async) {
+                ICommClient callback;
+                CheckConnections();
+                if(IsMainProcess()) {
+                    return true;
                 }
-                callback.Execute(encodedAction);
+                else if(sdInstances.Count == 0) {
+                    return false;
+                }
+                callback = sdInstances.Peek();
+                if(async) {
+                    AsyncHelper.BeginInvoke(new Action(() => {
+                        try {
+                            if(!IsDead(callback)) {
+                                callback.Execute(encodedAction);
+                            }
+                        }
+                        catch {
+                        }
+                    }));
+                }
+                else {
+                    callback.Execute(encodedAction);
+                }
                 return false;
             }
 
             public void Broadcast(byte[] encodedAction) {
-                ICallbackContract sender = GetCallback();
-                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => {
-                    lock(callbacks) {
-                        CheckConnections();
-                        foreach(ICallbackContract callback in callbacks) {
-                            if(callback != sender) {
-                                callback.Execute(encodedAction);
+                ICommClient sender = GetCallback();
+                CheckConnections();
+                List<ICommClient> targets = callbacks.Where(c => c != sender).ToList();
+                AsyncHelper.BeginInvoke(new Action(() => {
+                    foreach(ICommClient target in targets) {
+                        try {
+                            if(!IsDead(target)) {
+                                target.Execute(encodedAction);
                             }
                         }
+                        catch {
+                        }
                     }
-                }), DispatcherPriority.Normal);
+                }));
             }
 
             public void DeleteInstance(IntPtr hwnd) {
-                lock(callbacks) {
-                    CheckConnections();
-                    sdInstances.Remove(hwnd);
-                    // todo: confirm liveness of new stack head
-                }
+                CheckConnections();
+                sdInstances.Remove(hwnd);
+                // todo: confirm liveness of new stack head
             }
 
             public bool IsMainProcess() {
-                lock(callbacks) {
-                    CheckConnections();
-                    return sdInstances.Count > 0 && GetCallback() == sdInstances.Peek();
-                }
+                CheckConnections();
+                return sdInstances.Count > 0 && GetCallback() == sdInstances.Peek();
             }
 
             public void Subscribe() {
-                lock(callbacks) {
-                    ICallbackContract callback = GetCallback();
-                    if(!callbacks.Contains(callback)) {
-                        callbacks.Add(callback);
-                    }
+                ICommClient callback = GetCallback();
+                if(!callbacks.Contains(callback)) {
+                    callbacks.Add(callback);
                 }
             }
 
             public void PushInstance(IntPtr hwnd) {
-                lock(callbacks) {
-                    CheckConnections();
-                    if(!callbacks.Contains(GetCallback())) return; // hmmm....
-                    sdInstances.Push(hwnd, GetCallback());
-                }
+                CheckConnections();
+                if(!callbacks.Contains(GetCallback())) return; // hmmm....
+                sdInstances.Push(hwnd, GetCallback());
             }
         }
 
-        private interface ICallbackContract {
+        private interface ICommClient {
             [OperationContract]
             void Execute(byte[] encodedAction);
         }
 
-        [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant)]
-        private class CommClient : ICallbackContract {
+        [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Reentrant, UseSynchronizationContext = false)]
+        private class CommClient : ICommClient {
             public void Execute(byte[] encodedAction) {
                 try {
                     ByteToDel(encodedAction).DynamicInvoke();
@@ -190,58 +199,55 @@ namespace QTTabBarLib {
             return ((SerializeDelegate)QTUtility.ByteArrayToObject(buf)).Delegate;
         }
 
-        private static void CommBeginInvoke(Action action) {
-            commDispatch.BeginInvoke(action, DispatcherPriority.Normal);
-        }
-
-        private static void CommInvoke(Action action) {
-            commDispatch.Invoke(action);
-        }
-
         #endregion
 
         public static void Initialize() {
-            Thread thread = new Thread(Dispatcher.Run) {IsBackground = true};
-            thread.Start();
-            while(true) {
-                commDispatch = Dispatcher.FromThread(thread);
-                if(commDispatch != null) break;
-                Thread.Sleep(50);
-            }
-            commCallback = new CommClient();
-
             uint desktopPID;
             PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
             isServer = desktopPID == PInvoke.GetCurrentProcessId();
+
+            commCallback = new CommClient();
             const string PipeName = "QTTabBarPipe";
             string address = "net.pipe://localhost/" + PipeName + desktopPID;
-            CommInvoke(() => {
+            Thread thread = null;
+
+            // WFC channels should never be opened on any thread that has a message loop!
+            // Otherwise reentrant calls will deadlock, for some reason.
+            // So, create a new thread and open the channels there.
+            thread = new Thread(() => {
                 if(isServer) {
-                    commChannel = new CommServer();
+                    dummyChannel = new CommService();
                     serviceHost = new ServiceHost(
-                            typeof(CommServer),
+                            typeof(CommService),
                             new Uri[] { new Uri(address) });
                     serviceHost.AddServiceEndpoint(
-                            typeof(IServiceContract),                                 // TODO: this is only 24 hours...
+                            typeof(ICommService),                                   // TODO: this is only 24 hours...
                             new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) { ReceiveTimeout = TimeSpan.MaxValue },
                             new Uri(address));
                     serviceHost.Open();
                     commChannel.Subscribe();
                 }
                 else {
-                    pipeFactory = new DuplexChannelFactory<IServiceContract>(
-                            commCallback,
+                    commClient = new DuplexClient(new InstanceContext(commCallback),
                             new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
                             new EndpointAddress(address));
-                    commChannel = pipeFactory.CreateChannel();
                     try {
+                        commClient.Open();
                         commChannel.Subscribe();
                     }
                     catch(EndpointNotFoundException) {
                         // todo: ???
                     }
                 }
+                lock(thread) {
+                    Monitor.Pulse(thread);
+                }
+                // Yes, we can just let the thread die here.
             });
+            thread.Start();
+            lock(thread) {
+                Monitor.Wait(thread);
+            }            
         }
 
         public static void StaticBroadcast(Action action) {
@@ -278,20 +284,24 @@ namespace QTTabBarLib {
             }
         }
 
-        public static bool EnsureMainProcess(Action action) {
-            if(commChannel.IsMainProcess()) return true;
-            ExecuteOnMainProcess(action);
-            return false;
-        }
-
-        private static void ExecuteOnMainProcess(Action action) {
-            if(commChannel.ExecuteOnMainProcess(DelToByte(action))) {
+        private static void ExecuteOnMainProcess(Action action, bool async) {
+            if(commChannel.ExecuteOnMainProcess(DelToByte(action), async)) {
                 action();
             }
         }
 
+        public static bool EnsureMainProcess(Action action) {
+            if(commChannel.IsMainProcess()) return true;
+            ExecuteOnMainProcess(action, false);
+            return false;
+        }
+
         public static void InvokeMain(Action<QTTabBarClass> action) {
-            ExecuteOnMainProcess(() => LocalInvokeMain(action));
+            ExecuteOnMainProcess(() => LocalInvokeMain(action), false);
+        }
+
+        public static void BeginInvokeMain(Action<QTTabBarClass> action) {
+            ExecuteOnMainProcess(() => LocalInvokeMain(action), true);
         }
 
         private static void LocalInvokeMain(Action<QTTabBarClass> action) {
@@ -308,20 +318,12 @@ namespace QTTabBarLib {
             }
         }
 
-        public static QTTabBarClass GetThreadTabBar() {
-            using(new Keychain(rwLockTabBar, false)) {
-                QTTabBarClass tab;
-                return dictTabInstances.TryGetValue(Thread.CurrentThread, out tab) ? tab : null;
-            }
-        }
-
         public static void RegisterTabBar(QTTabBarClass tabbar) {
             IntPtr handle = tabbar.Handle;
             using(new Keychain(rwLockTabBar, true)) {
                 dictTabInstances[Thread.CurrentThread] = tabbar;
                 sdTabHandles.Push(handle, tabbar);
             }
-            //CommBeginInvoke(() => commChannel.PushInstance(handle));
             commChannel.PushInstance(handle);
         }
 
@@ -338,9 +340,20 @@ namespace QTTabBarLib {
                     IntPtr handle = tabbar.Handle;
                     dictTabInstances.Remove(Thread.CurrentThread);
                     sdTabHandles.Remove(handle);
-                    CommBeginInvoke(() => commChannel.DeleteInstance(handle));
+                    commChannel.DeleteInstance(handle);
                 }
                 return false;
+            }
+        }
+
+        public static int GetTotalInstanceCount() {
+            return commChannel.GetTotalInstanceCount();
+        }
+
+        public static QTTabBarClass GetThreadTabBar() {
+            using(new Keychain(rwLockTabBar, false)) {
+                QTTabBarClass tab;
+                return dictTabInstances.TryGetValue(Thread.CurrentThread, out tab) ? tab : null;
             }
         }
 
@@ -353,10 +366,6 @@ namespace QTTabBarLib {
             }
             ptr = IntPtr.Zero;
             return false;
-        }
-
-        public static int GetTotalInstanceCount() {
-            return commChannel.GetTotalInstanceCount();
         }
     }
 }

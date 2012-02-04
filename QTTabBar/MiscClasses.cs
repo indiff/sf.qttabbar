@@ -361,5 +361,27 @@ namespace QTTabBarLib {
             rwlock = null;
         }
     }
+
+    // Delegate.BeginInvoke is stupid because it leaks if you don't call EndInvoke.
+    // This class implements fire-and-forget functionality.
+    internal static class AsyncHelper {
+        private class TargetInfo {
+            public TargetInfo(Delegate d, object[] args) {
+                Target = d;
+                Args = args;
+            }
+            public readonly Delegate Target;
+            public readonly object[] Args;
+        }
+
+        public static void BeginInvoke(Delegate d, params object[] args) {
+            ThreadPool.QueueUserWorkItem(DynamicInvokeCallback, new TargetInfo(d, args));
+        }
+
+        private static void DynamicInvokeCallback(object state) {
+            TargetInfo ti = (TargetInfo)state;
+            ti.Target.DynamicInvoke(ti.Args);
+        }
+    }
 }
 
