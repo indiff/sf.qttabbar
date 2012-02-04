@@ -2134,7 +2134,7 @@ namespace QTTabBarLib {
                         if(thisPID != desktopPID && thisPID != 0 && desktopPID != 0) {
                             string selectMe = GetNameToSelectFromCommandLineArg();
                             if(InstanceManager.GetTotalInstanceCount() > 0) {
-                                InstanceManager.InvokeMain(tabbar => {
+                                InstanceManager.BeginInvokeMain(tabbar => {
                                     QTUtility.PathToSelectInCommandLineArg = selectMe;
                                     tabbar.OpenNewTab(path);
                                     tabbar.RestoreWindow();
