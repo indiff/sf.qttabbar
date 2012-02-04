@@ -102,7 +102,6 @@ namespace QTTabBarLib {
             }
 
             public bool ExecuteOnMainProcess(byte[] encodedAction, bool async) {
-                ICommClient callback;
                 CheckConnections();
                 if(IsMainProcess()) {
                     return true;
@@ -110,7 +109,7 @@ namespace QTTabBarLib {
                 else if(sdInstances.Count == 0) {
                     return false;
                 }
-                callback = sdInstances.Peek();
+                ICommClient callback = sdInstances.Peek();
                 if(async) {
                     AsyncHelper.BeginInvoke(new Action(() => {
                         try {

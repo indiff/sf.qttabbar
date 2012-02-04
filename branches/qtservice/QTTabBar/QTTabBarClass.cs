@@ -163,7 +163,7 @@ namespace QTTabBarLib {
         private readonly uint WM_HEADERINALLVIEWS = PInvoke.RegisterWindowMessage("QTTabBar_HeaderInAllViews");
         private readonly uint WM_LISTREFRESHED = PInvoke.RegisterWindowMessage("QTTabBar_ListRefreshed");
         private readonly uint WM_SHOWHIDEBARS = PInvoke.RegisterWindowMessage("QTTabBar_ShowHideBars");
-        private readonly uint WM_NEWWINDOW = PInvoke.RegisterWindowMessage("QTTabBar_NewWindow");
+        private readonly uint WM_CHECKPULSE = PInvoke.RegisterWindowMessage("QTTabBar_CheckPulse");
 
         
         // TODO: group delegates
@@ -2463,7 +2463,7 @@ namespace QTTabBarLib {
                 }
                 return true;
             }
-            else if(msg.Msg == WM_NEWWINDOW) {
+            else if(msg.Msg == WM_CHECKPULSE) {
                 if(fNeedsNewWindowPulse && msg.LParam != IntPtr.Zero) {
                     Marshal.WriteIntPtr(msg.LParam, Marshal.GetIDispatchForObject(Explorer));
                     msg.Result = (IntPtr)1;
@@ -4555,10 +4555,14 @@ namespace QTTabBarLib {
             return true;
         }
 
-        internal void OpenNewTabOrWindow(IDLWrapper idlw) {
+        internal void OpenNewTabOrWindow(IDLWrapper idlw, bool fNeedsPulse = false) {
             Keys modKeys = ModifierKeys;
             if((modKeys & Keys.Control) == 0) {
                 OpenNewTab(idlw, (modKeys & Keys.Shift) == Keys.Shift);
+                WindowUtils.BringExplorerToFront(ExplorerHandle);
+                if(fNeedsPulse) {
+                    fNeedsNewWindowPulse = true;
+                }
             }
             else {
                 OpenNewWindow(idlw);
@@ -6142,25 +6146,6 @@ namespace QTTabBarLib {
                             return;
                         }
                         break;
-                }
-                
-                if(m.Msg == WM_NEWWINDOW) {
-                    using(IDLWrapper wrapper = new IDLWrapper(PInvoke.ILClone(m.LParam))) {
-                        if(!Config.Window.CaptureNewWindows
-                                || QTUtility2.IsShellPathButNotFileSystem(wrapper.Path)
-                                || wrapper.Path.PathEquals(QTUtility.PATH_SEARCHFOLDER)
-                                || QTUtility.NoCapturePathsList.Any(path => wrapper.Path.PathEquals(path))
-                                || ModifierKeys == Keys.Control) {
-                            m.Result = IntPtr.Zero;
-                        }
-                        else {
-                            fNeedsNewWindowPulse = true;
-                            OpenNewTab(wrapper);
-                            WindowUtils.BringExplorerToFront(ExplorerHandle);
-                            m.Result = (IntPtr)1;
-                        }
-                    }
-                    return;
                 }
                 
                 if(m.Msg != WM.COPYDATA) {
