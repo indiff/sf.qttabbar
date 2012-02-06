@@ -51,7 +51,6 @@ namespace QTTabBarLib {
         internal const string IMAGEKEY_NOEXT = "noext";
         internal const string IMAGEKEY_NOIMAGE = "noimage";
         internal static ImageList ImageListGlobal;
-        internal static int InstancesCount;
         internal static readonly bool IsRTL = CultureInfo.CurrentCulture.TextInfo.IsRightToLeft;
         internal static readonly bool IsWin7 = Environment.OSVersion.Version >= new Version(6, 1);
         internal static readonly bool IsXP = Environment.OSVersion.Version.Major <= 5;
@@ -441,6 +440,10 @@ namespace QTTabBarLib {
                 }
             }
             return false;
+        }
+
+        public static void Initialize() {
+            // This method exists just to cause the static constructor to fire, if it hasn't already.
         }
 
         public static void LoadReservedImage(ImageReservationKey irk) {

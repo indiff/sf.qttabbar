@@ -356,6 +356,13 @@ namespace QTTabBarLib {
             }
         }
 
+        public static QTButtonBar GetThreadButtonBar() {
+            using(new Keychain(rwLockBtnBar, false)) {
+                QTButtonBar bbar;
+                return dictBBarInstances.TryGetValue(Thread.CurrentThread, out bbar) ? bbar : null;
+            }
+        }
+
         public static bool TryGetButtonBarHandle(IntPtr explorerHandle, out IntPtr ptr) {
             // todo
             QTButtonBar bbar;
