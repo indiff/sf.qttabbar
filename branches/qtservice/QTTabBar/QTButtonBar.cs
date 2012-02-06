@@ -1515,6 +1515,12 @@ namespace QTTabBarLib {
             QTUtility2.SendCOPYDATASTRUCT(InstanceManager.GetThreadTabBar().Handle, (IntPtr)0xf04, path, dwData);
         }
 
+        internal void FocusSearchBox() {
+            if(searchBox != null) {
+                searchBox.TextBox.Focus();
+            }
+        }
+
         protected override void WndProc(ref Message m) {
             int num3 = 0;
             int num4 = 0;

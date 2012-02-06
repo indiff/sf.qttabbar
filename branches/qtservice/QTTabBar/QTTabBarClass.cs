@@ -170,6 +170,7 @@ namespace QTTabBarLib {
         public delegate bool FolderClickedHandler(IDLWrapper item, Keys modkeys, bool middle);
 
         public QTTabBarClass() {
+            QTUtility.Initialize();
             try {
                 string installDateString;
                 DateTime installDate;
@@ -189,7 +190,6 @@ namespace QTTabBarLib {
             if(!fInitialized) {
                 InitializeStaticFields();
             }
-            QTUtility.InstancesCount++;
             BandHeight = Config.Skin.TabHeight + 2;
             InitializeComponent();
             lstActivatedTabs.Add(CurrentTab);
@@ -220,7 +220,7 @@ namespace QTTabBarLib {
         }
 
         private void AddStartUpTabs(string openingGRP, string openingPath) {
-            if(ModifierKeys == Keys.Shift || QTUtility.InstancesCount != 1) return;
+            if(ModifierKeys == Keys.Shift || InstanceManager.GetTotalInstanceCount() != 0) return;
             foreach(string path in GroupsManager.Groups.Where(g => g.Startup && openingGRP != g.Name).SelectMany(g => g.Paths)) {
                 if(Config.Tabs.NeverOpenSame) {
                     if(path.PathEquals(openingPath)) {
@@ -936,7 +936,6 @@ namespace QTTabBarLib {
                         tabSwitcher = null;
                     }
                 }
-                QTUtility.InstancesCount--;
                 if(TravelLog != null) {
                     Marshal.FinalReleaseComObject(TravelLog);
                     TravelLog = null;
@@ -1170,7 +1169,7 @@ namespace QTTabBarLib {
                 tsmiExecuted.DropDown.ResumeLayout();
             }
             tsmiExecuted.Enabled = tsmiExecuted.DropDownItems.Count > 0;
-            tsmiMergeWindows.Enabled = QTUtility.InstancesCount > 1;
+            tsmiMergeWindows.Enabled = InstanceManager.GetTotalInstanceCount() > 1;
             tsmiLockToolbar.Checked = rebarController.Locked;
             if((lstPluginMenuItems_Sys != null) && (lstPluginMenuItems_Sys.Count > 0)) {
                 foreach(ToolStripItem item in lstPluginMenuItems_Sys) {
@@ -1853,12 +1852,10 @@ namespace QTTabBarLib {
                     PInvoke.SetFocus(GetSearchBand_Edit());
                     break;
 
-                // IM!
-                    /*
                 case BindAction.FocusSearchBarBBar:
-                    if(!InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) || !PInvoke.IsWindow(ptr)) return false;
-                    QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)8, null, IntPtr.Zero);
-                    break;*/
+                    QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+                    if(bbar != null) bbar.FocusSearchBox();
+                    break;
 
                 case BindAction.ShowSDTSelected:
                     if(!Config.Tips.ShowSubDirTips) return false;
@@ -2059,19 +2056,19 @@ namespace QTTabBarLib {
         // This function is either called by BeforeNavigate2 (on XP and Vista)
         // or NavigateComplete2 (on 7)
         private void DoFirstNavigation(bool before, string path) {
-
-            if((QTUtility.TMPPathList.Count > 0) || (QTUtility.TMPIDLList.Count > 0)) {
-                foreach(string str2 in QTUtility.TMPPathList.Where(str2 => !str2.PathEquals(path))) {
-                    using(IDLWrapper wrapper = new IDLWrapper(str2)) {
+            // TODO: sort out this mess
+            if(QTUtility.TMPPathList.Count > 0 || QTUtility.TMPIDLList.Count > 0) {
+                foreach(string tpath in QTUtility.TMPPathList.Where(str2 => !str2.PathEquals(path))) {
+                    using(IDLWrapper wrapper = new IDLWrapper(tpath)) {
                         if(wrapper.Available) {
                             CreateNewTab(wrapper);
                         }
                     }
                 }
-                foreach(byte[] buffer in QTUtility.TMPIDLList) {
-                    if(QTUtility.TMPTargetIDL != buffer) {
-                        using(IDLWrapper wrapper2 = new IDLWrapper(buffer)) {
-                            OpenNewTab(wrapper2, true, false);
+                foreach(byte[] idl in QTUtility.TMPIDLList) {
+                    if(QTUtility.TMPTargetIDL != idl) {
+                        using(IDLWrapper wrapper2 = new IDLWrapper(idl)) {
+                            OpenNewTab(wrapper2, true);
                             continue;
                         }
                     }
@@ -2105,49 +2102,24 @@ namespace QTTabBarLib {
                     InitializeOpenedWindow();
                     return;
                 }
-                if(QTUtility.InstancesCount > 1) {
-                    // IM!
-                    if((ModifierKeys == Keys.Control) /* || !InstanceManager.NextInstanceExists() */) {
-                        InitializeOpenedWindow();
-                        AddStartUpTabs(string.Empty, path);
+                if(Config.Window.CaptureNewWindows && ModifierKeys != Keys.Control && InstanceManager.GetTotalInstanceCount() > 0) {
+                    string selectMe = GetNameToSelectFromCommandLineArg();
+                    InstanceManager.BeginInvokeMain(tabbar => {
+                        QTUtility.PathToSelectInCommandLineArg = selectMe;
+                        tabbar.OpenNewTab(path);
+                        tabbar.RestoreWindow();
+                    });
+                    fNowQuitting = true;
+                    if(QTUtility.IsXP) {
+                        WindowUtils.CloseExplorer(ExplorerHandle, 0);
                     }
                     else {
-                        if(!QTUtility.IsXP) {
-                            PInvoke.SetWindowPos(ExplorerHandle, IntPtr.Zero, 0, 0, 0, 0, 0x259f);
-                        }
-                        NavigateOnOldWindow(path);
-                        fNowQuitting = true;
-                        if(!QTUtility.IsXP) {
-                            Explorer.Quit();
-                        }
-                        else {
-                            WindowUtils.CloseExplorer(ExplorerHandle, 0);
-                        }
+                        Explorer.Quit();
                     }
+                    return;
                 }
-                else {
-                    if(Config.Window.CaptureNewWindows && ModifierKeys != Keys.Control) {
-                        uint thisPID;
-                        uint desktopPID;
-                        PInvoke.GetWindowThreadProcessId(Handle, out thisPID);
-                        PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
-                        if(thisPID != desktopPID && thisPID != 0 && desktopPID != 0) {
-                            string selectMe = GetNameToSelectFromCommandLineArg();
-                            if(InstanceManager.GetTotalInstanceCount() > 0) {
-                                InstanceManager.BeginInvokeMain(tabbar => {
-                                    QTUtility.PathToSelectInCommandLineArg = selectMe;
-                                    tabbar.OpenNewTab(path);
-                                    tabbar.RestoreWindow();
-                                });
-                                fNowQuitting = true;
-                                Explorer.Quit();
-                                return;
-                            }
-                        }
-                    }
-                    AddStartUpTabs(string.Empty, path);
-                    InitializeOpenedWindow();
-                }
+                AddStartUpTabs(string.Empty, path);
+                InitializeOpenedWindow();
             }
         }
 
@@ -3890,6 +3862,8 @@ namespace QTTabBarLib {
 
         private void MergeAllWindows() {
             List<IntPtr> list = new List<IntPtr>();
+            // TODO: this is going to be broken until QTabItem can be made serializable.
+
             // IM!
             /*
             foreach(IntPtr ptr in InstanceManager.ExplorerHandles()) {
@@ -4026,11 +4000,6 @@ namespace QTTabBarLib {
                 NavigatedByCode = true;
                 return (0 == ShellBrowser.Navigate(wrapper));
             }
-        }
-
-        private static void NavigateOnOldWindow(string path) {
-            // IM!
-            //QTUtility2.SendCOPYDATASTRUCT(InstanceManager.CurrentHandle, new IntPtr(0x10), path, IntPtr.Zero);
         }
 
         private void NavigateToFirstOrLast(bool fBack) {
