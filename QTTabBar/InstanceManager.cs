@@ -258,7 +258,7 @@ namespace QTTabBarLib {
             StaticBroadcast(() => LocalTabBroadcast(action));
         }
 
-        private static void LocalTabBroadcast(Action<QTTabBarClass> action, Thread skip = null) {
+        public static void LocalTabBroadcast(Action<QTTabBarClass> action, Thread skip = null) {
             using(new Keychain(rwLockTabBar, false)) {
                 foreach(var pair in dictTabInstances) {
                     if(pair.Key != skip) {
@@ -303,7 +303,7 @@ namespace QTTabBarLib {
             ExecuteOnMainProcess(() => LocalInvokeMain(action), true);
         }
 
-        private static void LocalInvokeMain(Action<QTTabBarClass> action) {
+        public static void LocalInvokeMain(Action<QTTabBarClass> action) {
             QTTabBarClass instance;
             using(new Keychain(rwLockTabBar, false)) {
                 instance = sdTabHandles.Count == 0 ? null : sdTabHandles.Peek();

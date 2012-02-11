@@ -98,7 +98,6 @@ namespace QTTabBarLib {
         private List<QTabItem> lstActivatedTabs = new List<QTabItem>(0x10);
         private List<ToolStripItem> lstPluginMenuItems_Sys;
         private List<ToolStripItem> lstPluginMenuItems_Tab;
-        private static List<PluginAssembly> lstTempAssemblies_Refresh;
         private static FileHashComputerForm md5Form;
         private ToolStripTextBox menuTextBoxTabAlias;
         private int navBtnsFlag;
@@ -112,7 +111,7 @@ namespace QTTabBarLib {
         private bool NowTabDragging;
         private bool NowTabsAddingRemoving;
         private bool NowTopMost;
-        private PluginManager pluginManager;
+        internal PluginServer pluginServer { get; private set; }
         internal RebarController rebarController;
         private ShellBrowserEx ShellBrowser;
         private string strDraggingDrive;
@@ -829,9 +828,9 @@ namespace QTTabBarLib {
                     subDirTip_Tab = null;
                 }
                 if(IsShown) {
-                    if(pluginManager != null) {
-                        pluginManager.Close(false);
-                        pluginManager = null;
+                    if(pluginServer != null) {
+                        pluginServer.Dispose();
+                        pluginServer = null;
                     }
                     if(hHook_Key != IntPtr.Zero) {
                         PInvoke.UnhookWindowsHookEx(hHook_Key);
@@ -1177,13 +1176,13 @@ namespace QTTabBarLib {
                 }
                 lstPluginMenuItems_Sys = null;
             }
-            if((pluginManager != null) && (pluginManager.dicFullNamesMenuRegistered_Sys.Count > 0)) {
+            if((pluginServer != null) && (pluginServer.dicFullNamesMenuRegistered_Sys.Count > 0)) {
                 lstPluginMenuItems_Sys = new List<ToolStripItem>();
                 int index = contextMenuSys.Items.IndexOf(tsmiOption);
                 ToolStripSeparator separator = new ToolStripSeparator();
                 contextMenuSys.Items.Insert(index, separator);
-                foreach(string str in pluginManager.dicFullNamesMenuRegistered_Sys.Keys) {
-                    ToolStripMenuItem item2 = new ToolStripMenuItem(pluginManager.dicFullNamesMenuRegistered_Sys[str]);
+                foreach(string str in pluginServer.dicFullNamesMenuRegistered_Sys.Keys) {
+                    ToolStripMenuItem item2 = new ToolStripMenuItem(pluginServer.dicFullNamesMenuRegistered_Sys[str]);
                     item2.Name = str;
                     item2.Tag = MenuType.Bar;
                     item2.Click += pluginitems_Click;
@@ -1357,13 +1356,13 @@ namespace QTTabBarLib {
                     }
                     lstPluginMenuItems_Tab = null;
                 }
-                if((pluginManager != null) && (pluginManager.dicFullNamesMenuRegistered_Tab.Count > 0)) {
+                if((pluginServer != null) && (pluginServer.dicFullNamesMenuRegistered_Tab.Count > 0)) {
                     lstPluginMenuItems_Tab = new List<ToolStripItem>();
                     int num2 = contextMenuTab.Items.IndexOf(tsmiProp);
                     ToolStripSeparator separator2 = new ToolStripSeparator();
                     contextMenuTab.Items.Insert(num2, separator2);
-                    foreach(string str3 in pluginManager.dicFullNamesMenuRegistered_Tab.Keys) {
-                        ToolStripMenuItem item7 = new ToolStripMenuItem(pluginManager.dicFullNamesMenuRegistered_Tab[str3]);
+                    foreach(string str3 in pluginServer.dicFullNamesMenuRegistered_Tab.Keys) {
+                        ToolStripMenuItem item7 = new ToolStripMenuItem(pluginServer.dicFullNamesMenuRegistered_Tab[str3]);
                         item7.Name = str3;
                         item7.Tag = MenuType.Tab;
                         item7.Click += pluginitems_Click;
@@ -2366,8 +2365,8 @@ namespace QTTabBarLib {
                     if((!QTUtility.IsXP || FirstNavigationCompleted) && (!PInvoke.IsWindowVisible(ExplorerHandle) || PInvoke.IsIconic(ExplorerHandle))) {
                         WindowUtils.BringExplorerToFront(ExplorerHandle);
                     }
-                    if(pluginManager != null) {
-                        pluginManager.OnNavigationComplete(tabControl1.SelectedIndex, idl, (string)URL);
+                    if(pluginServer != null) {
+                        pluginServer.OnNavigationComplete(tabControl1.SelectedIndex, idl, (string)URL);
                     }
                     if(buttonNavHistoryMenu.DropDown.Visible) {
                         buttonNavHistoryMenu.DropDown.Close(ToolStripDropDownCloseReason.AppFocusChange);
@@ -2507,8 +2506,8 @@ namespace QTTabBarLib {
 
                 case WM.SYSCOMMAND:
                     if((((int) msg.WParam) & 0xfff0) == 0xf020) {
-                        if(pluginManager != null) {
-                            pluginManager.OnExplorerStateChanged(ExplorerWindowActions.Minimized);
+                        if(pluginServer != null) {
+                            pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Minimized);
                         }
                         if(Config.Window.TrayOnMinimize) {
                             fNowInTray = true;
@@ -2518,14 +2517,14 @@ namespace QTTabBarLib {
                         return false;
                     }
                     if((((int) msg.WParam) & 0xfff0) == 0xf030) {
-                        if(pluginManager != null) {
-                            pluginManager.OnExplorerStateChanged(ExplorerWindowActions.Maximized);
+                        if(pluginServer != null) {
+                            pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Maximized);
                         }
                         return false;
                     }
                     if((((int) msg.WParam) & 0xfff0) == 0xf120) {
-                        if(pluginManager != null) {
-                            pluginManager.OnExplorerStateChanged(ExplorerWindowActions.Restored);
+                        if(pluginServer != null) {
+                            pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Restored);
                         }
                         return false;
                     }
@@ -2720,10 +2719,6 @@ namespace QTTabBarLib {
                 }
             }
             return string.Empty;
-        }
-
-        internal PluginManager GetPluginManager() {
-            return pluginManager;
         }
 
         private IntPtr GetSearchBand_Edit() {
@@ -2983,7 +2978,7 @@ namespace QTTabBarLib {
                         .FirstOrDefault(p => (idx = Array.IndexOf(p.Value, imkey)) != -1);
             if(idx != -1) {
                 Plugin plugin;
-                if(pluginManager.TryGetPlugin(pair.Key, out plugin)) {
+                if(pluginServer.TryGetPlugin(pair.Key, out plugin)) {
                     try {
                         plugin.Instance.OnShortcutKeyPressed(idx);
                     }
@@ -3401,7 +3396,7 @@ namespace QTTabBarLib {
             IsShown = true;
             InstanceManager.RegisterTabBar(this);
             InstallHooks();
-            pluginManager = new PluginManager(this);
+            pluginServer = new PluginServer(this);
             if(!SyncButtonBarCurrent(0x100)) {
                 new WaitTimeoutCallback(WaitTimeout).BeginInvoke(0x7d0, AsyncComplete_ButtonBarPlugin, null);
             }
@@ -3609,7 +3604,7 @@ namespace QTTabBarLib {
         }
 
         private void ListView_SelectionChanged() {
-            if(pluginManager != null && pluginManager.SelectionChangeAttached) {
+            if(pluginServer != null && pluginServer.SelectionChangedAttached) {
                 if(timerSelectionChanged == null) {
                     timerSelectionChanged = new Timer(components);
                     timerSelectionChanged.Interval = 250;
@@ -4182,41 +4177,6 @@ namespace QTTabBarLib {
             }
         }
 
-        // TODO
-        internal void odCallback_ManagePlugin(object o) {
-            lstTempAssemblies_Refresh = (List<PluginAssembly>)o;
-            SyncTabBarBroadcastPlugin(Handle);
-            RefreshPlugins(true);
-            lstTempAssemblies_Refresh = null;
-            /*
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
-                if(key != null) {
-                    //QTUtility2.WriteRegBinary(QTButtonBar.ButtonIndexes, "Buttons_Order", key);
-                }
-            }
-            List<string> list = new List<string>();
-            using(RegistryKey key2 = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins")) {
-                if(key2 != null) {
-                    using(RegistryKey key3 = key2.CreateSubKey("Paths")) {
-                        foreach(string str in key3.GetValueNames()) {
-                            key3.DeleteValue(str);
-                        }
-                        int idx = 0;
-                        foreach(PluginAssembly assembly in PluginManager.PluginAssemblies
-                                .Where(assembly => assembly.PluginInfosExist)) {
-                            list.AddRange(from information in assembly.PluginInformations
-                                    where information.Enabled
-                                    select information.PluginID);
-                            key3.SetValue((idx++).ToString(), assembly.Path);
-                        }
-                    }
-                    QTUtility2.WriteRegBinary(list.ToArray(), "Enabled", key2);
-                    key2.SetValue("LanguageFile", QTUtility.Path_PluginLangFile);
-                }
-            }
-            PluginManager.SaveButtonOrder();*/
-        }
-
         private void OnAwake() {
         }
 
@@ -4601,7 +4561,7 @@ namespace QTTabBarLib {
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
             string name = item.Name;
             MenuType tag = (MenuType)item.Tag;
-            foreach(Plugin plugin in pluginManager.Plugins.Where(plugin => plugin.PluginInformation.PluginID == name)) {
+            foreach(Plugin plugin in pluginServer.Plugins.Where(plugin => plugin.PluginInformation.PluginID == name)) {
                 try {
                     if(tag == MenuType.Tab) {
                         if(ContextMenuedTab != null) {
@@ -4670,31 +4630,13 @@ namespace QTTabBarLib {
             else if(!fAutoSubText && tabControl1.AutoSubText) {
                 QTabItem.CheckSubTexts(tabControl1);
             }
-            if(pluginManager != null) {
-                pluginManager.OnSettingsChanged(0);
+            if(pluginServer != null) {
+                pluginServer.OnSettingsChanged(0);
             }
-            if(DropDownMenuBase.InitializeMenuRenderer() && (pluginManager != null)) {
-                pluginManager.OnMenuRendererChanged();
+            if(DropDownMenuBase.InitializeMenuRenderer() && (pluginServer != null)) {
+                pluginServer.OnMenuRendererChanged();
             }
             ContextMenuStripEx.InitializeMenuRenderer();
-        }
-
-        private void RefreshPlugins(bool fStatic) {
-            if(pluginManager != null) {
-                pluginManager.ClearFilterEngines();
-                if(fStatic) {
-                    PluginManager.ClearIEncodingDetector();
-                }
-                foreach(PluginAssembly assembly in PluginManager.PluginAssemblies.Except(lstTempAssemblies_Refresh)) {
-                    pluginManager.UninstallPluginAssembly(assembly, fStatic);
-                }
-                foreach(PluginAssembly assembly2 in lstTempAssemblies_Refresh) {
-                    if(fStatic) {
-                        PluginManager.AddAssembly(assembly2);
-                    }
-                    pluginManager.RefreshPluginAssembly(assembly2, fStatic);
-                }
-            }
         }
 
         private void RefreshTabBar() {
@@ -5524,14 +5466,14 @@ namespace QTTabBarLib {
         }
 
         private void tabControl1_MouseEnter(object sender, EventArgs e) {
-            if(pluginManager != null) {
-                pluginManager.OnMouseEnter();
+            if(pluginServer != null) {
+                pluginServer.OnMouseEnter();
             }
         }
 
         private void tabControl1_MouseLeave(object sender, EventArgs e) {
-            if(pluginManager != null) {
-                pluginManager.OnMouseLeave();
+            if(pluginServer != null) {
+                pluginServer.OnMouseLeave();
             }
         }
 
@@ -5655,13 +5597,13 @@ namespace QTTabBarLib {
         }
 
         private void tabControl1_PointedTabChanged(object sender, QTabCancelEventArgs e) {
-            if(pluginManager != null) {
+            if(pluginServer != null) {
                 if(e.Action == TabControlAction.Selecting) {
                     QTabItem tabPage = (QTabItem)e.TabPage;
-                    pluginManager.OnPointedTabChanged(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
+                    pluginServer.OnPointedTabChanged(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
                 }
                 else if(e.Action == TabControlAction.Deselecting) {
-                    pluginManager.OnPointedTabChanged(-1, null, string.Empty);
+                    pluginServer.OnPointedTabChanged(-1, null, string.Empty);
                 }
             }
         }
@@ -5683,8 +5625,8 @@ namespace QTTabBarLib {
                     lstActivatedTabs.RemoveAt(0);
                 }
                 fNavigatedByTabSelection = NavigateToPastSpecialDir(CurrentTab.GetLogHash(true, 0));
-                if(pluginManager != null) {
-                    pluginManager.OnTabChanged(tabControl1.SelectedIndex, selectedTab.CurrentIDL, selectedTab.CurrentPath);
+                if(pluginServer != null) {
+                    pluginServer.OnTabChanged(tabControl1.SelectedIndex, selectedTab.CurrentIDL, selectedTab.CurrentPath);
                 }
                 if(tabControl1.Focused) {
                     listView.SetFocus();
@@ -5726,8 +5668,8 @@ namespace QTTabBarLib {
                 if(tabControl1.Focused) {
                     listView.SetFocus();
                 }
-                if(pluginManager != null) {
-                    pluginManager.OnTabChanged(tabControl1.SelectedIndex, CurrentTab.CurrentIDL, CurrentTab.CurrentPath);
+                if(pluginServer != null) {
+                    pluginServer.OnTabChanged(tabControl1.SelectedIndex, CurrentTab.CurrentIDL, CurrentTab.CurrentPath);
                 }
             }
         }
@@ -5739,13 +5681,13 @@ namespace QTTabBarLib {
         }
 
         private void tabControl1_TabCountChanged(object sender, QTabCancelEventArgs e) {
-            if(pluginManager != null) {
+            if(pluginServer != null) {
                 QTabItem tabPage = (QTabItem)e.TabPage;
                 if(e.Action == TabControlAction.Selected) {
-                    pluginManager.OnTabAdded(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
+                    pluginServer.OnTabAdded(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
                 }
                 else if(e.Action == TabControlAction.Deselected) {
-                    pluginManager.OnTabRemoved(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
+                    pluginServer.OnTabRemoved(e.TabPageIndex, tabPage.CurrentIDL, tabPage.CurrentPath);
                 }
             }
         }
@@ -5780,8 +5722,8 @@ namespace QTTabBarLib {
         private void timerSelectionChanged_Tick(object sender, EventArgs e) {
             try {
                 timerSelectionChanged.Enabled = false;
-                if((pluginManager != null) && (CurrentTab != null)) {
-                    pluginManager.OnSelectionChanged(tabControl1.SelectedIndex, CurrentTab.CurrentIDL, CurrentTab.CurrentPath);
+                if((pluginServer != null) && (CurrentTab != null)) {
+                    pluginServer.OnSelectionChanged(tabControl1.SelectedIndex, CurrentTab.CurrentIDL, CurrentTab.CurrentPath);
                 }
             }
             catch {
@@ -6269,10 +6211,6 @@ namespace QTTabBarLib {
                                 RefreshTabBar();
                                 return;
 
-                            case 0x12:
-                                RefreshPlugins(false);
-                                return;
-
                             case 80:
                                 ReplaceByGroup(str);
                                 return;
@@ -6498,11 +6436,5 @@ namespace QTTabBarLib {
                 tabControl1.Refresh();
             }
         }
-
-        internal PluginManager PluginServerInstance {
-            get {
-                return pluginManager;
-            }
-        }
-   }
+    }
 }

@@ -29,36 +29,29 @@ namespace QTTabBarLib {
     public sealed partial class QTTabBarClass {
         internal sealed class PluginServer : IPluginServer, IDisposable {
             private Dictionary<string, string[]> dicLocalizingStrings;
-            private PluginManager pluginManager;
             private QTPlugin.Interop.IShellBrowser shellBrowser;
             private QTTabBarClass tabBar;
+            private Dictionary<string, Plugin> dicPluginInstances = new Dictionary<string, Plugin>();
+            
+            // todo: are these really necessary?
+            internal Dictionary<string, string> dicFullNamesMenuRegistered_Sys = new Dictionary<string, string>();
+            internal Dictionary<string, string> dicFullNamesMenuRegistered_Tab = new Dictionary<string, string>();
 
             public event PluginEventHandler ExplorerStateChanged;
-
             public event EventHandler MenuRendererChanged;
-
             public event EventHandler MouseEnter;
-
             public event EventHandler MouseLeave;
-
             public event PluginEventHandler NavigationComplete;
-
             public event PluginEventHandler PointedTabChanged;
-
             public event PluginEventHandler SelectionChanged;
-
             public event PluginEventHandler SettingsChanged;
-
             public event PluginEventHandler TabAdded;
-
             public event PluginEventHandler TabChanged;
-
             public event PluginEventHandler TabRemoved;
 
-            public PluginServer(QTTabBarClass tabBar, PluginManager manager) {
+            public PluginServer(QTTabBarClass tabBar) {
                 this.tabBar = tabBar;
                 shellBrowser = (QTPlugin.Interop.IShellBrowser)this.tabBar.ShellBrowser.GetIShellBrowser();
-                pluginManager = manager;
                 dicLocalizingStrings = new Dictionary<string, string[]>();
                 foreach(string file in Config.Lang.PluginLangFiles) {
                     if(file.Length <= 0 || !File.Exists(file)) continue;
@@ -68,6 +61,7 @@ namespace QTTabBarLib {
                         dicLocalizingStrings[pair.Key] = pair.Value;
                     }
                 }
+                LoadStartupPlugins();
             }
 
             public bool AddApplication(string name, ProcessStartInfo startInfo) {
@@ -92,6 +86,11 @@ namespace QTTabBarLib {
                 PointedTabChanged = null;
                 MouseLeave = null;
                 MenuRendererChanged = null;
+            }
+
+            public void ClearFilterEngines() {
+                FilterPlugin = null;
+                FilterCorePlugin = null;
             }
 
             public bool CreateTab(Address address, int index, bool fLocked, bool fSelect) {
@@ -132,8 +131,17 @@ namespace QTTabBarLib {
             }
 
             public void Dispose() {
+                // todo check
+                ClearEvents();
+                foreach(Plugin plugin in dicPluginInstances.Values) {
+                    if(plugin.PluginInformation != null) {
+                        plugin.Close(EndCode.WindowClosed);
+                    }
+                }
+                FilterPlugin = null;
+                FilterCorePlugin = null;
+                dicPluginInstances.Clear();
                 tabBar = null;
-                pluginManager = null;
                 shellBrowser = null;
             }
 
@@ -293,12 +301,97 @@ namespace QTTabBarLib {
 
             public ITab[] GetTabs() {
                 return (from QTabItem item in tabBar.tabControl1.TabPages
-                        select new TabWrapper(item, tabBar)).ToArray();
+                        select (ITab)(new TabWrapper(item, tabBar))).ToArray();
             }
 
             public ITab HitTest(Point pnt) {
                 QTabItem tabMouseOn = (QTabItem)tabBar.tabControl1.GetTabMouseOn();
                 return tabMouseOn != null ? new TabWrapper(tabMouseOn, tabBar) : null;
+            }
+
+            private string InstanceToFullName(IPluginClient pluginClient, bool fTypeFullName) {
+                Plugin plugin = dicPluginInstances.Values.FirstOrDefault(plugin1 => plugin1.Instance == pluginClient);
+                return plugin == null
+                        ? null
+                        : fTypeFullName
+                                ? plugin.PluginInformation.TypeFullName
+                                : plugin.PluginInformation.PluginID;
+            }
+
+            public bool IsPluginInstantialized(string pluginID) {
+                return dicPluginInstances.ContainsKey(pluginID);
+            }
+
+            public Plugin Load(PluginInformation pi, PluginAssembly pa) {
+                try {
+                    if(pa == null && !PluginManager.GetAssembly(pi.Path, out pa)) {
+                        return null;
+                    }
+                    Plugin plugin = pa.Load(pi.PluginID);
+                    if(plugin != null) {
+                        string[] strArray;
+                        int[] numArray;
+                        dicPluginInstances[pi.PluginID] = plugin;
+                        if(!OpenPlugin(plugin.Instance, out strArray) || strArray == null || strArray.Length <= 0) {
+                            return plugin;
+                        }
+                        // TODO: this should be moved to the static loading part
+                        if(pi.PluginType == PluginType.BackgroundMultiple) {
+                        }
+                        IBarMultipleCustomItems bmci = plugin.Instance as IBarMultipleCustomItems;
+                        try {
+                            if(bmci != null && bmci.Count > 0) {
+                                // This is to maintain backwards compatibility.
+                                bmci.Initialize(Enumerable.Range(0, bmci.Count).ToArray());
+                            }
+                        }
+                        catch { }
+                        if(QTUtility.dicPluginShortcutKeys.TryGetValue(pi.PluginID, out numArray)) {
+                            if(numArray == null) {
+                                QTUtility.dicPluginShortcutKeys[pi.PluginID] = new int[strArray.Length];
+                                return plugin;
+                            }
+                            if(numArray.Length != strArray.Length) {
+                                int[] numArray2 = new int[strArray.Length];
+                                int num = Math.Min(numArray.Length, strArray.Length);
+                                for(int i = 0; i < num; i++) {
+                                    numArray2[i] = numArray[i];
+                                }
+                                QTUtility.dicPluginShortcutKeys[pi.PluginID] = numArray2;
+                            }
+                            return plugin;
+                        }
+                        QTUtility.dicPluginShortcutKeys[pi.PluginID] = new int[strArray.Length];
+                    }
+                    return plugin;
+                }
+                catch(Exception exception) {
+                    PluginManager.HandlePluginException(exception, IntPtr.Zero, pi.Name, "Loading plugin.");
+                    QTUtility2.MakeErrorLog(exception);
+                }
+                return null;
+            }
+
+            private void LoadStartupPlugins() {
+                foreach(PluginInformation information in PluginManager.PluginInformations.Where(information => information.Enabled)) {
+                    if(information.PluginType == PluginType.Background) {
+                        Plugin plugin = Load(information, null);
+                        if(plugin != null) {
+                            if(FilterPlugin == null) {
+                                FilterPlugin = plugin.Instance as IFilter;
+                            }
+                            if(FilterCorePlugin == null) {
+                                FilterCorePlugin = plugin.Instance as IFilterCore;
+                            }
+                        }
+                        else {
+                            information.Enabled = false;
+                        }
+                    }
+                    else if(information.PluginType != PluginType.Static && Load(information, null) == null) {
+                        information.Enabled = false;
+                    }
+                }
             }
 
             public void OnExplorerStateChanged(ExplorerWindowActions windowAction) {
@@ -378,8 +471,57 @@ namespace QTTabBarLib {
                 return pluginClient.QueryShortcutKeys(out shortcutActions);
             }
 
+            public void RefreshPlugins() {
+                ClearFilterEngines();
+                foreach(PluginInformation information in PluginManager.PluginInformations) {
+                    if(!information.Enabled) {
+                        UnloadPluginInstance(information.PluginID, EndCode.Unloaded);
+                    }
+                    else if(information.PluginType == PluginType.Background) {
+                        Plugin plugin;
+                        if(!TryGetPlugin(information.PluginID, out plugin)) {
+                            plugin = Load(information, null);
+                        }
+                        if(plugin != null) {
+                            if(FilterPlugin == null) {
+                                FilterPlugin = plugin.Instance as IFilter;
+                            }
+                            if(FilterCorePlugin == null) {
+                                FilterCorePlugin = plugin.Instance as IFilterCore;
+                            }
+                        }
+                        else {
+                            information.Enabled = false;
+                        }
+                    }
+                    else if(information.PluginType == PluginType.BackgroundMultiple) {
+                        if(!IsPluginInstantialized(information.PluginID) && Load(information, null) == null) {
+                            information.Enabled = false;
+                        }
+                    }
+                }
+            }
+
             public void RegisterMenu(IPluginClient pluginClient, MenuType menuType, string menuText, bool fRegister) {
-                pluginManager.RegisterMenu(pluginClient, menuType, menuText, fRegister);
+                foreach(Plugin plugin in dicPluginInstances.Values.Where(plugin => plugin.Instance == pluginClient)) {
+                    if(fRegister) {
+                        if((menuType & MenuType.Bar) == MenuType.Bar) {
+                            dicFullNamesMenuRegistered_Sys[plugin.PluginInformation.PluginID] = menuText;
+                        }
+                        if((menuType & MenuType.Tab) == MenuType.Tab) {
+                            dicFullNamesMenuRegistered_Tab[plugin.PluginInformation.PluginID] = menuText;
+                        }
+                    }
+                    else {
+                        if((menuType & MenuType.Bar) == MenuType.Bar) {
+                            dicFullNamesMenuRegistered_Sys.Remove(plugin.PluginInformation.PluginID);
+                        }
+                        if((menuType & MenuType.Tab) == MenuType.Tab) {
+                            dicFullNamesMenuRegistered_Tab.Remove(plugin.PluginInformation.PluginID);
+                        }
+                    }
+                    break;
+                }
             }
 
             public bool RemoveApplication(string name) {
@@ -471,12 +613,16 @@ namespace QTTabBarLib {
             }
 
             public bool TryGetLocalizedStrings(IPluginClient pluginClient, int count, out string[] arrStrings) {
-                string key = pluginManager.InstanceToFullName(pluginClient, true);
-                if(((key.Length > 0) && dicLocalizingStrings.TryGetValue(key, out arrStrings)) && ((arrStrings != null) && (arrStrings.Length == count))) {
+                string key = InstanceToFullName(pluginClient, true);
+                if(key.Length > 0 && dicLocalizingStrings.TryGetValue(key, out arrStrings) && arrStrings != null && arrStrings.Length == count) {
                     return true;
                 }
                 arrStrings = null;
                 return false;
+            }
+
+            public bool TryGetPlugin(string pluginID, out Plugin plugin) {
+                return dicPluginInstances.TryGetValue(pluginID, out plugin);
             }
 
             public bool TryGetSelection(out Address[] adSelectedItems) {
@@ -490,8 +636,8 @@ namespace QTTabBarLib {
 
             public void UpdateItem(IBarButton barItem, bool fEnabled, bool fRefreshImage) {
                 IntPtr ptr;
-                string strMsg = pluginManager.InstanceToFullName(barItem, false);
-                if((strMsg.Length > 0) && InstanceManager.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr)) {
+                string strMsg = InstanceToFullName(barItem, false);
+                if(strMsg.Length > 0 && InstanceManager.TryGetButtonBarHandle(tabBar.ExplorerHandle, out ptr)) {
                     int num = 0;
                     if(fEnabled) {
                         num |= 1;
@@ -503,11 +649,25 @@ namespace QTTabBarLib {
                 }
             }
 
+            public void UnloadPluginInstance(string pluginID, EndCode code) {
+                Plugin plugin;
+                dicFullNamesMenuRegistered_Sys.Remove(pluginID);
+                dicFullNamesMenuRegistered_Tab.Remove(pluginID);
+                if(!dicPluginInstances.TryGetValue(pluginID, out plugin)) return;
+                RemoveEvents(plugin.Instance);
+                dicPluginInstances.Remove(pluginID);
+                plugin.Close(code);
+            }
+
             public IntPtr ExplorerHandle {
                 get {
                     return tabBar.ExplorerHandle;
                 }
             }
+
+            public IFilter FilterPlugin { get; private set; }
+
+            public IFilterCore FilterCorePlugin { get; private set; }
 
             public string[] Groups {
                 get {
@@ -517,19 +677,19 @@ namespace QTTabBarLib {
 
             public IntPtr Handle {
                 get {
-                    if(tabBar.IsHandleCreated) {
-                        return tabBar.Handle;
-                    }
-                    return IntPtr.Zero;
+                    return tabBar.IsHandleCreated ? tabBar.Handle : IntPtr.Zero;
+                }
+            }
+
+            public IEnumerable<Plugin> Plugins {
+                get {
+                    return new List<Plugin>(dicPluginInstances.Values);
                 }
             }
 
             public ITab SelectedTab {
                 get {
-                    if(tabBar.CurrentTab != null) {
-                        return new TabWrapper(tabBar.CurrentTab, tabBar);
-                    }
-                    return null;
+                    return tabBar.CurrentTab != null ? new TabWrapper(tabBar.CurrentTab, tabBar) : null;
                 }
                 set {
                     TabWrapper wrapper = value as TabWrapper;

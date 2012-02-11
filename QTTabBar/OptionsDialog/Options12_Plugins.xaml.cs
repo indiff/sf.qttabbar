@@ -94,8 +94,12 @@ namespace QTTabBarLib {
 
         private void btnPluginOptions_Click(object sender, RoutedEventArgs e) {
             PluginEntry entry = (PluginEntry)((Button)sender).DataContext;
-            Plugin p;
-            if(pluginManager.TryGetPlugin(entry.PluginID, out p) && p.Instance != null) {
+            string pid = entry.PluginID;
+            // Unfortunately, we can't call Plugin.OnOption on plugins that are
+            // loaded in a non-static context.
+            InstanceManager.InvokeMain(tabbar => {
+                Plugin p;
+                if(!tabbar.pluginServer.TryGetPlugin(pid, out p) || p.Instance == null) return;
                 try {
                     p.Instance.OnOption();
                 }
@@ -103,7 +107,7 @@ namespace QTTabBarLib {
                     PluginManager.HandlePluginException(ex, new WindowInteropHelper(Window.GetWindow(this)).Handle,
                             entry.Name, "Open plugin option.");
                 }
-            }
+            });
         }
 
         private void btnPluginEnableDisable_Click(object sender, RoutedEventArgs e) {
@@ -274,7 +278,7 @@ namespace QTTabBarLib {
                     if(!Enabled) return false;
                     if(optionsQueried) return cachedHasOptions;
                     Plugin p;
-                    if(parent.pluginManager.TryGetPlugin(PluginID, out p)) {
+                    if(PluginManager.TryGetStaticPluginInstance(PluginID, out p)) {
                         try {
                             cachedHasOptions = p.Instance.HasOption;
                             optionsQueried = true;

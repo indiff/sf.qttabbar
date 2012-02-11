@@ -62,12 +62,10 @@ namespace QTTabBarLib {
                 }
                 else if(pi.PluginType == PluginType.BackgroundMultiple) {
                     Plugin plugin;
-                    if(pluginManager.TryGetPlugin(pi.PluginID, out plugin)) {
+                    if(PluginManager.TryGetStaticPluginInstance(pi.PluginID, out plugin)) {
                         IBarMultipleCustomItems bmci = plugin.Instance as IBarMultipleCustomItems;
                         try {
                             if(bmci != null && bmci.Count > 0) {
-                                // This is to maintain backwards compatibility.
-                                bmci.Initialize(Enumerable.Range(0, bmci.Count).ToArray());
                                 dicPluginListPos[pi.PluginID] = pluginListPos;
                                 for(int i = 0; i < bmci.Count; i++) {
                                     lstPluginButtons.Add(new ButtonEntry(this, pluginListPos++, pi, i));
@@ -223,7 +221,7 @@ namespace QTTabBarLib {
                     if(!IsPluginButton) return "";
                     if(PluginInfo.PluginType == PluginType.BackgroundMultiple && PluginButtonIndex != -1) {
                         Plugin plugin;
-                        if(parent.pluginManager.TryGetPlugin(PluginInfo.PluginID, out plugin)) {
+                        if(PluginManager.TryGetStaticPluginInstance(PluginInfo.PluginID, out plugin)) {
                             try {
                                 return ((IBarMultipleCustomItems)plugin.Instance).GetName(PluginButtonIndex);
                             }
@@ -240,7 +238,7 @@ namespace QTTabBarLib {
                 if(Index >= QTButtonBar.BUTTONINDEX_PLUGIN) {
                     if(PluginInfo.PluginType == PluginType.BackgroundMultiple && PluginButtonIndex != -1) {
                         Plugin plugin;
-                        if(parent.pluginManager.TryGetPlugin(PluginInfo.PluginID, out plugin)) {
+                        if(PluginManager.TryGetStaticPluginInstance(PluginInfo.PluginID, out plugin)) {
                             try {
                                 return ((IBarMultipleCustomItems)plugin.Instance).GetImage(large, PluginButtonIndex);
                             }
