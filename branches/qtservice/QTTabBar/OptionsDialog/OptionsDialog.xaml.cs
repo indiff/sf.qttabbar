@@ -144,9 +144,8 @@ namespace QTTabBarLib {
             WorkingConfig = QTUtility2.DeepClone(ConfigManager.LoadedConfig);
             foreach(OptionsDialogTab tab in tabbedPanel.Items) {
                 tab.WorkingConfig = WorkingConfig;
-                if(tab is IHotkeyContainer) {
-                    ((IHotkeyContainer)tab).NewHotkeyRequested += ProcessNewHotkey;
-                }
+                IHotkeyContainer ihc = tab as IHotkeyContainer;
+                if(ihc != null) ihc.NewHotkeyRequested += ProcessNewHotkey;
                 tab.InitializeConfig();
             }
         }
@@ -171,6 +170,7 @@ namespace QTTabBarLib {
             if(tabBar != null) {
                 tabBar.Invoke(new Action(tabBar.RefreshOptions));
             }*/
+            PluginManager.RefreshPlugins();
             QTButtonBar.BroadcastConfigChanged(fButtonBarNeedsRefresh);
 
             // TODO: this should probably be moved to where ever the Langauge is set.
@@ -463,17 +463,6 @@ namespace QTTabBarLib {
         public Config WorkingConfig {
             get { return (Config)GetValue(WorkingConfigProperty); }
             set { SetValue(WorkingConfigProperty, value); }
-        }
-
-        internal PluginManager pluginManager;
-        protected OptionsDialogTab() {
-            // TODO: Find a way to get rid of this.
-            // IM!
-            /*
-            QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
-            if(tabBar != null) {
-                pluginManager = tabBar.GetPluginManager();
-            }*/
         }
 
         // This is the index of the resource string that will be displayed in the category list.
