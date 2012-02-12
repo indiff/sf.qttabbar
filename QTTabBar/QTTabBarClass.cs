@@ -254,7 +254,7 @@ namespace QTTabBarLib {
                     currentPath = currentPath + "???" + closingTab.GetLogHash(true, 0);
                 }
                 QTUtility.ClosedTabHistoryList.Add(currentPath);
-                SyncButtonBarBroadCast(2);
+                InstanceManager.ButtonBarBroadcast(bbar => bbar.RefreshButtons(), true);
             }
         }
 
@@ -1484,14 +1484,8 @@ namespace QTTabBarLib {
         private void CreateGroup(QTabItem contextMenuedTab) {
             NowModalDialogShown = true;
             using(CreateNewGroupForm form = new CreateNewGroupForm(contextMenuedTab.CurrentPath, tabControl1.TabPages)) {
-                if(NowTopMost) {
-                    form.TopMost = true;
-                }
-                if(DialogResult.OK == form.ShowDialog()) {
-                    // TODO: should not be necessary
-                    SyncButtonBarBroadCast(1);
-                    SyncTaskBarMenu();
-                }
+                form.TopMost = true;
+                form.ShowDialog();
             }
             NowModalDialogShown = false;
         }
@@ -4605,41 +4599,10 @@ namespace QTTabBarLib {
         }
 
         internal void RefreshOptions() {
-            // TODO
-            bool fAutoSubText = false;
 
-            QTUtility.TextResourcesDic = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
-                    ? QTUtility.ReadLanguageFile(Config.Lang.LangFile) 
-                    : null;
-            QTUtility.ValidateTextResources();
-            RefreshTexts();
-            RefreshTabBar();
-            SyncTabBarBroadcast(Handle);
-            QTUtility.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
-            QTUtility.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
-            SyncButtonBarBroadCast(0x100);
-            SyncButtonBarCurrent(0x3f);
-            SyncTaskBarMenu();
-            if(fAutoSubText && !tabControl1.AutoSubText) {
-                foreach(QTabItem item in tabControl1.TabPages) {
-                    item.Comment = string.Empty;
-                    item.RefreshRectangle();
-                }
-                tabControl1.Refresh();
-            }
-            else if(!fAutoSubText && tabControl1.AutoSubText) {
-                QTabItem.CheckSubTexts(tabControl1);
-            }
-            if(pluginServer != null) {
-                pluginServer.OnSettingsChanged(0);
-            }
-            if(DropDownMenuBase.InitializeMenuRenderer() && (pluginServer != null)) {
-                pluginServer.OnMenuRendererChanged();
-            }
-            ContextMenuStripEx.InitializeMenuRenderer();
-        }
+            // todo: kill
+            SyncButtonBarCurrent(0x3f);            
 
-        private void RefreshTabBar() {
             SuspendLayout();
             tabControl1.SuspendLayout();
             tabControl1.RefreshOptions(false);
@@ -4665,28 +4628,12 @@ namespace QTTabBarLib {
             }
             SetBarRows(tabControl1.SetTabRowType(iType));
             rebarController.RefreshBG();
-            if(Config.Tweaks.AlternateRowColors) {
-                Color color = Config.Tweaks.AltRowBackgroundColor;
-                if(QTUtility.sbAlternate == null) {
-                    QTUtility.sbAlternate = new SolidBrush(color);
-                }
-                else {
-                    QTUtility.sbAlternate.Color = color;
-                }
-            }
             foreach(QTabItem item in tabControl1.TabPages) {
                 item.RefreshRectangle();
             }
             ShellBrowser.SetUsingListView(Config.Tweaks.ForceSysListView);
             tabControl1.ResumeLayout();
             ResumeLayout(true);
-        }
-
-        private void RefreshTexts() {
-            IntPtr ptr;
-            if(InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr)) {
-                QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)10, "refreshText", IntPtr.Zero);
-            }
         }
 
         [ComRegisterFunction]
@@ -5267,32 +5214,6 @@ namespace QTTabBarLib {
             tabControl1.RefreshFolderImage();
         }
 
-        private static void SyncButtonBarBroadCast(int mask) {
-            int num = mask << 0x10;
-            if(((mask & 1) == 1) && (GroupsManager.GroupCount > 0)) {
-                num++;
-            }
-            if(((mask & 2) == 2) && (QTUtility.ClosedTabHistoryList.Count > 0)) {
-                num += 2;
-            }
-            if(((mask & 4) == 4) && (AppsManager.UserApps.Any())) {
-                num += 4;
-            }
-            if(((mask & 8) == 8) /* && Config.ShowTooltips */) {
-                num += 8;
-            }
-            try {
-                // IM!
-                /*
-                foreach(IntPtr ptr in InstanceManager.ButtonBarHandles().Where(PInvoke.IsWindow)) {
-                    QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)1, "fromTabBC", (IntPtr)num);
-                }*/
-            }
-            catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-            }
-        }
-
         private bool SyncButtonBarCurrent(int mask) {
             IntPtr ptr;
             bool flag = false;
@@ -5333,21 +5254,6 @@ namespace QTTabBarLib {
                 QTabItem.CheckSubTexts(tabControl1);
             }
             return flag;
-        }
-
-        private static void SyncTabBarBroadcast(IntPtr hwndThis) {
-            // IM!
-            /*
-            try {
-                foreach(IntPtr ptr in InstanceManager.TabBarHandles().Where(PInvoke.IsWindow)) {
-                    if(ptr != hwndThis) {
-                        QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)0x11, "refresh", IntPtr.Zero);
-                    }
-                }
-            }
-            catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-            }*/
         }
 
         private static void SyncTabBarBroadcastPlugin(IntPtr hwndThis) {
@@ -6206,10 +6112,6 @@ namespace QTTabBarLib {
                                 InstanceManager.RegisterTabBar(this);
                                 flag = true;
                                 goto Label_0B07;
-
-                            case 0x11:
-                                RefreshTabBar();
-                                return;
 
                             case 80:
                                 ReplaceByGroup(str);

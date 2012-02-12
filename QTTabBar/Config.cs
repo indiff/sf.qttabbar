@@ -569,6 +569,37 @@ namespace QTTabBarLib {
         public static void Initialize() {
             LoadedConfig = new Config();
             ReadConfig();
+
+        }
+
+        public static void UpdateConfig(bool fBroadcast = true) {
+            QTUtility.TextResourcesDic = Config.Lang.UseLangFile && File.Exists(Config.Lang.LangFile)
+                    ? QTUtility.ReadLanguageFile(Config.Lang.LangFile)
+                    : null;
+            QTUtility.ValidateTextResources();
+            QTUtility.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
+            QTUtility.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
+            DropDownMenuBase.InitializeMenuRenderer();
+            ContextMenuStripEx.InitializeMenuRenderer();
+            if(Config.Tweaks.AlternateRowColors) {
+                Color color = Config.Tweaks.AltRowBackgroundColor;
+                if(QTUtility.sbAlternate == null) {
+                    QTUtility.sbAlternate = new SolidBrush(color);
+                }
+                else {
+                    QTUtility.sbAlternate.Color = color;
+                }
+            }
+            PluginManager.RefreshPlugins();
+            InstanceManager.LocalTabBroadcast(tabbar => tabbar.RefreshOptions());
+            InstanceManager.LocalBBarBroadcast(bbar => bbar.CreateItems());
+            if(fBroadcast) {
+                // SyncTaskBarMenu(); todo
+                InstanceManager.StaticBroadcast(() => {
+                    ReadConfig();
+                    UpdateConfig(false);
+                });
+            }
         }
 
         public static void ReadConfig() {

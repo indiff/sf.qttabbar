@@ -694,6 +694,7 @@ namespace QTTabBarLib {
             ValidateTextResources(ref TextResourcesDic);
             ResMain = TextResourcesDic["TabBar_Menu"];
             ResMisc = TextResourcesDic["Misc_Strings"];
+            Resx.UpdateAll();
         }
 
         public static void ValidateTextResources(ref Dictionary<string, string[]> dict) {
