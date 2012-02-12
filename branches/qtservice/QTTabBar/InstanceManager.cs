@@ -253,8 +253,8 @@ namespace QTTabBarLib {
             commChannel.Broadcast(DelToByte(action));
         }
 
-        public static void TabBarBroadcast(Action<QTTabBarClass> action) {
-            LocalTabBroadcast(action, Thread.CurrentThread);
+        public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
+            LocalTabBroadcast(action, includeCurrent ? null : Thread.CurrentThread);
             StaticBroadcast(() => LocalTabBroadcast(action));
         }
 
@@ -268,12 +268,12 @@ namespace QTTabBarLib {
             }
         }
 
-        public static void ButtonBarBroadcast(Action<QTButtonBar> action) {
-            LocalBBarBroadcast(action, Thread.CurrentThread);
+        public static void ButtonBarBroadcast(Action<QTButtonBar> action, bool includeCurrent) {
+            LocalBBarBroadcast(action, includeCurrent ? null : Thread.CurrentThread);
             StaticBroadcast(() => LocalBBarBroadcast(action));
         }
 
-        private static void LocalBBarBroadcast(Action<QTButtonBar> action, Thread skip = null) {
+        public static void LocalBBarBroadcast(Action<QTButtonBar> action, Thread skip = null) {
             using(new Keychain(rwLockBtnBar, false)) {
                 foreach(var pair in dictBBarInstances) {
                     if(pair.Key != skip) {

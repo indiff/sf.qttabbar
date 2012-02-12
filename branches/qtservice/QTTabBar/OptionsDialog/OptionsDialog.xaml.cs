@@ -160,21 +160,9 @@ namespace QTTabBarLib {
                 if(tab != pluginTab) tab.CommitConfig();
             }
 
-            // todo: redo this crap...
-            bool fButtonBarNeedsRefresh = Config.BBar.LargeButtons != WorkingConfig.bbar.LargeButtons;
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
             ConfigManager.WriteConfig();
-            // IM!
-            /*
-            QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
-            if(tabBar != null) {
-                tabBar.Invoke(new Action(tabBar.RefreshOptions));
-            }*/
-            PluginManager.RefreshPlugins();
-            QTButtonBar.BroadcastConfigChanged(fButtonBarNeedsRefresh);
-
-            // TODO: this should probably be moved to where ever the Langauge is set.
-            Resx.UpdateAll();
+            ConfigManager.UpdateConfig();
         }
 
         private void CategoryListBoxItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {

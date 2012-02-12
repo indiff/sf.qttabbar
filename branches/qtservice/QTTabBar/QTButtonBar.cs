@@ -143,10 +143,13 @@ namespace QTTabBarLib {
 
         private void AddUserAppItems() {
             if(ddmrUserAppButton == null) return;
+            while(ddmrUserAppButton.Items.Count > 0) {
+                ddmrUserAppButton.Items[0].Dispose();
+            }
+
             // todo: the button bar should have its *own* ShellBrowserEx!
             QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
             if(tabBar == null) return;
-            ddmrUserAppButton.ItemsClear();
             List<ToolStripItem> lstItems = MenuUtility.CreateAppLauncherItems(Handle, tabBar.GetShellBrowser(),
                     !Config.BBar.LockDropDownButtons, ddmr45_ItemRightClicked, userAppsSubDir_DoubleClicked, false);
             ddmrUserAppButton.AddItemsRange(lstItems.ToArray(), "u");
@@ -162,14 +165,6 @@ namespace QTTabBarLib {
 
         private static int BarHeight {
             get { return Config.BBar.LargeButtons ? BARHEIGHT_LARGE : BARHEIGHT_SMALL; }
-        }
-
-        public static void BroadcastConfigChanged(bool fRefreshRequired) {
-            // IM!
-            /*
-            foreach(IntPtr ptr in InstanceManager.ButtonBarHandles().Where(PInvoke.IsWindow)) {
-                QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)5, "fromBBBC", fRefreshRequired ? ((IntPtr)1) : IntPtr.Zero);
-            }*/
         }
 
         private void CallBackSearchBox() {
@@ -198,14 +193,6 @@ namespace QTTabBarLib {
             lstPluginCustomItem.Clear();
             foreach(ToolStripItem item in list) {
                 item.Dispose();
-            }
-        }
-
-        private void ClearUserAppsMenu() {
-            if(ddmrUserAppButton != null) {
-                while(ddmrUserAppButton.Items.Count > 0) {
-                    ddmrUserAppButton.Items[0].Dispose();
-                }
             }
         }
 
@@ -328,7 +315,7 @@ namespace QTTabBarLib {
             return button;
         }
 
-        private void CreateItems() {
+        internal void CreateItems() {
             string[] ButtonItemsDisplayName = QTUtility.TextResourcesDic["ButtonBar_BtnName"];
             ManageImageList();
             toolStrip.SuspendLayout();
@@ -445,6 +432,13 @@ namespace QTTabBarLib {
             if(Config.BBar.ButtonIndexes.Length == 0) {
                 toolStrip.Items.Add(new ToolStripSeparator {Tag = 0});
             }
+
+            // todo: check
+            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
+            if(tabBar != null) {
+                tabBar.rebarController.RefreshHeight();
+            }
+
             toolStrip.ResumeLayout();
             toolStrip.RaiseOnResize();
             iPluginCreatingIndex = 0;
@@ -956,14 +950,8 @@ namespace QTTabBarLib {
             }
         }
 
-        private void RefreshEnabledState(bool fRefreshRequired) {
+        private void RefreshEnabledState() {
             QTUtility2.SendCOPYDATASTRUCT(InstanceManager.GetThreadTabBar().Handle, (IntPtr)0xfff, "fromBBRefresh", IntPtr.Zero);
-            if(fRefreshRequired) {
-                QTTabBarClass tabBar = InstanceManager.GetThreadTabBar();
-                if(tabBar != null) {
-                    tabBar.rebarController.RefreshHeight();
-                }
-            }
         }
 
         private void RefreshSearchBox(bool fBrowserRefreshRequired) {
@@ -1043,7 +1031,7 @@ namespace QTTabBarLib {
                     bbar.searchBox.Width = width;
                     bbar.toolStrip.RaiseOnResize();
                 }
-            });
+            }, false);
         }
 
         private void searchBox_TextChanged(object sender, EventArgs e) {
@@ -1520,6 +1508,22 @@ namespace QTTabBarLib {
             }
         }
 
+        internal void RefreshButtons() {
+            EnableItemAt(BII_GROUP, GroupsManager.GroupCount > 0);
+            EnableItemAt(BII_APPLICATIONLAUNCHER, AppsManager.UserApps.Any());
+            EnableItemAt(BII_RECENTTAB, QTUtility.ClosedTabHistoryList.Count > 0);
+
+            // todo: recent files
+            RefreshEnabledState(); // todo: kill this
+            // todo: kill this, and make CreateItems set this value correctly too.
+            foreach(ToolStripItem item2 in toolStrip.Items) {
+                if((item2.Tag != null) && (((int)item2.Tag) == 10)) {
+                    ((ToolStripButton)item2).Checked = PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 8) == new IntPtr(8);
+                    break;
+                }
+            }
+        }
+
         protected override void WndProc(ref Message m) {
             int num3 = 0;
             int num4 = 0;
@@ -1543,30 +1547,6 @@ namespace QTTabBarLib {
                 case WM.COPYDATA: {
                         COPYDATASTRUCT copydatastruct = (COPYDATASTRUCT)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT));
                         switch(((int)m.WParam)) {
-                            case 1: {
-                                    int num = ((int)copydatastruct.dwData) & 0xffff;
-                                    int num2 = (((int)copydatastruct.dwData) >> 0x10) & 0xffff;
-                                    if((num2 & 1) == 1) {
-                                        EnableItemAt(3, (num & 1) == 1);
-                                    }
-                                    if((num2 & 2) == 2) {
-                                        EnableItemAt(4, (num & 2) == 2);
-                                    }
-                                    if((num2 & 4) == 4) {
-                                        EnableItemAt(5, (num & 4) == 4);
-                                    }
-                                    if((num2 & 8) == 8) {
-                                        toolStrip.ShowItemToolTips = (num & 8) == 8;
-                                    }
-                                    if((num2 & 0x100) == 0x100) {
-                                        ClearUserAppsMenu();
-                                        CreateItems();
-                                    }
-                                    if((num2 & 0x200) == 0x200) {
-                                        ClearUserAppsMenu();
-                                    }
-                                    return;
-                                }
                             case 2:
                                 num3 = ((int)copydatastruct.dwData) & 0xffff;
                                 num4 = (((int)copydatastruct.dwData) >> 0x10) & 0xffff;
@@ -1608,17 +1588,6 @@ namespace QTTabBarLib {
                             case 4:
                                 if(DoItems((int)copydatastruct.dwData)) {
                                     m.Result = (IntPtr)1;
-                                }
-                                return;
-
-                            case 5:
-                                CreateItems();
-                                RefreshEnabledState(copydatastruct.dwData != IntPtr.Zero);
-                                foreach(ToolStripItem item2 in toolStrip.Items) {
-                                    if((item2.Tag != null) && (((int)item2.Tag) == 10)) {
-                                        ((ToolStripButton)item2).Checked = PInvoke.Ptr_OP_AND(PInvoke.GetWindowLongPtr(ExplorerHandle, -20), 8) == new IntPtr(8);
-                                        break;
-                                    }
                                 }
                                 return;
 

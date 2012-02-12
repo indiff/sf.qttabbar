@@ -400,6 +400,7 @@ namespace QTTabBarLib {
                 }
             }
 
+            // todo: Menu Renderer does not change anymore.
             public void OnMenuRendererChanged() {
                 if(MenuRendererChanged != null) {
                     MenuRendererChanged(this, EventArgs.Empty);
