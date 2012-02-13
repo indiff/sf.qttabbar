@@ -85,7 +85,8 @@ namespace QTTabBarLib {
                 asm.Dispose();
             }
             PluginManager.SavePluginAssemblyPaths(paths.ToList());
-            PluginManager.SavePluginShortcutKeys(); // todo: kill
+            
+            // Entries are invalid now, some assemblies may have been Disposed.
             CurrentPlugins = new ObservableCollection<PluginEntry>();
         }
 

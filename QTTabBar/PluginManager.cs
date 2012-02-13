@@ -51,16 +51,6 @@ namespace QTTabBarLib {
                     if(info.Enabled) LoadStaticInstance(info, pa);        
                 }
             }
-
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins")) {
-                if(key == null) return;
-                string[] keys = QTUtility2.ReadRegBinary<string>("ShortcutKeyIDs", key);
-                int[][] values = QTUtility2.ReadRegBinary<int[]>("ShortcutKeyValues", key);
-                if(keys == null || values == null) return;
-                for(int i = 0; i < Math.Min(keys.Length, values.Length); ++i) {
-                    QTUtility.dicPluginShortcutKeys[keys[i]] = values[i];
-                }
-            }
         }
 
         private static PluginAssembly LoadAssembly(string path) {
@@ -162,15 +152,6 @@ namespace QTTabBarLib {
             }
         }
 
-        public static void SavePluginShortcutKeys() {
-            using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root + @"Plugins")) {
-                string[] keys = QTUtility.dicPluginShortcutKeys.Keys.ToArray();
-                int[][] values = keys.Select(k => QTUtility.dicPluginShortcutKeys[k]).ToArray();
-                QTUtility2.WriteRegBinary(keys, "ShortcutKeyIDs", key);
-                QTUtility2.WriteRegBinary(values, "ShortcutKeyValues", key);
-            }
-        }
-
         public static bool TryGetStaticPluginInstance(string pid, out Plugin plugin) {
             return dicStaticPluginInstances.TryGetValue(pid, out plugin);
         }
@@ -182,13 +163,11 @@ namespace QTTabBarLib {
 
             foreach(PluginInformation info in pa.PluginInformations) {
                 Plugin plugin;
-                QTUtility.dicPluginShortcutKeys.Remove(info.PluginID);
                 if(!dicStaticPluginInstances.TryGetValue(info.PluginID, out plugin)) continue;
                 if(info.PluginType == PluginType.Static) plugin.Close(EndCode.Removed);
                 dicStaticPluginInstances.Remove(info.PluginID);
             }
             dicPluginAssemblies.Remove(pa.Path);
-            SavePluginShortcutKeys();
             pa.Uninstall();
             pa.Dispose();
         }

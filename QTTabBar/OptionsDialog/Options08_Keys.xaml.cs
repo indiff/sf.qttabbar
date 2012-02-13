@@ -38,11 +38,11 @@ namespace QTTabBarLib {
             for(int i = 0; i < (int)BindAction.KEYBOARD_ACTION_COUNT; ++i) {
                 HotkeyEntries.Add(new HotkeyEntry(keys, i));
             }
-            
-            foreach(string pluginID in QTUtility.dicPluginShortcutKeys.Keys) {
+
+            var PluginShortcuts = new Dictionary<string, int[]>();
+            foreach(var info in PluginManager.PluginInformations) {
                 Plugin p;
-                keys = QTUtility.dicPluginShortcutKeys[pluginID];
-                if(!PluginManager.TryGetStaticPluginInstance(pluginID, out p)) continue;
+                if(!PluginManager.TryGetStaticPluginInstance(info.PluginID, out p) || !p.PluginInformation.Enabled) continue;
                 string[] actions = null;
                 try {
                     if(!p.Instance.QueryShortcutKeys(out actions)) actions = null;
@@ -50,14 +50,17 @@ namespace QTTabBarLib {
                 catch {
                 }
                 if(actions == null) continue;
-                string group = p.PluginInformation.Name;
-                if(keys == null && keys.Length == actions.Length) {
+                if(WorkingConfig.keys.PluginShortcuts.TryGetValue(info.PluginID, out keys)) {
                     Array.Resize(ref keys, actions.Length);
-                    // Hmm, I don't like this...
-                    QTUtility.dicPluginShortcutKeys[pluginID] = keys;
+                    PluginShortcuts[info.PluginID] = keys;
                 }
-                HotkeyEntries.AddRange(actions.Select((act, i) => new HotkeyEntry(keys, i, act, group)));
+                else {
+                    PluginShortcuts[info.PluginID] = new int[actions.Length];
+                }
+                HotkeyEntries.AddRange(actions.Select((act, i) => new HotkeyEntry(keys, i, act, p.PluginInformation.Name)));
             }
+            WorkingConfig.keys.PluginShortcuts = PluginShortcuts;
+
             ICollectionView view = CollectionViewSource.GetDefaultView(HotkeyEntries);
             PropertyGroupDescription groupDescription = new PropertyGroupDescription("PluginName");
             view.GroupDescriptions.Add(groupDescription);
