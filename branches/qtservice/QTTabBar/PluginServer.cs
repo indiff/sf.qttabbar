@@ -328,41 +328,9 @@ namespace QTTabBarLib {
                         return null;
                     }
                     Plugin plugin = pa.Load(pi.PluginID);
-                    if(plugin != null) {
-                        string[] strArray;
-                        int[] numArray;
-                        dicPluginInstances[pi.PluginID] = plugin;
-                        if(!OpenPlugin(plugin.Instance, out strArray) || strArray == null || strArray.Length <= 0) {
-                            return plugin;
-                        }
-                        // TODO: this should be moved to the static loading part
-                        if(pi.PluginType == PluginType.BackgroundMultiple) {
-                        }
-                        IBarMultipleCustomItems bmci = plugin.Instance as IBarMultipleCustomItems;
-                        try {
-                            if(bmci != null && bmci.Count > 0) {
-                                // This is to maintain backwards compatibility.
-                                bmci.Initialize(Enumerable.Range(0, bmci.Count).ToArray());
-                            }
-                        }
-                        catch { }
-                        if(QTUtility.dicPluginShortcutKeys.TryGetValue(pi.PluginID, out numArray)) {
-                            if(numArray == null) {
-                                QTUtility.dicPluginShortcutKeys[pi.PluginID] = new int[strArray.Length];
-                                return plugin;
-                            }
-                            if(numArray.Length != strArray.Length) {
-                                int[] numArray2 = new int[strArray.Length];
-                                int num = Math.Min(numArray.Length, strArray.Length);
-                                for(int i = 0; i < num; i++) {
-                                    numArray2[i] = numArray[i];
-                                }
-                                QTUtility.dicPluginShortcutKeys[pi.PluginID] = numArray2;
-                            }
-                            return plugin;
-                        }
-                        QTUtility.dicPluginShortcutKeys[pi.PluginID] = new int[strArray.Length];
-                    }
+                    if(plugin == null) return null;
+                    dicPluginInstances[pi.PluginID] = plugin;
+                    plugin.Instance.Open(this, shellBrowser);
                     return plugin;
                 }
                 catch(Exception exception) {
@@ -465,11 +433,6 @@ namespace QTTabBarLib {
                 foreach(string str in groupNames) {
                     tabBar.OpenGroup(str, false);
                 }
-            }
-
-            public bool OpenPlugin(IPluginClient pluginClient, out string[] shortcutActions) {
-                pluginClient.Open(this, shellBrowser);
-                return pluginClient.QueryShortcutKeys(out shortcutActions);
             }
 
             public void RefreshPlugins() {

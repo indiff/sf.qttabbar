@@ -74,7 +74,6 @@ namespace QTTabBarLib {
         internal static SolidBrush sbAlternate;
         internal static readonly char[] SEPARATOR_CHAR = new char[] { ';' };
         internal const string SEPARATOR_PATH_HASH_SESSION = "*?*?*";
-        internal static Dictionary<string, int[]> dicPluginShortcutKeys = new Dictionary<string, int[]>();
         internal static Font StartUpTabFont;
         internal static Dictionary<string, string[]> TextResourcesDic;
         internal static List<byte[]> TMPIDLList = new List<byte[]>();

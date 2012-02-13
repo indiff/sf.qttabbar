@@ -2967,23 +2967,20 @@ namespace QTTabBarLib {
             }
 
             // Check for plugin hotkeys.
-            int idx = -1;
-            KeyValuePair<string, int[]> pair = QTUtility.dicPluginShortcutKeys
-                        .FirstOrDefault(p => (idx = Array.IndexOf(p.Value, imkey)) != -1);
-            if(idx != -1) {
+            foreach(var pair in Config.Keys.PluginShortcuts) {
+                int idx = Array.IndexOf(pair.Value, imkey);
+                if(idx == -1) continue;
                 Plugin plugin;
-                if(pluginServer.TryGetPlugin(pair.Key, out plugin)) {
-                    try {
-                        plugin.Instance.OnShortcutKeyPressed(idx);
-                    }
-                    catch(Exception exception) {
-                        PluginManager.HandlePluginException(exception,
-                                ExplorerHandle, plugin.PluginInformation.Name,
-                                "On shortcut key pressed. Index is " + idx);
-                    }
-                    return true;
+                if(!pluginServer.TryGetPlugin(pair.Key, out plugin)) return false;
+                try {
+                    plugin.Instance.OnShortcutKeyPressed(idx);
                 }
-                return false;
+                catch(Exception exception) {
+                    PluginManager.HandlePluginException(exception,
+                            ExplorerHandle, plugin.PluginInformation.Name,
+                            "On shortcut key pressed. Index is " + idx);
+                }
+                return true;
             }
 
             // todo: apps and groups should use hash tables.
