@@ -65,11 +65,25 @@ namespace QTTabBarLib {
         }
 
         public static int GET_X_LPARAM(IntPtr lParam) {
-            return (short)(((int)lParam) & 0xffff);
+            return ((int)lParam).LoWord();
         }
 
         public static int GET_Y_LPARAM(IntPtr lParam) {
-            return (short)((((int)lParam) >> 0x10) & 0xffff);
+            return ((int)lParam).HiWord();
+        }
+
+        public static int HiWord(this int i) {
+            return (short)((i >> 0x10) & 0xffff);
+        }
+
+        public static int LoWord(this int i) {
+            return (short)(i & 0xffff);
+        }
+
+        public static IEnumerable<T> RangeSelect<T>(this int i, Converter<int, T> converter) {
+            for(int j = 0; j < i; j++) {
+                yield return converter(j);
+            }
         }
 
         public static string GetDriveDisplayText(string path) {

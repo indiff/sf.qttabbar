@@ -175,6 +175,8 @@ namespace QTTabBarLib {
         }
     }
 
+    // Normally, delegates are only serializable if they don't include any
+    // stack variables.  But using this class, we can serialize any delegate.
     [Serializable]
     public class SerializeDelegate : ISerializable {
         public Delegate Delegate { get; private set; }
