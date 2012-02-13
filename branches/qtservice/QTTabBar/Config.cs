@@ -440,6 +440,7 @@ namespace QTTabBarLib {
         [Serializable]
         public class _BBar {
             public int[] ButtonIndexes           { get; set; }
+            public string[] ActivePluginIDs      { get; set; }
             public bool LargeButtons             { get; set; }
             public bool LockSearchBarWidth       { get; set; }
             public bool LockDropDownButtons      { get; set; }
@@ -450,6 +451,7 @@ namespace QTTabBarLib {
                 ButtonIndexes = QTUtility.IsXP 
                         ? new int[] {1, 2, 0, 3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 9, 20} 
                         : new int[] {3, 4, 5, 0, 6, 7, 0, 11, 13, 12, 14, 15, 0, 9, 20};
+                ActivePluginIDs = new string[0];
                 LockDropDownButtons = false;
                 LargeButtons = true;
                 LockSearchBarWidth = false;
@@ -680,6 +682,9 @@ namespace QTTabBarLib {
                 // todo: check dimensions
                 if(!wrapper.Available) Config.BBar.ImageStripPath = "";
             }
+            List<int> blist = Config.BBar.ButtonIndexes.ToList();
+            blist.RemoveAll(i => (i.HiWord() - 1) >= Config.BBar.ActivePluginIDs.Length);
+            Config.BBar.ButtonIndexes = blist.ToArray();
             var keys = Config.Keys.Shortcuts;
             Array.Resize(ref keys, (int)BindAction.KEYBOARD_ACTION_COUNT);
             Config.Keys.Shortcuts = keys;

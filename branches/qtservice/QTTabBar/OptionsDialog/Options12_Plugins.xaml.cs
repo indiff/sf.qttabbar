@@ -48,7 +48,8 @@ namespace QTTabBarLib {
         }
 
         public override void CommitConfig() {
-            List<PluginAssembly> assemblies = new List<PluginAssembly>();
+            HashSet<string> paths = new HashSet<string>();
+            HashSet<PluginAssembly> toDispose = new HashSet<PluginAssembly>();
 
             // Don't dispose the assemblies here.  That will be done by the plugin manager
             // when the plugins are unloaded.
@@ -61,35 +62,31 @@ namespace QTTabBarLib {
 
             List<string> enabled = new List<string>();
             foreach(PluginEntry entry in CurrentPlugins) {
-                PluginAssembly pa = entry.PluginAssembly;
-                if(!assemblies.Contains(pa)) {
-                    pa.Enabled = false;
-                    assemblies.Add(pa);
-                }
+                paths.Add(entry.PluginAssembly.Path);
                 if(entry.DisableOnClose) {
                     entry.Enabled = false;
                 }
-                else if(entry.EnableOnClose || entry.InstallOnClose) {
+                else if(entry.EnableOnClose) {
                     entry.Enabled = true;
+                }
+                else if(entry.InstallOnClose) {
+                    entry.Enabled = true;
+                    toDispose.Add(entry.PluginAssembly);
+                    // Newly installed PluginAssemblies are loaded by the options dialog.
+                    // They will also be loaded by the PluginManager, so we have to 
+                    // dispose of the ones we loaded here.
                 }
                 entry.EnableOnClose = entry.DisableOnClose = entry.InstallOnClose = false;
 
-                if(entry.Enabled) {
-                    pa.Enabled = true;
-                    enabled.Add(entry.PluginID);
-                }
+                if(entry.Enabled) enabled.Add(entry.PluginID);
             }
             WorkingConfig.plugin.Enabled = enabled.ToArray();
-
-            // todo: redo this crap...
-            // IM!
-            /*
-            QTTabBarClass tabBar = InstanceManager.CurrentTabBar;
-            if(tabBar != null) {
-                tabBar.Invoke(new Action(() => tabBar.odCallback_ManagePlugin(assemblies)));
-            }*/
-            PluginManager.SavePluginAssemblies();
-            PluginManager.SavePluginShortcutKeys();
+            foreach(PluginAssembly asm in toDispose) {
+                asm.Dispose();
+            }
+            PluginManager.SavePluginAssemblyPaths(paths.ToList());
+            PluginManager.SavePluginShortcutKeys(); // todo: kill
+            CurrentPlugins = new ObservableCollection<PluginEntry>();
         }
 
         private void btnPluginOptions_Click(object sender, RoutedEventArgs e) {
@@ -144,7 +141,6 @@ namespace QTTabBarLib {
                 PluginEntry otherEntry = CurrentPlugins[i];
                 if(otherEntry.PluginAssembly == entry.PluginAssembly) {
                     if(otherEntry.InstallOnClose) {
-                        otherEntry.PluginAssembly.Dispose();
                         CurrentPlugins.RemoveAt(i);
                         --i;
                     }
@@ -152,6 +148,9 @@ namespace QTTabBarLib {
                         otherEntry.UninstallOnClose = true;
                     }
                 }
+            }
+            if(entry.InstallOnClose) {
+                entry.PluginAssembly.Dispose();
             }
         }
 
