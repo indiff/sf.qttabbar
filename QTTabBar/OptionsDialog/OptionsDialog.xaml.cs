@@ -151,15 +151,9 @@ namespace QTTabBarLib {
         }
 
         private void UpdateOptions() {
-            // A small caveat in my brilliant plan to separate the options tabs into separate files:
-            // The plugin tab has to be committed first, before the others.
-            OptionsDialogTab pluginTab = tabbedPanel.Items.OfType<Options12_Plugins>().First();
-            pluginTab.CommitConfig();
-
             foreach(OptionsDialogTab tab in tabbedPanel.Items) {
-                if(tab != pluginTab) tab.CommitConfig();
+                tab.CommitConfig();
             }
-
             ConfigManager.LoadedConfig = QTUtility2.DeepClone(WorkingConfig);
             ConfigManager.WriteConfig();
             ConfigManager.UpdateConfig();

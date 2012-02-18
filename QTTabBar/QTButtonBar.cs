@@ -571,7 +571,7 @@ namespace QTTabBarLib {
             base.Dispose(disposing);
         }
 
-        private bool DoItems(int index) {
+        internal bool ClickItem(int index) {
             ToolStripItem item = toolStrip.Items.Cast<ToolStripItem>()
                     .FirstOrDefault(item2 => item2.Tag != null && (int)item2.Tag == index);
             if(item == null) {
@@ -1563,7 +1563,7 @@ namespace QTTabBarLib {
                                 return;
 
                             case 4:
-                                if(DoItems((int)copydatastruct.dwData)) {
+                                if(ClickItem((int)copydatastruct.dwData)) {
                                     m.Result = (IntPtr)1;
                                 }
                                 return;
