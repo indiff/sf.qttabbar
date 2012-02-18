@@ -187,6 +187,7 @@
     <Compile Include="Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TrayIcon.cs" />
     <Compile Include="TreeViewWrapper.cs" />
     <Compile Include="Interop\INameSpaceTreeControl.cs" />
     <Compile Include="Interop\IOleWindow.cs" />

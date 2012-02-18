@@ -50,7 +50,6 @@ namespace QTTabBarLib {
         private IContainer components;
         private ContextMenuStripEx contextMenuDropped;
         private QTabItem ContextMenuedTab;
-        private static ContextMenuStripEx contextMenuNotifyIcon;
         private ContextMenuStripEx contextMenuSys;
         private ContextMenuStripEx contextMenuTab;
         private string CurrentAddress;
@@ -58,7 +57,6 @@ namespace QTTabBarLib {
         private int CurrentTravelLogIndex;
         private Cursor curTabCloning;
         private Cursor curTabDrag;
-        private static Dictionary<IntPtr, int> dicNotifyIcon;
         private Rectangle DraggingDestRect;
         private QTabItem DraggingTab;
         private DropTargetWrapper dropTargetWrapper;
@@ -71,7 +69,6 @@ namespace QTTabBarLib {
         private bool fAutoNavigating;
         private bool fNavigatedByTabSelection;
         private bool fNeedsNewWindowPulse;
-        private bool fNowInTray;
         private bool fNowQuitting;
         private bool fNowRestoring;
         private bool fNowTravelByTree;
@@ -82,8 +79,6 @@ namespace QTTabBarLib {
         private HookProc hookProc_GetMsg;
         private HookProc hookProc_Key;
         private HookProc hookProc_Mouse;
-        private static IntPtr hwndNotifyIconParent;
-        private static Icon icoNotify;
         private ShellContextMenu shellContextMenu = new ShellContextMenu();
         private int iModKeyStateDD;
         private const int INTERVAL_SELCTTAB = 700;
@@ -102,7 +97,6 @@ namespace QTTabBarLib {
         private ToolStripTextBox menuTextBoxTabAlias;
         private int navBtnsFlag;
         private bool NavigatedByCode;
-        private static NotifyIcon notifyIcon;
         private bool NowInTravelLog;
         private bool NowModalDialogShown;
         private bool NowOpenedByGroupOpener;
@@ -117,7 +111,6 @@ namespace QTTabBarLib {
         private string strDraggingDrive;
         private string strDraggingStartPath;
         private SubDirTipForm subDirTip_Tab;
-        private static object syncObj_NotifyIcon = new object();
         private QTabControl tabControl1;
         private QTabItem tabForDD;
         private TabSwitchForm tabSwitcher;
@@ -163,10 +156,6 @@ namespace QTTabBarLib {
         private readonly uint WM_LISTREFRESHED = PInvoke.RegisterWindowMessage("QTTabBar_ListRefreshed");
         private readonly uint WM_SHOWHIDEBARS = PInvoke.RegisterWindowMessage("QTTabBar_ShowHideBars");
         private readonly uint WM_CHECKPULSE = PInvoke.RegisterWindowMessage("QTTabBar_CheckPulse");
-
-        
-        // TODO: group delegates
-        public delegate bool FolderClickedHandler(IDLWrapper item, Keys modkeys, bool middle);
 
         public QTTabBarClass() {
             QTUtility.Initialize();
@@ -352,7 +341,7 @@ namespace QTTabBarLib {
                 OpenGroup(str, false);
             }
             tabControl1.SetRedraw(true);
-            RestoreFromTray();
+            InstanceManager.RemoveFromTrayIcon(Handle);
         }
 
         private void CallbackFirstNavComp() {
@@ -611,7 +600,7 @@ namespace QTTabBarLib {
                     break;
             }
             if(num == 1) {
-                RestoreFromTray();
+                InstanceManager.RemoveFromTrayIcon(Handle);
                 WindowUtils.BringExplorerToFront(ExplorerHandle);
             }
         }
@@ -856,25 +845,7 @@ namespace QTTabBarLib {
                         travelBtnController.ReleaseHandle();
                         travelBtnController = null;
                     }
-                    if(dicNotifyIcon != null) {
-                        dicNotifyIcon.Remove(ExplorerHandle);
-                    }
-                    if((hwndNotifyIconParent == ExplorerHandle) && (notifyIcon != null)) {
-                        notifyIcon.Dispose();
-                        notifyIcon = null;
-                        contextMenuNotifyIcon.Dispose();
-                        contextMenuNotifyIcon = null;
-                        hwndNotifyIconParent = IntPtr.Zero;
-                        if(dicNotifyIcon.Count > 0) {
-                            foreach(IntPtr ptr in dicNotifyIcon.Keys) {
-                                // IM!
-                                //IntPtr tabBarHandle = InstanceManager.GetTabBarHandle(ptr);
-                                //if(1 == ((int)QTUtility2.SendCOPYDATASTRUCT(tabBarHandle, (IntPtr)0x30, "createNI", IntPtr.Zero))) {
-                                //    break;
-                                //}
-                            }
-                        }
-                    }
+                    InstanceManager.RemoveFromTrayIcon(Handle);
                     
                     // TODO: check this
                     using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
@@ -1057,56 +1028,6 @@ namespace QTTabBarLib {
             if(tabControl1.TabCount > 0) {
                 tabControl1.SetRedraw(true);
             }
-        }
-
-        private static void contextMenuNotifyIcon_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            if(!(e.ClickedItem is ToolStripSeparator)) {
-                if(e.ClickedItem.Tag == null) {
-                    if(e.ClickedItem.Text == "Restore all") {
-                        RestoreAllWindowFromTray();
-                    }
-                    else {
-                        notifyIcon.Visible = false;
-                        contextMenuNotifyIcon.Hide();
-                        bool flag = false;
-                        Dictionary<IntPtr, int> dictionary = new Dictionary<IntPtr, int>(dicNotifyIcon);
-                        foreach(IntPtr ptr in dictionary.Keys) {
-                            if(ptr != hwndNotifyIconParent) {
-                                if(ptr != IntPtr.Zero) {
-                                    WindowUtils.CloseExplorer(ptr, 2);
-                                    Thread.Sleep(100);
-                                }
-                            }
-                            else {
-                                flag = true;
-                            }
-                        }
-                        if(flag && (hwndNotifyIconParent != IntPtr.Zero)) {
-                            WindowUtils.CloseExplorer(hwndNotifyIconParent, 2);
-                        }
-                    }
-                }
-                else {
-                    IntPtr tag = (IntPtr)e.ClickedItem.Tag;
-                    ShowTaskbarItem(tag, true);
-                }
-            }
-        }
-
-        private static void contextMenuNotifyIcon_SubItems_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            // IM!
-            /*
-            IntPtr tag = (IntPtr)e.ClickedItem.Tag;
-            int index = ((ToolStripMenuItem)sender).DropDownItems.IndexOf(e.ClickedItem);
-            ShowTaskbarItem(tag, true);
-            QTTabBarClass tabBar = InstanceManager.GetThreadTabBar(tag);
-            if((tabBar != null) && (index > -1)) {
-                tabBar.Invoke(new NavigationCompleteCallback(contextMenuNotifyIcon_SubItems_SelectTab), new object[] { tabBar, (IntPtr)index });
-            }*/
-        }
-
-        private static void contextMenuNotifyIcon_SubItems_SelectTab(object tabBar, IntPtr index) {
-            ((QTTabBarClass)tabBar).tabControl1.SelectedIndex = (int)index;
         }
 
         private void contextMenuSys_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
@@ -1412,56 +1333,6 @@ namespace QTTabBarLib {
             return list;
         }
 
-        private static void CreateContextMenuItems_NotifyIcon(IntPtr hwnd, int sw) {
-            contextMenuNotifyIcon.EnsureHandleCreated();
-            contextMenuNotifyIcon.Invoke(new NavigationCompleteCallback(CreateContextMenuItems_NotifyIcon_Core), new object[] { sw, hwnd });
-        }
-
-        private static void CreateContextMenuItems_NotifyIcon_Core(object sw, IntPtr hwndExplr) {
-            if(hwndExplr != IntPtr.Zero) {
-                dicNotifyIcon[hwndExplr] = (int)sw;
-            }
-            contextMenuNotifyIcon.Hide();
-            contextMenuNotifyIcon.SuspendLayout();
-            contextMenuNotifyIcon.Items.Clear();
-            foreach(IntPtr ptr in dicNotifyIcon.Keys) {
-                StringBuilder lpString = new StringBuilder(260);
-                PInvoke.GetWindowText(ptr, lpString, lpString.Capacity);
-                ToolStripMenuItem item = new ToolStripMenuItem(lpString.ToString());
-                item.Tag = ptr;
-                // IM!
-                /*
-                QTTabBarClass tabBar = InstanceManager.GetThreadTabBar(ptr);
-                if(tabBar != null) {
-                    string currentAddress = tabBar.CurrentAddress;
-                    if(currentAddress.Length > 0) {
-                        item.ToolTipText = QTUtility2.MakePathDisplayText(currentAddress, true);
-                        item.ImageKey = QTUtility.GetImageKey(currentAddress, null);
-                    }
-                    if(tabBar.tabControl1.TabCount > 1) {
-                        for(int i = 0; i < tabBar.tabControl1.TabCount; i++) {
-                            QTabItem item2 = (QTabItem)tabBar.tabControl1.TabPages[i];
-                            ToolStripMenuItem item3 = new ToolStripMenuItem(item2.Text);
-                            item3.Tag = ptr;
-                            item3.ToolTipText = QTUtility2.MakePathDisplayText(item2.CurrentPath, true);
-                            item3.ImageKey = QTUtility.GetImageKey(item2.CurrentPath, null);
-                            item.DropDownItems.Add(item3);
-                        }
-                        if(item.DropDownItems.Count > 0) {
-                            item.DropDownItemClicked += contextMenuNotifyIcon_SubItems_DropDownItemClicked;
-                            item.DropDown.ImageList = QTUtility.ImageListGlobal;
-                        }
-                    }
-                }
-                */
-                contextMenuNotifyIcon.Items.Add(item);
-            }
-            contextMenuNotifyIcon.Items.Add(new ToolStripSeparator());
-            contextMenuNotifyIcon.Items.Add("Restore all");
-            contextMenuNotifyIcon.Items.Add("Close all");
-            contextMenuNotifyIcon.ResumeLayout();
-        }
-
         private static Cursor CreateCursor(Bitmap bmpColor) {
             Cursor cursor;
             using(bmpColor) {
@@ -1614,6 +1485,7 @@ namespace QTTabBarLib {
             if(tab == null) tab = CurrentTab;
 
             IntPtr ptr;
+            QTButtonBar bbar;
             switch(action) {
                 case BindAction.GoBack:
                     NavigateCurrentTab(true);
@@ -1748,20 +1620,17 @@ namespace QTTabBarLib {
                     contextMenuTab.Show(MousePosition);
                     break;
 
-                // IM!
-#if false
                 case BindAction.ShowGroupMenu:
-                    return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
-                            1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)3);
+                    bbar = InstanceManager.GetThreadButtonBar();
+                    return bbar != null && bbar.ClickItem(QTButtonBar.BII_GROUP);
 
                 case BindAction.ShowRecentTabsMenu:
-                    return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
-                            1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)4);
+                    bbar = InstanceManager.GetThreadButtonBar();
+                    return bbar != null && bbar.ClickItem(QTButtonBar.BII_RECENTTAB);
 
                 case BindAction.ShowUserAppsMenu:
-                    return InstanceManager.TryGetButtonBarHandle(ExplorerHandle, out ptr) &&
-                            1 == (int)QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)4, "fromTab", (IntPtr)5);
-#endif
+                    bbar = InstanceManager.GetThreadButtonBar();
+                    return bbar != null && bbar.ClickItem(QTButtonBar.BII_APPLICATIONLAUNCHER);
 
                 case BindAction.CopySelectedPaths:
                     if(listView.SubDirTipMenuIsShowing() || (subDirTip_Tab != null && subDirTip_Tab.MenuIsShowing)) {
@@ -1846,7 +1715,7 @@ namespace QTTabBarLib {
                     break;
 
                 case BindAction.FocusSearchBarBBar:
-                    QTButtonBar bbar = InstanceManager.GetThreadButtonBar();
+                    bbar = InstanceManager.GetThreadButtonBar();
                     if(bbar != null) bbar.FocusSearchBox();
                     break;
 
@@ -1856,7 +1725,7 @@ namespace QTTabBarLib {
                     break;
 
                 case BindAction.SendToTray:
-                    ShowTaskbarItem(ExplorerHandle, false);
+                    MinimizeToTray();
                     break;
 
                 case BindAction.FocusTabBar:
@@ -2463,12 +2332,8 @@ namespace QTTabBarLib {
                 case WM.ACTIVATE: {
                     int num3 = ((int) msg.WParam) & 0xffff;
                     if(num3 > 0) {
-                        InstanceManager.RegisterTabBar(this);
-                        if(fNowInTray && notifyIcon != null && dicNotifyIcon != null &&
-                                dicNotifyIcon.ContainsKey(ExplorerHandle)) {
-                            ShowTaskbarItem(ExplorerHandle, true);
-                        }
-                        fNowInTray = false;
+                        InstanceManager.PushTabBarInstance(this);
+                        InstanceManager.RemoveFromTrayIcon(Handle);
                     }
                     else {
                         listView.HideThumbnailTooltip(1);
@@ -2504,8 +2369,7 @@ namespace QTTabBarLib {
                             pluginServer.OnExplorerStateChanged(ExplorerWindowActions.Minimized);
                         }
                         if(Config.Window.TrayOnMinimize) {
-                            fNowInTray = true;
-                            ShowTaskbarItem(ExplorerHandle, false);
+                            MinimizeToTray();
                             return true;
                         }
                         return false;
@@ -2525,8 +2389,7 @@ namespace QTTabBarLib {
                     if((Config.Window.TrayOnClose &&
                             ((((int) msg.WParam) == 0xf060) || (((int) msg.WParam) == 0xf063))) &&
                                     (ModifierKeys != Keys.Shift)) {
-                        fNowInTray = true;
-                        ShowTaskbarItem(ExplorerHandle, false);
+                        MinimizeToTray();
                         return true;
                     }
                     if(!QTUtility.IsXP || ((((int) msg.WParam) != 0xf060) && (((int) msg.WParam) != 0xf063))) {
@@ -3385,7 +3248,7 @@ namespace QTTabBarLib {
 
         private void InitializeOpenedWindow() {
             IsShown = true;
-            InstanceManager.RegisterTabBar(this);
+            InstanceManager.PushTabBarInstance(this);
             InstallHooks();
             pluginServer = new PluginServer(this);
             if(!SyncButtonBarCurrent(0x100)) {
@@ -3876,6 +3739,12 @@ namespace QTTabBarLib {
             }*/
         }
 
+        private void MinimizeToTray() {
+            InstanceManager.AddToTrayIcon(Handle, ExplorerHandle, CurrentAddress,
+                tabControl1.TabPages.Select(t => t.Text).ToArray(),
+                tabControl1.TabPages.Select(t => ((QTabItem)t).CurrentPath).ToArray());
+        }
+
         private void NavigateBackToTheFuture() {
             IEnumTravelLogEntry ppenum = null;
             ITravelLogEntry rgElt = null;
@@ -4160,12 +4029,6 @@ namespace QTTabBarLib {
                 buttonNavHistoryMenu.DropDownItems.Add(item);
             }
             buttonNavHistoryMenu.DropDown.ResumeLayout();
-        }
-
-        private static void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e) {
-            if(e.Button == MouseButtons.Left) {
-                RestoreAllWindowFromTray();
-            }
         }
 
         private void OnAwake() {
@@ -4709,19 +4572,6 @@ namespace QTTabBarLib {
             //QTUtility.ConfigValues[0] = num;
         }
 
-        private static void RestoreAllWindowFromTray() {
-            Dictionary<IntPtr, int> dictionary = new Dictionary<IntPtr, int>(dicNotifyIcon);
-            foreach(IntPtr ptr in dictionary.Keys) {
-                ShowTaskbarItem(ptr, true);
-            }
-        }
-
-        private void RestoreFromTray() {
-            if(dicNotifyIcon != null && dicNotifyIcon.ContainsKey(ExplorerHandle)) {
-                ShowTaskbarItem(ExplorerHandle, true);
-            }
-        }
-
         private void RestoreLastClosed() {
             if(QTUtility.ClosedTabHistoryList.Count <= 0) {
                 return;
@@ -4912,6 +4762,12 @@ namespace QTTabBarLib {
             return listView;
         }
 
+        internal void SelectTab(int index) {
+            if(0 <= index && index < tabControl1.TabPages.Count) {
+                tabControl1.SelectTab(index);
+            }
+        }
+
         private void ShowSubdirTip_Tab(QTabItem tab, bool fShow, int offsetX, bool fKey, bool fParent) {
             try {
                 if(fShow) {
@@ -4978,76 +4834,6 @@ namespace QTTabBarLib {
                 tabControl1.SetPseudoHotIndex(index);
             }
             return true;
-        }
-
-        private static void ShowTaskbarItem(IntPtr hwndExplr, bool fShow) {
-            lock(syncObj_NotifyIcon) {
-                if(dicNotifyIcon == null) {
-                    dicNotifyIcon = new Dictionary<IntPtr, int>();
-                }
-                if(notifyIcon == null) {
-                    if(icoNotify == null) {
-                        icoNotify = QTUtility.GetIcon(string.Empty, false);
-                    }
-                    contextMenuNotifyIcon = new ContextMenuStripEx(null, false);
-                    contextMenuNotifyIcon.ImageList = QTUtility.ImageListGlobal;
-                    contextMenuNotifyIcon.ItemClicked += contextMenuNotifyIcon_ItemClicked;
-                    notifyIcon = new NotifyIcon();
-                    notifyIcon.Icon = icoNotify;
-                    notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
-                    notifyIcon.ContextMenuStrip = contextMenuNotifyIcon;
-                    if(!fShow) {
-                        notifyIcon.Visible = true;
-                    }
-                    hwndNotifyIconParent = hwndExplr;
-                }
-            }
-            ITaskbarList o = null;
-            try {
-                object obj2;
-                Guid rclsid = ExplorerGUIDs.CLSID_TaskbarList;
-                Guid riid = ExplorerGUIDs.IID_ITaskbarList;
-                PInvoke.CoCreateInstance(ref rclsid, IntPtr.Zero, 1, ref riid, out obj2);
-                o = (ITaskbarList)obj2;
-                o.HrInit();
-                if(fShow) {
-                    int num;
-                    if(!dicNotifyIcon.TryGetValue(hwndExplr, out num)) {
-                        num = 1;
-                    }
-                    o.AddTab(hwndExplr);
-                    PInvoke.ShowWindow(hwndExplr, num);
-                    PInvoke.SetForegroundWindow(hwndExplr);
-                    dicNotifyIcon.Remove(hwndExplr);
-                    if(dicNotifyIcon.Count == 0) {
-                        notifyIcon.Visible = false;
-                    }
-                    CreateContextMenuItems_NotifyIcon(IntPtr.Zero, 0);
-                }
-                else {
-                    bool flag = PInvoke.IsZoomed(hwndExplr);
-                    PInvoke.ShowWindow(hwndExplr, 0);
-                    o.DeleteTab(hwndExplr);
-                    notifyIcon.Visible = true;
-                    CreateContextMenuItems_NotifyIcon(hwndExplr, flag ? 3 : 1);
-                }
-                if(notifyIcon.Visible) {
-                    int count = dicNotifyIcon.Count;
-                    string str = count + " window" + ((count > 1) ? "s" : string.Empty);
-                    if(str.Length > 64) {
-                        str = str.Substring(0, 60) + "...";
-                    }
-                    notifyIcon.Text = str;
-                }
-            }
-            catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-            }
-            finally {
-                if(o != null) {
-                    Marshal.ReleaseComObject(o);
-                }
-            }
         }
 
         private void ShowToolTipForDD(QTabItem tab, int iState, int grfKeyState) {
@@ -5251,21 +5037,6 @@ namespace QTTabBarLib {
                 QTabItem.CheckSubTexts(tabControl1);
             }
             return flag;
-        }
-
-        private static void SyncTabBarBroadcastPlugin(IntPtr hwndThis) {
-            try {
-                // IM!
-                /*
-                foreach(IntPtr ptr in InstanceManager.TabBarHandles()) {
-                    if(ptr != hwndThis) {
-                        QTUtility2.SendCOPYDATASTRUCT(ptr, (IntPtr)0x12, "refreshPlugin", IntPtr.Zero);
-                    }
-                }*/
-            }
-            catch(Exception exception) {
-                QTUtility2.MakeErrorLog(exception);
-            }
         }
 
         internal static void SyncTaskBarMenu() {
@@ -6092,23 +5863,6 @@ namespace QTTabBarLib {
                                     ShowFolderTree(true);
                                     goto Label_0B07;
                                 }
-                            case 0x10:
-                                if((Config.Window.TrayOnClose && (notifyIcon != null)) && (dicNotifyIcon != null)) {
-                                    Dictionary<IntPtr, int> dictionary = new Dictionary<IntPtr, int>(dicNotifyIcon);
-                                    foreach(IntPtr ptr in dictionary.Keys) {
-                                        // IM!
-                                        /*
-                                        QTTabBarClass tabBar = InstanceManager.GetThreadTabBar(ptr);
-                                        if((tabBar != null) && (tabBar.CurrentAddress == str)) {
-                                            ShowTaskbarItem(ptr, true);
-                                            return;
-                                        }*/
-                                    }
-                                }
-                                OpenNewTab(str);
-                                InstanceManager.RegisterTabBar(this);
-                                flag = true;
-                                goto Label_0B07;
 
                             case 80:
                                 ReplaceByGroup(str);
@@ -6131,27 +5885,6 @@ namespace QTTabBarLib {
                                     }
                                 }
                                 return;
-
-                            case 0x30: {
-                                    contextMenuNotifyIcon = new ContextMenuStripEx(null, false);
-                                    contextMenuNotifyIcon.ImageList = QTUtility.ImageListGlobal;
-                                    contextMenuNotifyIcon.ItemClicked += contextMenuNotifyIcon_ItemClicked;
-                                    notifyIcon = new NotifyIcon();
-                                    notifyIcon.Icon = icoNotify;
-                                    notifyIcon.ContextMenuStrip = contextMenuNotifyIcon;
-                                    notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
-                                    hwndNotifyIconParent = ExplorerHandle;
-                                    int count = dicNotifyIcon.Count;
-                                    string str4 = count + " window" + ((count > 1) ? "s" : string.Empty);
-                                    if(str4.Length > 0x40) {
-                                        str4 = str4.Substring(0, 60) + "...";
-                                    }
-                                    notifyIcon.Text = str4;
-                                    notifyIcon.Visible = true;
-                                    CreateContextMenuItems_NotifyIcon(IntPtr.Zero, 0);
-                                    m.Result = (IntPtr)1;
-                                    return;
-                                }
                         }
                         goto Label_0B07;
                     }
@@ -6326,7 +6059,7 @@ namespace QTTabBarLib {
         // todo: This seems like it should go after every new tab creation, no?
         private void RestoreWindow() {
             bool fIsIconic = PInvoke.IsIconic(ExplorerHandle);
-            RestoreFromTray();
+            InstanceManager.RemoveFromTrayIcon(Handle);
             WindowUtils.BringExplorerToFront(ExplorerHandle);
             if(fIsIconic) {
                 foreach(QTabItem item2 in tabControl1.TabPages) {
