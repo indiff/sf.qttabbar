@@ -30,7 +30,6 @@ namespace QTTabBarLib {
         private static StackDictionary<IntPtr, QTTabBarClass> sdTabHandles = new StackDictionary<IntPtr, QTTabBarClass>();
         private static ReaderWriterLock rwLockBtnBar = new ReaderWriterLock();
         private static ReaderWriterLock rwLockTabBar = new ReaderWriterLock();
-        private static ICommClient commCallback;
         private static DuplexClient commClient;
         private static bool isServer;
 
@@ -79,6 +78,9 @@ namespace QTTabBarLib {
             bool ExecuteOnMainProcess(byte[] encodedAction, bool async);
 
             [OperationContract]
+            void ExecuteOnServerProcess(byte[] encodedAction, bool async);
+
+            [OperationContract]
             void Broadcast(byte[] encodedAction);
         }
 
@@ -98,8 +100,7 @@ namespace QTTabBarLib {
             }
 
             private static ICommClient GetCallback() {
-                OperationContext context = OperationContext.Current;
-                return context == null ? commCallback : context.GetCallbackChannel<ICommClient>();
+                return OperationContext.Current.GetCallbackChannel<ICommClient>();
             }
 
             public int GetTotalInstanceCount() {
@@ -157,6 +158,21 @@ namespace QTTabBarLib {
                 return false;
             }
 
+            public void ExecuteOnServerProcess(byte[] encodedAction, bool async) {
+                Delegate action = ByteToDel(encodedAction);
+                if(async) {
+                    AsyncHelper.BeginInvoke(action);
+                }
+                else {
+                    try {
+                        action.DynamicInvoke();
+                    }
+                    catch(Exception ex) {
+                        QTUtility2.MakeErrorLog(ex);
+                    }
+                }
+            }
+
             public void Broadcast(byte[] encodedAction) {
                 ICommClient sender = GetCallback();
                 CheckConnections();
@@ -177,7 +193,6 @@ namespace QTTabBarLib {
             public void DeleteInstance(IntPtr hwnd) {
                 CheckConnections();
                 sdInstances.Remove(hwnd);
-                // todo: confirm liveness of new stack head
             }
 
             public bool IsMainProcess() {
@@ -230,12 +245,11 @@ namespace QTTabBarLib {
 
         #endregion
 
-        public static void Initialize() {
+        public static void Initialize(bool skipServer = false) {
             uint desktopPID;
             PInvoke.GetWindowThreadProcessId(WindowUtils.GetShellTrayWnd(), out desktopPID);
             isServer = desktopPID == PInvoke.GetCurrentProcessId();
 
-            commCallback = new CommClient();
             const string PipeName = "QTTabBarPipe";
             string address = "net.pipe://localhost/" + PipeName + desktopPID;
             Thread thread = null;
@@ -244,27 +258,31 @@ namespace QTTabBarLib {
             // Otherwise reentrant calls will deadlock, for some reason.
             // So, create a new thread and open the channels there.
             thread = new Thread(() => {
-                if(isServer) {
+                if(isServer && !skipServer) {
                     serviceHost = new ServiceHost(
                             typeof(CommService),
                             new Uri[] { new Uri(address) });
                     serviceHost.AddServiceEndpoint(
-                            typeof(ICommService),                                   // TODO: this is only 24 hours...
+                            typeof(ICommService),
                             new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) { ReceiveTimeout = TimeSpan.MaxValue },
                             new Uri(address));
                     serviceHost.Open();
                 }
                 
 
-                commClient = new DuplexClient(new InstanceContext(commCallback),
+                commClient = new DuplexClient(new InstanceContext(new CommClient()),
                         new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
                         new EndpointAddress(address));
                 try {
                     commClient.Open();
                     commClient.Channel.Subscribe();
+                    using(new Keychain(rwLockTabBar, false)) {
+                        foreach(IntPtr handle in sdTabHandles.Keys) {
+                            commClient.Channel.PushInstance(handle);
+                        }
+                    }
                 }
                 catch(EndpointNotFoundException) {
-                    // todo: ???
                 }
                 lock(thread) {
                     Monitor.Pulse(thread);
@@ -277,8 +295,16 @@ namespace QTTabBarLib {
             }            
         }
 
+        private static ICommService GetChannel() {
+            if(commClient.State != CommunicationState.Opened) {
+                Initialize(true);
+            }
+            return commClient.State == CommunicationState.Opened ? commClient.Channel : null;
+        }
+
         public static void StaticBroadcast(Action action) {
-            commClient.Channel.Broadcast(DelToByte(action));
+            ICommService service = GetChannel();
+            if(service != null) service.Broadcast(DelToByte(action));
         }
 
         public static void TabBarBroadcast(Action<QTTabBarClass> action, bool includeCurrent) {
@@ -312,13 +338,15 @@ namespace QTTabBarLib {
         }
 
         private static void ExecuteOnMainProcess(Action action, bool async) {
-            if(commClient.Channel.ExecuteOnMainProcess(DelToByte(action), async)) {
+            ICommService service = GetChannel();
+            if(service == null || service.ExecuteOnMainProcess(DelToByte(action), async)) {
                 action();
             }
         }
 
         public static bool EnsureMainProcess(Action action) {
-            if(commClient.Channel.IsMainProcess()) return true;
+            ICommService service = GetChannel();
+            if(service != null && service.IsMainProcess()) return true;
             ExecuteOnMainProcess(action, false);
             return false;
         }
@@ -351,7 +379,8 @@ namespace QTTabBarLib {
                 dictTabInstances[Thread.CurrentThread] = tabbar;
                 sdTabHandles.Push(handle, tabbar);
             }
-            commClient.Channel.PushInstance(handle);
+            ICommService service = GetChannel();
+            if(service != null) service.PushInstance(handle);
         }
 
         public static void UnregisterButtonBar() {
@@ -367,14 +396,16 @@ namespace QTTabBarLib {
                     IntPtr handle = tabbar.Handle;
                     dictTabInstances.Remove(Thread.CurrentThread);
                     sdTabHandles.Remove(handle);
-                    commClient.Channel.DeleteInstance(handle);
+                    ICommService service = GetChannel();
+                    if(service != null) service.DeleteInstance(handle);
                 }
                 return false;
             }
         }
 
         public static int GetTotalInstanceCount() {
-            return commClient.Channel.GetTotalInstanceCount();
+            ICommService service = GetChannel();
+            return service == null ? dictTabInstances.Count : service.GetTotalInstanceCount();
         }
 
         public static QTTabBarClass GetThreadTabBar() {
@@ -402,16 +433,34 @@ namespace QTTabBarLib {
             return false;
         }
 
+        public static void ExecuteOnServerProcess(Action action, bool async) {
+            ICommService service;
+            if(isServer || (service = GetChannel()) == null) {
+                try {
+                    action();
+                }
+                catch(Exception ex) {
+                    QTUtility2.MakeErrorLog(ex);
+                }
+            }
+            else {
+                service.ExecuteOnServerProcess(DelToByte(action), async);                
+            }
+        }
+
         public static void AddToTrayIcon(IntPtr tabBarHandle, IntPtr explorerHandle, string currentPath, string[] tabNames, string[] tabPaths) {
-            commClient.Channel.AddToTrayIcon(tabBarHandle, explorerHandle, currentPath, tabNames, tabPaths);
+            ICommService service = GetChannel();
+            if(service != null) service.AddToTrayIcon(tabBarHandle, explorerHandle, currentPath, tabNames, tabPaths);
         }
 
         public static void RemoveFromTrayIcon(IntPtr tabBarHandle) {
-            commClient.Channel.RemoveFromTrayIcon(tabBarHandle);
+            ICommService service = GetChannel();
+            if(service != null) service.RemoveFromTrayIcon(tabBarHandle);
         }
 
         public static void SelectTabOnOtherTabBar(IntPtr tabBarHandle, int index) {
-            commClient.Channel.SelectTabOnOtherTabBar(tabBarHandle, index);
+            ICommService service = GetChannel();
+            if(service != null) service.SelectTabOnOtherTabBar(tabBarHandle, index);
         }
     }
 }

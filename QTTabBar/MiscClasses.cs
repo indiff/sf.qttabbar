@@ -382,7 +382,12 @@ namespace QTTabBarLib {
 
         private static void DynamicInvokeCallback(object state) {
             TargetInfo ti = (TargetInfo)state;
-            ti.Target.DynamicInvoke(ti.Args);
+            try {
+                ti.Target.DynamicInvoke(ti.Args);   
+            }
+            catch(Exception ex) {
+                QTUtility2.MakeErrorLog(ex, "AsyncHelper");
+            }
         }
     }
 }

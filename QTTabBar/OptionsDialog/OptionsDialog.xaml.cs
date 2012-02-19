@@ -49,9 +49,10 @@ namespace QTTabBarLib {
         #region ---------- Static Methods ----------
 
         public static void Open() {
-            if(!InstanceManager.EnsureMainProcess(Open)) {
-                return;
-            }
+            InstanceManager.ExecuteOnServerProcess(OpenInternal, false);
+        }
+
+        private static void OpenInternal() {
             lock(typeof(OptionsDialog)) {
                 // Prevent reentrant calls that might happen during the Wait call below.
                 if(launchingThread == Thread.CurrentThread) return;
@@ -73,7 +74,9 @@ namespace QTTabBarLib {
                                 instance.WindowState = WindowState.Normal;
                             }
                             else {
+                                instance.Topmost = true;
                                 instance.Activate();
+                                instance.Topmost = false;
                             }
                         }));
                     }
@@ -113,6 +116,8 @@ namespace QTTabBarLib {
         #endregion
 
         private OptionsDialog() {
+            Initialized += (sender, args) => Topmost = true;
+            ContentRendered += (sender, args) => Topmost = false;
             InitializeComponent();
 
             int i = 0;
