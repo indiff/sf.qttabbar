@@ -23,7 +23,7 @@ using System.Windows.Forms;
 using SHDocVw;
 
 namespace BandObjectLib {
-    public class BandObject : UserControl, IDeskBand, IDockingWindow, IInputObject, IObjectWithSite, IOleWindow {
+    public class BandObject : UserControl, IDeskBand, IDockingWindow, IInputObject, IObjectWithSite, IOleWindow, IPersistStream {
         private Size _minSize = new Size(-1, -1);
         protected IInputObjectSite BandObjectSite;
         protected WebBrowserClass Explorer;
@@ -315,6 +315,26 @@ namespace BandObjectLib {
             set {
                 _minSize = value;
             }
+        }
+
+        public virtual void GetClassID(out Guid pClassID) {
+            pClassID = Guid.Empty;
+        }
+
+        public virtual int IsDirty() {
+            return 0;
+        }
+
+        public virtual void IPersistStreamLoad(object pStm) {
+        }
+
+        public virtual void Save(IntPtr pStm, bool fClearDirty) {
+        }
+
+        public virtual int GetSizeMax(out ulong pcbSize) {
+            const int E_NOTIMPL = -2147467263;
+            pcbSize = 0;
+            return E_NOTIMPL;
         }
     }
 }

@@ -128,6 +128,10 @@ namespace QTTabBarLib {
             }
         }
 
+        internal static void Invoke<T>(this T control, Action<T> action) where T : Control {
+            control.Invoke(action, control);
+        }
+
         public static bool IsExecutable(string ext) {
             const string EXTS = ".COM|.EXE|.BAT|.CMD|.VBS|.VBE|.JS|.JSE|.WSF|.WSH|.MSC|.LNK";
             return ext != null && ext.Length > 2 && -1 != EXTS.IndexOf(ext.ToUpper());
