@@ -67,7 +67,7 @@ namespace QTTabBarLib {
         private IFolderView folderView;
         private IShellBrowser shellBrowser;
 
-        private NativeWindowListener shellViewListener;
+        private NativeWindowController shellViewListener;
 
 
         // CONTROLS
@@ -159,21 +159,25 @@ namespace QTTabBarLib {
 
 
         public QTDesktopTool() {
+            // Methods are called in this order:
+            // ctor -> SetSite -> InitializeComponent -> 
+            // (touches Handle property, WM_CREATE) -> OnHandleCreated -> (OnVisibleChanged)
             QTUtility.Initialize();
         }
 
 
         private void InitializeComponent() {
             // handle creation
+            // todo: doesn't look necessary...
             hwndThis = Handle;
 
-            bool reorderEnabled = !Config.Bool(Scts.Desktop_LockMenu);
+            const bool reorderEnabled = true; // config: !Config.Bool(Scts.Desktop_LockMenu);
 
             components = new System.ComponentModel.Container();
             contextMenu = new DropDownMenuReorderable(components, true, false);
-            contextMenuForSetting = new ContextMenuStripEx(components, true, false);
+            contextMenuForSetting = new ContextMenuStripEx(components, true); // todo: , false);
             tmiLabel_Group = new TitleMenuItem(MenuGenre.Group, true);
-            tmiLabel_History = new TitleMenuItem(MenuGenre.RecentlyClosedTab, true);
+            tmiLabel_History = new TitleMenuItem(MenuGenre.History, true);
             tmiLabel_UserApp = new TitleMenuItem(MenuGenre.Application, true);
             tmiLabel_RecentFile = new TitleMenuItem(MenuGenre.RecentFile, true);
 
@@ -188,12 +192,12 @@ namespace QTTabBarLib {
             contextMenu.ReorderEnabled = reorderEnabled;
             contextMenu.MessageParent = Handle;
             contextMenu.ImageList = QTUtility.ImageListGlobal;
-            contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(dropDowns_ItemClicked);
-            contextMenu.Closing += new ToolStripDropDownClosingEventHandler(contextMenu_Closing);
-            contextMenu.ReorderFinished += new MenuReorderedEventHandler(contextMenu_ReorderFinished);
-            contextMenu.ItemRightClicked += new ItemRightClickedEventHandler(dropDowns_ItemRightClicked);
-            if(QTUtility.IsVista) {
-                IntPtr hwnd = contextMenu.Handle;
+            contextMenu.ItemClicked += dropDowns_ItemClicked;
+            contextMenu.Closing += contextMenu_Closing;
+            contextMenu.ReorderFinished += contextMenu_ReorderFinished;
+            contextMenu.ItemRightClicked += dropDowns_ItemRightClicked;
+            if(!QTUtility.IsXP) {
+                contextMenu.CreateControl();
             }
             //
             // ddmrGroups 
@@ -201,14 +205,13 @@ namespace QTTabBarLib {
             ddmrGroups = new DropDownMenuReorderable(components, true, false);
             ddmrGroups.ReorderEnabled = reorderEnabled;
             ddmrGroups.ImageList = QTUtility.ImageListGlobal;
-            ddmrGroups.ReorderFinished += new MenuReorderedEventHandler(dropDowns_ReorderFinished);
-            ddmrGroups.ItemClicked += new ToolStripItemClickedEventHandler(dropDowns_ItemClicked);
-            ddmrGroups.ItemRightClicked += new ItemRightClickedEventHandler(dropDowns_ItemRightClicked);
+            ddmrGroups.ReorderFinished += dropDowns_ReorderFinished;
+            ddmrGroups.ItemClicked += dropDowns_ItemClicked;
+            ddmrGroups.ItemRightClicked += dropDowns_ItemRightClicked;
             //
             // tmiGroup 
             //
-            tmiGroup = new TitleMenuItem(MenuGenre.Group, false);
-            tmiGroup.DropDown = ddmrGroups;
+            tmiGroup = new TitleMenuItem(MenuGenre.Group, false) {DropDown = ddmrGroups};
             //
             // ddmrHistory
             //
@@ -216,12 +219,12 @@ namespace QTTabBarLib {
             ddmrHistory.ReorderEnabled = false;
             ddmrHistory.ImageList = QTUtility.ImageListGlobal;
             ddmrHistory.MessageParent = Handle;
-            ddmrHistory.ItemClicked += new ToolStripItemClickedEventHandler(dropDowns_ItemClicked);
-            ddmrHistory.ItemRightClicked += new ItemRightClickedEventHandler(dropDowns_ItemRightClicked);
+            ddmrHistory.ItemClicked += dropDowns_ItemClicked;
+            ddmrHistory.ItemRightClicked += dropDowns_ItemRightClicked;
             //
             // tmiHistory 
             //
-            tmiHistory = new TitleMenuItem(MenuGenre.RecentlyClosedTab, false);
+            tmiHistory = new TitleMenuItem(MenuGenre.History, false);
             tmiHistory.DropDown = ddmrHistory;
             //
             // ddmrUserapps 
@@ -230,9 +233,9 @@ namespace QTTabBarLib {
             ddmrUserapps.ReorderEnabled = reorderEnabled;
             ddmrUserapps.ImageList = QTUtility.ImageListGlobal;
             ddmrUserapps.MessageParent = Handle;
-            ddmrUserapps.ReorderFinished += new MenuReorderedEventHandler(dropDowns_ReorderFinished);
-            ddmrUserapps.ItemClicked += new ToolStripItemClickedEventHandler(dropDowns_ItemClicked);
-            ddmrUserapps.ItemRightClicked += new ItemRightClickedEventHandler(dropDowns_ItemRightClicked);
+            ddmrUserapps.ReorderFinished += dropDowns_ReorderFinished;
+            ddmrUserapps.ItemClicked += dropDowns_ItemClicked;
+            ddmrUserapps.ItemRightClicked += dropDowns_ItemRightClicked;
             //
             // tmiUserApp
             //
@@ -244,8 +247,8 @@ namespace QTTabBarLib {
             ddmrRecentFile = new DropDownMenuReorderable(components, false, false, false);
             ddmrRecentFile.ImageList = QTUtility.ImageListGlobal;
             ddmrRecentFile.MessageParent = Handle;
-            ddmrRecentFile.ItemClicked += new ToolStripItemClickedEventHandler(dropDowns_ItemClicked);
-            ddmrRecentFile.ItemRightClicked += new ItemRightClickedEventHandler(dropDowns_ItemRightClicked);
+            ddmrRecentFile.ItemClicked += dropDowns_ItemClicked;
+            ddmrRecentFile.ItemRightClicked += dropDowns_ItemRightClicked;
             //
             // tmiRecentFile
             //
@@ -258,10 +261,10 @@ namespace QTTabBarLib {
             tsmiDesktop = new ToolStripMenuItem();
             tsmiLockItems = new ToolStripMenuItem();
             tsmiVSTitle = new ToolStripMenuItem();
-            tsmiTaskBar.Checked = Config.Bool(Scts.Desktop_TaskBarDoubleClickEnabled);
-            tsmiDesktop.Checked = Config.Bool(Scts.Desktop_DesktopDoubleClickEnabled);
-            tsmiLockItems.Checked = Config.Bool(Scts.Desktop_LockMenu);
-            tsmiVSTitle.Checked = Config.Bool(Scts.Desktop_TitleBackground);
+            tsmiTaskBar.Checked = true; // config: Config.Bool(Scts.Desktop_TaskBarDoubleClickEnabled);
+            tsmiDesktop.Checked = true; // config: Config.Bool(Scts.Desktop_DesktopDoubleClickEnabled);
+            tsmiLockItems.Checked = true; // config: Config.Bool(Scts.Desktop_LockMenu);
+            tsmiVSTitle.Checked = true; // config: Config.Bool(Scts.Desktop_TitleBackground);
 
             tsmiOnGroup = new ToolStripMenuItem();
             tsmiOnHistory = new ToolStripMenuItem();
@@ -269,22 +272,19 @@ namespace QTTabBarLib {
             tsmiOnRecentFile = new ToolStripMenuItem();
             tsmiOneClick = new ToolStripMenuItem();
             tsmiAppKeys = new ToolStripMenuItem();
-            tsmiOnGroup.Checked = Config.Bool(Scts.Desktop_IncludeGroup);
-            tsmiOnHistory.Checked = Config.Bool(Scts.Desktop_IncludeRecentTab);
-            tsmiOnUserApps.Checked = Config.Bool(Scts.Desktop_IncludeApplication);
-            tsmiOnRecentFile.Checked = Config.Bool(Scts.Desktop_IncludeRecentFile);
-            tsmiOneClick.Checked = Config.Bool(Scts.Desktop_1ClickMenu);
-            tsmiAppKeys.Checked = Config.Bool(Scts.Desktop_EnbleApplicationShortcuts);
-
-            tsmiExperimental =
-                    new ToolStripMenuItem(System.Globalization.CultureInfo.CurrentCulture.Parent.Name == "ja"
-                            ? "ŽÀŒ±“I"
-                            : "Experimental");
+            tsmiOnGroup.Checked = true; // config: Config.Bool(Scts.Desktop_IncludeGroup);
+            tsmiOnHistory.Checked = true; // config: Config.Bool(Scts.Desktop_IncludeRecentTab);
+            tsmiOnUserApps.Checked = true; // config: Config.Bool(Scts.Desktop_IncludeApplication);
+            tsmiOnRecentFile.Checked = true; // config: Config.Bool(Scts.Desktop_IncludeRecentFile);
+            tsmiOneClick.Checked = true; // config: Config.Bool(Scts.Desktop_1ClickMenu);
+            tsmiAppKeys.Checked = true; // config: Config.Bool(Scts.Desktop_EnbleApplicationShortcuts);
+            
+            // todo: localize
+            tsmiExperimental = new ToolStripMenuItem("Experimental");
             tsmiExperimental.DropDown.Items.Add(new ToolStripMenuItem("dummy"));
             tsmiExperimental.DropDownDirection = ToolStripDropDownDirection.Left;
-            tsmiExperimental.DropDownItemClicked +=
-                    new ToolStripItemClickedEventHandler(tsmiExperimental_DropDownItemClicked);
-            tsmiExperimental.DropDownOpening += new EventHandler(tsmiExperimental_DropDownOpening);
+            tsmiExperimental.DropDownItemClicked += tsmiExperimental_DropDownItemClicked;
+            tsmiExperimental.DropDownOpening += tsmiExperimental_DropDownOpening;
 
             contextMenuForSetting.Items.AddRange(new ToolStripItem[] {
                     tsmiTaskBar, tsmiDesktop, new ToolStripSeparator(),
@@ -292,8 +292,7 @@ namespace QTTabBarLib {
                     new ToolStripSeparator(),
                     tsmiLockItems, tsmiVSTitle, tsmiOneClick, tsmiAppKeys, tsmiExperimental
             });
-            contextMenuForSetting.ItemClicked +=
-                    new ToolStripItemClickedEventHandler(contextMenuForSetting_ItemClicked);
+            contextMenuForSetting.ItemClicked += contextMenuForSetting_ItemClicked;
             RefreshStringResources();
 
             //
@@ -303,8 +302,8 @@ namespace QTTabBarLib {
             Width = WidthOfBar;
             MinSize = new Size(8, 22);
             Dock = DockStyle.Fill;
-            MouseClick += new MouseEventHandler(desktopTool_MouseClick);
-            MouseDoubleClick += new MouseEventHandler(desktopTool_MouseDoubleClick);
+            MouseClick += desktopTool_MouseClick;
+            MouseDoubleClick += desktopTool_MouseDoubleClick;
 
             contextMenu.ResumeLayout(false);
             contextMenuForSetting.ResumeLayout(false);
@@ -314,16 +313,11 @@ namespace QTTabBarLib {
 
         #region ---------- Overriding Methods ----------
 
-        public override int SetSite(object pUnkSite) {
-            // order of method call
-            // ctor -> SetSite -> InitializeComponent -> (touches Handle property, WM_CREATE) -> OnHandleCreated -> (OnVisibleChanged)
-
-            if(base.BandObjectSite != null) {
-                Marshal.ReleaseComObject(base.BandObjectSite);
+        public override void SetSite(object pUnkSite) {
+            if(BandObjectSite != null) {
+                Marshal.ReleaseComObject(BandObjectSite);
             }
-            base.BandObjectSite = (IInputObjectSite)pUnkSite;
-
-            //////////////
+            BandObjectSite = (IInputObjectSite)pUnkSite;
             Application.EnableVisualStyles();
 
             ReadSetting();
@@ -331,12 +325,10 @@ namespace QTTabBarLib {
             InstallDesktopHook();
 
             TitleMenuItem.DrawBackground = tsmiVSTitle.Checked;
-
-            return S_OK;
         }
 
-        public override int CloseDW(uint dwReserved) {
-            // when user disable Desktop Tool
+        public override void CloseDW(uint dwReserved) {
+            // called when the user disables the Desktop Tool
             // this seems not to be called on log off / shut down...
 
             if(iContextMenu2 != null) {
@@ -345,13 +337,12 @@ namespace QTTabBarLib {
             }
 
             // dispose controls in the thread they're created.
-            DisposeInvoker disposeInvoker = new DisposeInvoker(InvokeDispose);
             if(thumbnailTooltip != null) {
-                thumbnailTooltip.Invoke(disposeInvoker, new object[] {thumbnailTooltip});
+                thumbnailTooltip.Invoke(d => d.Dispose());
                 thumbnailTooltip = null;
             }
             if(subDirTip != null) {
-                subDirTip.Invoke(disposeInvoker, new object[] {subDirTip});
+                subDirTip.Invoke(d => d.Dispose());
                 subDirTip = null;
             }
 
@@ -376,12 +367,11 @@ namespace QTTabBarLib {
                 shellViewListener = null;
             }
 
-            return base.CloseDW(dwReserved);
+            base.CloseDW(dwReserved);
         }
 
-        public override int GetClassID(out Guid pClassID) {
+        public override void GetClassID(out Guid pClassID) {
             pClassID = typeof(QTDesktopTool).GUID;
-            return S_OK;
         }
 
         protected override void WndProc(ref Message m) {
