@@ -321,7 +321,7 @@
     <Compile Include="QTButtonBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="QTCoTaskBarClass.cs">
+    <Compile Include="QTDesktopTool.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="QTTabBarClass.cs">
