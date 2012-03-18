@@ -80,6 +80,14 @@ namespace QTTabBarLib {
             return (short)(i & 0xffff);
         }
 
+        public static int HiWord(this IntPtr i) {
+            return ((((int)(long)i) >> 16) & 0xFFFF);
+        }
+
+        public static int LoWord(this IntPtr i) {
+            return ((int)(long)i & 0xFFFF);
+        }
+
         public static IEnumerable<T> RangeSelect<T>(this int i, Converter<int, T> converter) {
             for(int j = 0; j < i; j++) {
                 yield return converter(j);
@@ -130,6 +138,10 @@ namespace QTTabBarLib {
 
         internal static void Invoke<T>(this T control, Action<T> action) where T : Control {
             control.Invoke(action, control);
+        }
+
+        internal static void Invoke(this Control control, Action action) {
+            control.Invoke(action);
         }
 
         public static bool IsExecutable(string ext) {
