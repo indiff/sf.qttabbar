@@ -81,6 +81,9 @@ namespace QTTabBarLib {
             void ExecuteOnServerProcess(byte[] encodedAction, bool async);
 
             [OperationContract]
+            object GetFromServerProcess(byte[] encodedAction);
+
+            [OperationContract]
             void Broadcast(byte[] encodedAction);
         }
 
@@ -170,6 +173,17 @@ namespace QTTabBarLib {
                     catch(Exception ex) {
                         QTUtility2.MakeErrorLog(ex);
                     }
+                }
+            }
+
+            public object GetFromServerProcess(byte[] encodedAction) {
+                Delegate action = ByteToDel(encodedAction);
+                try {
+                    return action.DynamicInvoke();
+                }
+                catch(Exception ex) {
+                    QTUtility2.MakeErrorLog(ex);
+                    return null;
                 }
             }
 
@@ -463,6 +477,22 @@ namespace QTTabBarLib {
             }
             else {
                 service.ExecuteOnServerProcess(DelToByte(action), async);                
+            }
+        }
+
+        public static T GetFromServerProcess<T>(Func<T> func) {
+            ICommService service;
+            if(isServer || (service = GetChannel()) == null) {
+                try {
+                    return func();
+                }
+                catch(Exception ex) {
+                    QTUtility2.MakeErrorLog(ex);
+                }
+            }
+            else {
+                object obj = service.GetFromServerProcess(DelToByte(func));
+                return obj == null ? default(T) : (T)obj;
             }
         }
 

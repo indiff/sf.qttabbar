@@ -36,7 +36,10 @@ namespace BandObjectLib {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
         
-        private const int E_FAIL = unchecked((int)0x80004005);
+        protected const int S_OK = 0;
+        protected const int S_FALSE = 1;
+        protected const int E_NOTIMPL = -2147467263;	// _HRESULT_TYPEDEF_(0x80004001L)
+        protected const int E_FAIL = -2147467259;    // _HRESULT_TYPEDEF_(0x80004005L)
 
         // We must subclass the rebar in order to fix a certain bug in 
         // Windows 7.
@@ -248,11 +251,9 @@ namespace BandObjectLib {
             }
             BandObjectSite = pUnkSite as IInputObjectSite;
             if(BandObjectSite != null) {
-                Guid guid = ExplorerGUIDs.IID_IWebBrowserApp;
-                Guid riid = ExplorerGUIDs.IID_IUnknown;
                 try {
                     object obj2;
-                    ((_IServiceProvider)BandObjectSite).QueryService(ref guid, ref riid, out obj2);
+                    ((_IServiceProvider)BandObjectSite).QueryService(ExplorerGUIDs.IID_IWebBrowserApp, ExplorerGUIDs.IID_IUnknown, out obj2);
                     Explorer = (WebBrowserClass)Marshal.CreateWrapperOfType(obj2 as IWebBrowser, typeof(WebBrowserClass));
                     OnExplorerAttached();
                 }

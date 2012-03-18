@@ -4013,17 +4013,13 @@ namespace QTTabBarLib {
                 object obj2;
                 object obj3;
                 _IServiceProvider bandObjectSite = (_IServiceProvider)BandObjectSite;
-                Guid guid = ExplorerGUIDs.IID_IShellBrowser;
-                Guid riid = ExplorerGUIDs.IID_IUnknown;
-                bandObjectSite.QueryService(ref guid, ref riid, out obj2);
+                bandObjectSite.QueryService(ExplorerGUIDs.IID_IShellBrowser, ExplorerGUIDs.IID_IUnknown, out obj2);
                 ShellBrowser = new ShellBrowserEx((IShellBrowser)obj2);
                 HookLibManager.InitShellBrowserHook(ShellBrowser.GetIShellBrowser());
                 if(Config.Tweaks.ForceSysListView) {
                     ShellBrowser.SetUsingListView(true);
                 }
-                Guid guid3 = ExplorerGUIDs.IID_ITravelLogStg;
-                Guid guid4 = ExplorerGUIDs.IID_ITravelLogStg;
-                bandObjectSite.QueryService(ref guid3, ref guid4, out obj3);
+                bandObjectSite.QueryService(ExplorerGUIDs.IID_ITravelLogStg, ExplorerGUIDs.IID_ITravelLogStg, out obj3);
                 TravelLog = (ITravelLogStg)obj3;
             }
             catch(COMException exception) {

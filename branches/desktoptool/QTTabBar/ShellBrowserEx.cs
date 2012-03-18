@@ -222,6 +222,7 @@ namespace QTTabBarLib {
             }
         }
 
+        // todo: idlify.
         public bool TryGetHotTrackPath(int iItem, out string path) {
             return TryGetHotTrackPath(iItem, out path, null);
         }
