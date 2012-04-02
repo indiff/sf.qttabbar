@@ -116,9 +116,8 @@ namespace QTTabBarLib {
         }
 
         public static void InitializeTemporaryPaths() {
-            QTUtility.TMPPathList.Clear();
-            QTUtility.TMPIDLList.Clear();
-            QTUtility.TMPTargetIDL = null;
+            StaticReg.CreateWindowPaths.Clear();
+            StaticReg.CreateWindowIDLs.Clear();
         }
 
         internal static IEnumerable<T> Interleave<T>(this IEnumerable<T> first, IEnumerable<T> second) {

@@ -581,8 +581,8 @@ namespace QTTabBarLib {
                     ? QTUtility.ReadLanguageFile(Config.Lang.LangFile)
                     : null;
             QTUtility.ValidateTextResources();
-            QTUtility.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
-            QTUtility.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
+            StaticReg.ClosedTabHistoryList.MaxCapacity = Config.Misc.TabHistoryCount;
+            StaticReg.ExecutedPathsList.MaxCapacity = Config.Misc.FileHistoryCount;
             DropDownMenuBase.InitializeMenuRenderer();
             ContextMenuStripEx.InitializeMenuRenderer();
             PluginManager.RefreshPlugins();

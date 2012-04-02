@@ -1141,7 +1141,7 @@ namespace QTTabBarLib {
                     ErrorDialogParentHandle = IntPtr.Zero
                 });
                 if(Config.Misc.KeepRecentFiles) {
-                    QTUtility.ExecutedPathsList.Add(clickedItem.Path);
+                    StaticReg.ExecutedPathsList.Add(clickedItem.Path);
                 }
             }
             catch {
@@ -1161,7 +1161,7 @@ namespace QTTabBarLib {
             List<string> executedDirectories = ((SubDirTipForm)sender).ExecutedDirectories;
             if((ModifierKeys & Keys.Control) == Keys.Control) {
                 QTUtility2.InitializeTemporaryPaths();
-                QTUtility.TMPPathList.AddRange(executedDirectories);
+                StaticReg.CreateWindowPaths.AddRange(executedDirectories);
                 using(IDLWrapper wrapper = new IDLWrapper(executedDirectories[0])) {
                     OpenNewWindow(wrapper);
                     return;

@@ -279,7 +279,7 @@ namespace QTTabBarLib {
                     }
 
                     if(PInvoke.ShellExecuteEx(ref sei)) {
-                        QTUtility.ExecutedPathsList.Add(path);
+                        StaticReg.ExecutedPathsList.Add(path);
                         return;
                     }
                 }
