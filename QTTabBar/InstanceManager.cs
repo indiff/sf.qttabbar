@@ -488,6 +488,7 @@ namespace QTTabBarLib {
                 }
                 catch(Exception ex) {
                     QTUtility2.MakeErrorLog(ex);
+                    return default(T);
                 }
             }
             else {

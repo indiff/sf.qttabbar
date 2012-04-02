@@ -534,7 +534,7 @@ namespace QTTabBarLib {
                 if(key != null) {
                     string[] collection = QTUtility2.ReadRegBinary<string>("TabsLocked", key);
                     if((collection != null) && (collection.Length != 0)) {
-                        StaticReg.LockedTabsToRestoreList = new List<string>(collection);
+                        StaticReg.LockedTabsToRestoreList.Assign(collection);
                     }
                     else {
                         StaticReg.LockedTabsToRestoreList.Clear();
