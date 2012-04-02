@@ -190,8 +190,8 @@ namespace QTTabBarLib {
         public static List<ToolStripItem> CreateRecentFilesItems() {
             List<ToolStripItem> ret = new List<ToolStripItem>();
             List<string> toRemove = new List<string>();
-            if(QTUtility.ExecutedPathsList.Count > 0) {
-                foreach(string path in QTUtility.ExecutedPathsList.Reverse()) {
+            if(StaticReg.ExecutedPathsList.Count > 0) {
+                foreach(string path in StaticReg.ExecutedPathsList.Reverse()) {
                     if(QTUtility2.IsNetworkPath(path) || File.Exists(path)) {
                         QMenuItem item = new QMenuItem(QTUtility2.MakeNameEllipsis(Path.GetFileName(path)), MenuGenre.RecentFile);
                         item.Path = item.ToolTipText = path;
@@ -204,14 +204,14 @@ namespace QTTabBarLib {
                 }
             }
             foreach(string str in toRemove) {
-                QTUtility.ExecutedPathsList.Remove(str);
+                StaticReg.ExecutedPathsList.Remove(str);
             }
             return ret;
         }
 
         public static List<ToolStripItem> CreateUndoClosedItems(ToolStripDropDownItem dropDownItem) {
             List<ToolStripItem> ret = new List<ToolStripItem>();
-            string[] reversedLog = QTUtility.ClosedTabHistoryList.Reverse().ToArray();
+            string[] reversedLog = StaticReg.ClosedTabHistoryList.Reverse().ToArray();
             if(dropDownItem != null) {
                 while(dropDownItem.DropDownItems.Count > 0) {
                     dropDownItem.DropDownItems[0].Dispose();
@@ -224,7 +224,7 @@ namespace QTTabBarLib {
                 foreach(string entry in reversedLog) {
                     if(entry.Length <= 0) continue;
                     if(!QTUtility2.PathExists(entry)) {
-                        QTUtility.ClosedTabHistoryList.Remove(entry);
+                        StaticReg.ClosedTabHistoryList.Remove(entry);
                     }
                     else {
                         QMenuItem item = CreateMenuItem(new MenuItemArguments(entry, MenuTarget.Folder, MenuGenre.History));
