@@ -21,7 +21,7 @@ namespace QTTabBarLib {
         internal static UniqueList<string> ClosedTabHistoryList = new UniqueList<string>(16); // todo
 
         private static RegBackedList<string> _LockedTabsToRestoreList = new RegBackedList<string>("LockedTabs");
-        internal static Collection<string> LockedTabsToRestoreList {
+        internal static RegBackedList<string> LockedTabsToRestoreList {
             get {
                 _LockedTabsToRestoreList.Update();
                 return _LockedTabsToRestoreList;
@@ -29,7 +29,7 @@ namespace QTTabBarLib {
         }
 
         private static RegBackedList<byte[]> _CreateWindowIDLs = new RegBackedList<byte[]>("CreateWindowIDLs");
-        internal static Collection<byte[]> CreateWindowIDLs {
+        internal static RegBackedList<byte[]> CreateWindowIDLs {
             get {
                 _CreateWindowIDLs.Update();
                 return _CreateWindowIDLs;
@@ -37,7 +37,7 @@ namespace QTTabBarLib {
         }
 
         private static RegBackedList<string> _CreateWindowPaths = new RegBackedList<string>("CreateWindowPaths");
-        internal static Collection<string> CreateWindowPaths {
+        internal static RegBackedList<string> CreateWindowPaths {
             get {
                 _CreateWindowPaths.Update();
                 return _CreateWindowPaths;
@@ -131,6 +131,17 @@ namespace QTTabBarLib {
                 }
                 updating = false;
             }
+        }
+
+        public void AddRange(IEnumerable<T> range) {
+            foreach(T t in range) {
+                Add(t); // todo: make more efficient
+            }
+        }
+
+        public void Assign(IEnumerable<T> collection) {
+            Clear(); // todo: make more efficient
+            AddRange(collection);
         }
     }
 }

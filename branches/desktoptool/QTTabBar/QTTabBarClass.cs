@@ -563,7 +563,7 @@ namespace QTTabBarLib {
                         break;
                     }
                 default:
-                    StaticReg.CreateWindowPaths = new List<string>(collection);
+                    StaticReg.CreateWindowPaths.Assign(collection);
                     using(IDLWrapper wrapper = new IDLWrapper(collection[0])) {
                         OpenNewWindow(wrapper);
                     }
