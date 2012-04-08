@@ -1150,7 +1150,7 @@ namespace QTTabBarLib {
                     else if(currentPath.IndexOf("*?*?*") != -1) {
                         currentPath = currentPath.Substring(0, currentPath.IndexOf("*?*?*"));
                     }
-                    SetStringClipboard(currentPath);
+                    QTUtility2.SetStringClipboard(currentPath);
                 }
                 else if(e.ClickedItem == tsmiProp) {
                     ShellMethods.ShowProperties(ContextMenuedTab.CurrentIDL);
@@ -1767,7 +1767,7 @@ namespace QTTabBarLib {
                     if(currentPath.IndexOf("???") != -1) {
                         currentPath = currentPath.Substring(0, currentPath.IndexOf("???"));
                     }
-                    SetStringClipboard(currentPath);
+                    QTUtility2.SetStringClipboard(currentPath);
                     break;
 
                 case BindAction.TabProperties:
@@ -1878,7 +1878,7 @@ namespace QTTabBarLib {
                 }
             Label_019C:
                 if(displayName.Length > 0) {
-                    SetStringClipboard(displayName);
+                    QTUtility2.SetStringClipboard(displayName);
                     return true;
                 }
             }
@@ -4708,16 +4708,6 @@ namespace QTTabBarLib {
         private void SetBarRows(int count) {
             BandHeight = (count * (Config.Skin.TabHeight - 3)) + 5;
             rebarController.RefreshHeight();
-        }
-
-        internal static void SetStringClipboard(string str) {
-            try {
-                Clipboard.SetDataObject(str, true);
-                SystemSounds.Asterisk.Play();
-            }
-            catch {
-                SystemSounds.Hand.Play();
-            }
         }
 
         protected override bool ShouldHaveBreak() {

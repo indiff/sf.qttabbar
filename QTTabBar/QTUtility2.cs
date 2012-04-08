@@ -44,7 +44,7 @@ namespace QTTabBarLib {
             IntPtr stdHandle = PInvoke.GetStdHandle(STD_OUTPUT_HANDLE);
             SafeFileHandle safeFileHandle = new SafeFileHandle(stdHandle, true);
             FileStream fileStream = new FileStream(safeFileHandle, FileAccess.Write);
-            Encoding encoding = System.Text.Encoding.GetEncoding(MY_CODE_PAGE);
+            Encoding encoding = Encoding.GetEncoding(MY_CODE_PAGE);
             StreamWriter standardOutput = new StreamWriter(fileStream, encoding);
             standardOutput.AutoFlush = true;
             Console.SetOut(standardOutput);
@@ -96,7 +96,7 @@ namespace QTTabBarLib {
 
         public static string GetDriveDisplayText(string path) {
             if((path.Length != 3) || !path.EndsWith(@":\")) {
-                return string.Empty;
+                return String.Empty;
             }
             switch(PInvoke.GetDriveType(path)) {
                 case 0:
@@ -216,7 +216,7 @@ namespace QTTabBarLib {
                     writer.WriteLine(".NET ver: " + Environment.Version);
                     writer.WriteLine("OS ver: " + Environment.OSVersion.Version);
                     writer.WriteLine("QT ver: " + MakeVersionString());
-                    if(!string.IsNullOrEmpty(optional)) {
+                    if(!String.IsNullOrEmpty(optional)) {
                         writer.WriteLine("Optional information: " + optional);
                     }
                     if(ex == null) {
@@ -239,7 +239,7 @@ namespace QTTabBarLib {
             if(key == Keys.None) {
                 return " - ";
             }
-            string str = string.Empty;
+            string str = String.Empty;
             if((key & Keys.Control) == Keys.Control) {
                 str = "Ctrl + ";
             }
@@ -303,7 +303,7 @@ namespace QTTabBarLib {
                 else {
                     driveDisplayText = ShellMethods.GetDisplayName(path);
                 }
-                if(!string.IsNullOrEmpty(driveDisplayText)) {
+                if(!String.IsNullOrEmpty(driveDisplayText)) {
                     QTUtility.DisplayNameCacheDic[path] = driveDisplayText;
                     return driveDisplayText;
                 }
@@ -351,11 +351,11 @@ namespace QTTabBarLib {
         }
 
         public static bool PathEquals(this string str1, string str2) {
-            return string.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
+            return String.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool PathExists(string path) {
-            if(string.IsNullOrEmpty(path)) {
+            if(String.IsNullOrEmpty(path)) {
                 return false;
             }
             path = path.ToLower();
@@ -388,7 +388,7 @@ namespace QTTabBarLib {
             if(QTUtility.IsXP || ((!path.Contains(@".zip\") && !path.Contains(@".cab\")) && !path.Contains(@".lzh\"))) {
                 return !Path.IsPathRooted(path);
             }
-            string str2 = string.Empty;
+            string str2 = String.Empty;
             if(path.Contains(@".zip\")) {
                 str2 = @".zip\";
             }
@@ -460,7 +460,7 @@ namespace QTTabBarLib {
         }
 
         public static IntPtr SendCOPYDATASTRUCT(IntPtr hWnd, IntPtr wParam, string strMsg, IntPtr dwData) {
-            if(string.IsNullOrEmpty(strMsg)) {
+            if(String.IsNullOrEmpty(strMsg)) {
                 strMsg = "null";
             }
             using(SafePtr hglobal = new SafePtr(strMsg)) {
@@ -470,6 +470,16 @@ namespace QTTabBarLib {
                     dwData = dwData
                 };
                 return PInvoke.SendMessage(hWnd, WM.COPYDATA, wParam, ref structure);
+            }
+        }
+
+        internal static void SetStringClipboard(string str) {
+            try {
+                Clipboard.SetDataObject(str, true);
+                SystemSounds.Asterisk.Play();
+            }
+            catch {
+                SystemSounds.Hand.Play();
             }
         }
 
@@ -499,7 +509,7 @@ namespace QTTabBarLib {
             if(pIDL != IntPtr.Zero) {
                 path = ShellMethods.GetPath(pIDL);
             }
-            return !string.IsNullOrEmpty(path) && QTUtility.NoCapturePathsList.Any(path2 => path.PathEquals(path2));
+            return !String.IsNullOrEmpty(path) && QTUtility.NoCapturePathsList.Any(path2 => path.PathEquals(path2));
         }
 
         public static void WriteRegBinary<T>(T[] array, string regValueName, RegistryKey rkUserApps) {

@@ -888,7 +888,7 @@ namespace QTTabBarLib {
         }
 
         // todo:
-        private bool HandleTabFolderActions(int index, Keys modKey, bool fEnqExec) {
+        private bool HandleItemActivate(int index, Keys modKey, bool fEnqExec) {
             // Handles item activation in Desktop thread
 
             // Default		..... New Tab / Navigate to
@@ -897,9 +897,7 @@ namespace QTTabBarLib {
             // C + S + A    ..... Open all sub folders in new tabs
 
             bool fMBUTTONUP = index != -1;
-
-            if(fMBUTTONUP && Config.Get(Scts.ViewIconMiddleClicked) == 1) // new window by wheel click
-            {
+            if(fMBUTTONUP) { // new window by wheel click            
                 if(modKey == Keys.Control) {
                     modKey = Keys.None;
                 }
@@ -907,8 +905,7 @@ namespace QTTabBarLib {
                     modKey = Keys.Control;
                 }
             }
-            if(!Config.Bool(Scts.ActivateNewTab)) // do not activate new tab
-            {
+            if(!Config.Tabs.ActivateNewTab) { // do not activate new tab
                 if((modKey & Keys.Shift) == Keys.Shift) {
                     modKey &= ~Keys.Shift;
                 }
@@ -940,64 +937,23 @@ namespace QTTabBarLib {
             }
 
             foreach(IntPtr pidl in lstPIDLs) {
-                using(IDLWrapper idlw = new IDLWrapper(pidl)) {
-                    if(idlw.Available && idlw.IsReadyIfDrive) {
-                        if(idlw.IsLink) {
-                            // dead link check 
-                            IDLWrapper idlwTarget;
-                            if(!idlw.TryGetLinkTarget(hwndListView, out idlwTarget)) {
-                                continue;
-                            }
-                            using(idlwTarget) {
-                                if(idlwTarget.IsFolder && (fMBUTTONUP || !(idlw.IsStream && idlw.IsBrowsable)))
-                                        // when wheel clicked, allow navigation to zip folder 
-                                {
-                                    if(idlwTarget.IsReadyIfDrive) {
-                                        lstIDLs.Add(idlw.IsFolder ? idlw.IDL : idlwTarget.IDL);
-                                    }
-                                }
-                                else {
-                                    if(fEnqExec) {
-                                        if(idlw.HasPath) {
-                                            lstFiles.Add(idlw.Path);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if(idlw.IsFolder && (fMBUTTONUP || !(idlw.IsStream && idlw.IsBrowsable)))
-                                // when wheel clicked, allow navigation to zip folder 
-                        {
-                            lstIDLs.Add(idlw.IDL);
-                        }
-                        else {
-                            // wheel cliced on QTG file
-                            if(fMBUTTONUP && idlw.HasPath) {
-                                if(String.Equals(Path.GetExtension(idlw.Path), QGroupOpener.EXT_QTG,
-                                        StringComparison.OrdinalIgnoreCase)) {
-                                    List<string> lstGrps = QGroupOpener.ReadGroupFiles(new string[] {idlw.Path},
-                                            false);
-                                    if(lstGrps.Count > 0) {
-                                        // Open Group asynchronously
-                                        Thread thread = new Thread(OpenGroup);
-                                        thread.SetApartmentState(ApartmentState.STA);
-                                        thread.IsBackground = true;
-                                        thread.Start(new object[] {lstGrps.ToArray(), ModifierKeys});
-                                    }
-
-                                    return true;
-                                }
-                            }
-
-                            if(fEnqExec) {
-                                if(idlw.HasPath) {
-                                    lstFiles.Add(idlw.Path);
-                                }
+                using(IDLWrapper idlOrig = new IDLWrapper(pidl)) 
+                using(IDLWrapper idlLink = idlOrig.ResolveTargetIfLink()) {
+                    IDLWrapper idlw = idlLink ?? idlOrig;
+                    if(!idlw.Available || !idlw.IsReadyIfDrive || idlw.IsLinkToDeadFolder) continue;
+                    if(idlw.IsFolder && fMBUTTONUP) {
+                        // when wheel clicked, allow navigation to zip folder 
+                        lstIDLs.Add(idlw.IDL);
+                    }
+                    else {
+                        if(fEnqExec) {
+                            if(idlw.HasPath) {
+                                lstFiles.Add(idlw.Path);
                             }
                         }
                     }
                 }
-            } // end of foreach
+            }
 
             if(lstIDLs.Count == 0) {
                 if(fEnqExec && lstFiles.Count > 0) {
@@ -1044,7 +1000,7 @@ namespace QTTabBarLib {
             List<string> lstPaths = new List<string>();
             foreach(var pidl in lstSelections) {
                 using(IDLWrapper idlw = new IDLWrapper(pidl)) {
-                    if(idlw.CanDelete && idlw.HasPath) {
+                    if(idlw.HasPath /* && idlw.CanDelete */ ) { // todo
                         lstPaths.Add(idlw.Path);
                     }
                     else {
@@ -1056,15 +1012,13 @@ namespace QTTabBarLib {
             }
 
             if(lstPaths.Count > 0) {
-                ShellMethods.DeleteFile(lstPaths, fNuke, hwndListView);
+                ShellMethods.DeleteFile(lstPaths, fNuke, slvDesktop.Handle);
             }
             else {
                 // no item selected
                 System.Media.SystemSounds.Beep.Play();
             }
         }
-
-
 
         #endregion
 
@@ -1736,10 +1690,10 @@ namespace QTTabBarLib {
                 }
             }
 
-            ExpandState[0] = Config.Bool(Scts.Desktop_GroupExpanded);
-            ExpandState[1] = Config.Bool(Scts.Desktop_RecentTabExpanded);
-            ExpandState[2] = Config.Bool(Scts.Desktop_ApplicationExpanded);
-            ExpandState[3] = Config.Bool(Scts.Desktop_RecentFileExpanded);
+            ExpandState[0] = Config_GroupExpanded;
+            ExpandState[1] = Config_RecentTabExpanded;
+            ExpandState[2] = Config_ApplicationExpanded;
+            ExpandState[3] = Config_RecentFileExpanded;
 
             using(RegistryKey rkUser = Registry.CurrentUser.OpenSubKey(REGNAME.KEY_USERROOT)) {
                 if(rkUser != null) {
@@ -1831,7 +1785,7 @@ namespace QTTabBarLib {
         }
 
         private void RefreshStringResources() {
-            string[] ResTaskbar = QTUtility.StringResourcesDic["TaskBar_Menu"];
+            string[] ResTaskbar = StringResourcesDic["TaskBar_Menu"];
 
             tsmiTaskBar.Text = ResTaskbar[0];
             tsmiDesktop.Text = ResTaskbar[1];
@@ -1867,13 +1821,13 @@ namespace QTTabBarLib {
 
         private void desktopTool_MouseClick(object sender, MouseEventArgs e) {
             // single click mode
-            if(e.Button == MouseButtons.Left && Config.Bool(Scts.Desktop_1ClickMenu)) {
+            if(e.Button == MouseButtons.Left && Config_1ClickMenu) {
                 ShowMenu(MousePosition);
             }
         }
 
         private void desktopTool_MouseDoubleClick(object sender, MouseEventArgs e) {
-            if(e.Button == MouseButtons.Left && !Config.Bool(Scts.Desktop_1ClickMenu)) {
+            if(e.Button == MouseButtons.Left && !Config_1ClickMenu) {
                 ShowMenu(MousePosition);
             }
         }
@@ -1935,6 +1889,23 @@ namespace QTTabBarLib {
         private bool fRootReordered;
 
         private void contextMenu_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
+            /*
+            DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
+            switch(((int)reorderable.OwnerItem.Tag)) {
+                case 3:
+                    GroupsManager.HandleReorder(reorderable.Items);
+                    break;
+
+                case 5:
+                    AppsManager.SetUserAppsFromNestedStructure(
+                            reorderable.Items.Cast<QMenuItem>(),
+                            item => item.MenuItemArguments.App,
+                            item => item.MenuItemArguments.App.IsFolder
+                                ? item.DropDown.Items.Cast<QMenuItem>()
+                                : null);
+                    break;
+            }*/
+
             fRootReordered = e.ClickedItem is TitleMenuItem;
             QMenuItem qmi = e.ClickedItem as QMenuItem;
             if(qmi == null) {
@@ -1942,6 +1913,7 @@ namespace QTTabBarLib {
             }
 
             if(qmi.Genre == MenuGenre.Group) {
+
                 lstGroupItems.Clear();
 
                 using(
@@ -1969,7 +1941,6 @@ namespace QTTabBarLib {
                         }
                     }
                 }
-
 
                 QTUtility.RebuildGroupsDic();
                 QTUtility.flagManager_Group.SetFlags();
@@ -2260,25 +2231,23 @@ namespace QTTabBarLib {
         }
 
         private void tsmiExperimental_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            if(folderView != null) {
-                int index = tsmiExperimental.DropDown.Items.IndexOf(e.ClickedItem);
-                switch(index) {
-                    case 0:
-                        folderView.SetCurrentViewMode(FVM.LIST);
-                        break;
+            int index = tsmiExperimental.DropDown.Items.IndexOf(e.ClickedItem);
+            switch(index) {
+                case 0:
+                    ShellBrowser.ViewMode = FVM.LIST;
+                    break;
 
-                    case 1:
-                        folderView.SetCurrentViewMode(FVM.DETAILS);
-                        break;
+                case 1:
+                    ShellBrowser.ViewMode = FVM.DETAILS;
+                    break;
 
-                    case 2:
-                        folderView.SetCurrentViewMode(FVM.TILE);
-                        break;
+                case 2:
+                    ShellBrowser.ViewMode = FVM.TILE;
+                    break;
 
-                    case 3:
-                        folderView.SetCurrentViewMode(FVM.ICON);
-                        break;
-                }
+                case 3:
+                    ShellBrowser.ViewMode = FVM.ICON;
+                    break;    
             }
         }
 
@@ -2303,7 +2272,7 @@ namespace QTTabBarLib {
                 }
                 lstGroupItems.Clear();
 
-                if(Config.Bool(Scts.Desktop_IncludeGroup)) {
+                if(Config_IncludeGroup) {
                     lst[ITEMINDEX_GROUP] = true;
 
                     foreach(string groupName in QTUtility.dicGroups.Keys) {
@@ -2342,7 +2311,7 @@ namespace QTTabBarLib {
                 }
                 lstUndoClosedItems.Clear();
 
-                if(Config.Bool(Scts.Desktop_IncludeRecentTab)) {
+                if(Config_IncludeRecentTab) {
                     lst[ITEMINDEX_RECENTTAB] = true;
 
                     lstUndoClosedItems = MenuUtility.CreateRecentlyClosedItems(null, hwndShellTray);
@@ -2364,7 +2333,7 @@ namespace QTTabBarLib {
                 }
                 lstUserAppItems.Clear();
 
-                if(Config.Bool(Scts.Desktop_IncludeApplication)) {
+                if(Config_IncludeApplication) {
                     lst[ITEMINDEX_APPLAUNCHER] = true;
 
                     lstUserAppItems = MenuUtility.CreateAppLauncherItems(
@@ -2374,7 +2343,7 @@ namespace QTTabBarLib {
                             null,
                             new SubDirTipCreator(CreateSubDirTip),
                             true),
-                            !Config.Bool(Scts.Desktop_LockMenu));
+                            !Config_LockMenu);
                 }
                 else {
                     contextMenu.Items.Remove(tmiLabel_UserApp);
@@ -2393,7 +2362,7 @@ namespace QTTabBarLib {
                 }
                 lstRecentFileItems.Clear();
 
-                if(Config.Bool(Scts.Desktop_IncludeRecentFile)) {
+                if(Config_IncludeRecentFile) {
                     lst[ITEMINDEX_RECENTFILE] = true;
 
                     lstRecentFileItems = MenuUtility.CreateRecentFilesItems(hwndShellTray);
@@ -2854,25 +2823,19 @@ namespace QTTabBarLib {
                     return;
                 }
 
-
-                int iItem;
-                List<IntPtr> lstPIDL = GetSelectedItemPIDL(out iItem);
-
                 // File Hash
                 if(index == 4 || index == 6) {
                     List<string> lstPaths = new List<string>();
-                    foreach(IntPtr pIDL in lstPIDL) {
-                        using(IDLWrapper idlw = new IDLWrapper(pIDL)) {
-                            if(idlw.IsLink) {
-                                string pathLinkTarget = ShellMethods.GetLinkTargetPath(idlw.Path);
-                                if(File.Exists(pathLinkTarget)) {
-                                    lstPaths.Add(pathLinkTarget);
-                                }
-                            }
-                            else if(idlw.IsFileSystemFile) {
-                                lstPaths.Add(idlw.Path);
+                    foreach(IDLWrapper idlw in ShellBrowser.GetItems(true)) {
+                        if(idlw.IsLink) {
+                            string pathLinkTarget = ShellMethods.GetLinkTargetPath(idlw.Path);
+                            if(File.Exists(pathLinkTarget)) {
+                                lstPaths.Add(pathLinkTarget);
                             }
                         }
+                        else if(idlw.IsFileSystemFile) {
+                            lstPaths.Add(idlw.Path);
+                        }   
                     }
 
                     if(index == 4) {
@@ -2887,38 +2850,16 @@ namespace QTTabBarLib {
 
                 // Show subdirtip.
                 if(index == 5) {
-                    if(lstPIDL.Count == 1) {
-                        if(ShowSubDirTip(lstPIDL[0], iItem, false)) {
-                            subDirTip.PerformClickByKey();
-                        }
-                        else {
-                            HideSubDirTip();
-                        }
-                    }
-
-                    foreach(IntPtr pIDL in lstPIDL) {
-                        PInvoke.CoTaskMemFree(pIDL);
-                    }
+                    slvDesktop.ShowAndClickSubDirTip();
                     return;
                 }
 
+                // Copy name/path
                 if(index == 0 || index == 1) {
-                    bool fPath = index == 0;
-                    string str = String.Empty;
-
-                    foreach(IntPtr pIDL in lstPIDL) {
-                        string path = ShellMethods.GetDisplayName(pIDL, !fPath);
-
-                        if(path.Length > 0) {
-                            str += (str.Length == 0 ? String.Empty : "\r\n") + path;
-                        }
-
-                        PInvoke.CoTaskMemFree(pIDL);
-                    }
-
-                    if(str.Length > 0) {
-                        QTUtility2.SetStringClipboard(str);
-                    }
+                    string str = ShellBrowser.GetItems(true)
+                            .Select(idlw => index == 0 ? idlw.ParseName : idlw.DisplayName)
+                            .StringJoin(Environment.NewLine);
+                    if(str.Length > 0) QTUtility2.SetStringClipboard(str);
                 }
             }
             catch(Exception ex) {
