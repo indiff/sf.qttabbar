@@ -638,17 +638,12 @@ namespace QTTabBarLib {
             DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
             switch(((int)reorderable.OwnerItem.Tag)) {
                 case 3:
-                    GroupsManager.HandleReorder(reorderable.Items);
+                    GroupsManager.HandleReorder(reorderable.Items.Cast<ToolStripItem>());
                     break;
 
                 case 5:
-                    AppsManager.SetUserAppsFromNestedStructure(
-                            reorderable.Items.Cast<QMenuItem>(),
-                            item => item.MenuItemArguments.App,
-                            item => item.MenuItemArguments.App.IsFolder
-                                ? item.DropDown.Items.Cast<QMenuItem>()
-                                : null); 
-                     break;
+                    AppsManager.HandleReorder(reorderable.Items.Cast<ToolStripItem>());
+                    break;
             }
             QTTabBarClass.SyncTaskBarMenu();
         }

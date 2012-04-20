@@ -1818,9 +1818,9 @@ namespace QTTabBarLib {
                         }
                     }
                     if(lst.Count < 4) {
-                        for(int i = 0; i < lstItemOrder.Count; i++) {
-                            if(!lst.Contains(lstItemOrder[i])) {
-                                lst.Add(lstItemOrder[i]);
+                        foreach(int t in lstItemOrder) {
+                            if(!lst.Contains(t)) {
+                                lst.Add(t);
                             }
                         }
                     }
@@ -1838,122 +1838,21 @@ namespace QTTabBarLib {
         private bool fRootReordered;
 
         private void contextMenu_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            /*
-            DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
-            switch(((int)reorderable.OwnerItem.Tag)) {
-                case 3:
-                    GroupsManager.HandleReorder(reorderable.Items);
-                    break;
-
-                case 5:
-                    AppsManager.SetUserAppsFromNestedStructure(
-                            reorderable.Items.Cast<QMenuItem>(),
-                            item => item.MenuItemArguments.App,
-                            item => item.MenuItemArguments.App.IsFolder
-                                ? item.DropDown.Items.Cast<QMenuItem>()
-                                : null);
-                    break;
-            }*/
-
             fRootReordered = e.ClickedItem is TitleMenuItem;
             QMenuItem qmi = e.ClickedItem as QMenuItem;
-            if(qmi == null) {
-                return;
-            }
+            if(qmi == null) return;
 
             if(qmi.Genre == MenuGenre.Group) {
-
-                lstGroupItems.Clear();
-
-                using(
-                        RegistryKey rkGroup =
-                                Registry.CurrentUser.CreateSubKey(REGNAME.KEY_USERROOT + @"\" + REGNAME.KEY_GROUPS)) {
-                    int separatorIndex = 1;
-
-                    foreach(string valName in rkGroup.GetValueNames()) {
-                        rkGroup.DeleteValue(valName, false);
-                    }
-
-                    foreach(ToolStripItem tsi in contextMenu.Items) {
-                        QMenuItem qmiSub = tsi as QMenuItem;
-                        if(qmiSub != null) {
-                            if(qmiSub.Genre == MenuGenre.Group) {
-                                rkGroup.SetValue(qmiSub.Text, qmiSub.GroupItemInfo.KeyboardShortcut);
-
-                                lstGroupItems.Add(qmiSub);
-                            }
-                        }
-                        else if(tsi is ToolStripSeparator && tsi.Name == TSS_NAME_GRP) {
-                            rkGroup.SetValue("Separator" + (separatorIndex++), 0);
-
-                            lstGroupItems.Add(tsi);
-                        }
-                    }
-                }
-
-                QTUtility.RebuildGroupsDic();
-                QTUtility.flagManager_Group.SetFlags();
-                InstanceManager.SyncProcesses(MC.MLW_UPDATE_GROUP, IntPtr.Zero, IntPtr.Zero, hwndThis);
+                lstGroupItems = contextMenu.Items.Cast<ToolStripItem>().Where(tsi =>
+                        (tsi is QMenuItem && ((QMenuItem)tsi).Genre == MenuGenre.Group) ||
+                        (tsi is ToolStripSeparator && tsi.Name == TSS_NAME_GRP)).ToList();
+                GroupsManager.HandleReorder(lstGroupItems);
             }
             else if(qmi.Genre == MenuGenre.Application) {
-                // need to sync the list
-                lstUserAppItems.Clear();
-
-                using(
-                        RegistryKey rkUserApp =
-                                Registry.CurrentUser.CreateSubKey(REGNAME.KEY_USERROOT + @"\" + REGNAME.KEY_APPLICATIONS)
-                        ) {
-                    foreach(string valName in rkUserApp.GetValueNames()) {
-                        rkUserApp.DeleteValue(valName, false);
-                    }
-
-                    int separatorIndex = 1;
-                    string[] separatorVal = new string[] {String.Empty, String.Empty, String.Empty, String.Empty};
-
-                    foreach(ToolStripItem tsi in contextMenu.Items) {
-                        QMenuItem qmiSub = tsi as QMenuItem;
-                        if(qmiSub != null) {
-                            if(qmiSub.Genre == MenuGenre.Application) {
-                                if(qmiSub.Target == MenuTarget.VirtualFolder) {
-                                    rkUserApp.SetValue(tsi.Text, new byte[0]);
-                                }
-                                else {
-                                    rkUserApp.SetValue(tsi.Text, QTUtility.dicUserApps[tsi.Text]);
-                                }
-
-                                lstUserAppItems.Add(tsi);
-                            }
-                        }
-                        else if(tsi is ToolStripSeparator && tsi.Name == TSS_NAME_APP) {
-                            rkUserApp.SetValue("Separator" + (separatorIndex++), separatorVal);
-
-                            lstUserAppItems.Add(tsi);
-                        }
-                    }
-
-                    // refresh dictionary
-                    QTUtility.dicUserApps.Clear();
-                    foreach(string valueName in rkUserApp.GetValueNames()) {
-                        if(valueName.Length > 0) {
-                            string[] appVal = rkUserApp.GetValue(valueName) as string[];
-                            if(appVal != null) {
-                                if(appVal.Length > 3) {
-                                    QTUtility.dicUserApps.Add(valueName, appVal);
-                                }
-                            }
-                            else {
-                                using(RegistryKey rkUserAppSub = rkUserApp.OpenSubKey(valueName, false)) {
-                                    if(rkUserAppSub != null) {
-                                        QTUtility.dicUserApps.Add(valueName, null);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                QTUtility.flagManager_AppLauncher.SetFlags();
-                InstanceManager.SyncProcesses(MC.MLW_UPDATE_APPLICATION, IntPtr.Zero, IntPtr.Zero, hwndThis);
+                lstUserAppItems = contextMenu.Items.Cast<ToolStripItem>().Where(tsi =>
+                    (tsi is QMenuItem && ((QMenuItem)tsi).Genre == MenuGenre.Application) ||
+                    (tsi is ToolStripSeparator && tsi.Name == TSS_NAME_APP)).ToList();
+                AppsManager.HandleReorder(lstUserAppItems);
             }
         }
 
@@ -2117,23 +2016,14 @@ namespace QTTabBarLib {
 
         private void dropDowns_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
             if(sender == ddmrGroups) {
-                QTUtility.OnReorderFinished_Group(ddmrGroups.Items, hwndThis);
-
-                // need to sync the list
                 lstGroupItems.Clear();
-                foreach(ToolStripItem tsi in ddmrGroups.Items) {
-                    lstGroupItems.Add(tsi);
-                }
+                lstGroupItems.AddRange(ddmrGroups.Items.Cast<ToolStripItem>());
+                GroupsManager.HandleReorder(lstGroupItems);
             }
             else if(sender == ddmrUserapps) {
-                QTUtility.OnReorderFinished_AppLauncher(ddmrUserapps.Items, hwndThis);
-                QTUtility.flagManager_AppLauncher.SetFlags();
-
-                // need to sync the list
                 lstUserAppItems.Clear();
-                foreach(ToolStripItem tsi in ddmrUserapps.Items) {
-                    lstUserAppItems.Add(tsi);
-                }
+                lstUserAppItems.AddRange(ddmrUserapps.Items.Cast<ToolStripItem>());
+                AppsManager.HandleReorder(lstUserAppItems);
             }
         }
 
@@ -2201,7 +2091,7 @@ namespace QTTabBarLib {
             List<bool> lst = new List<bool> {false, false, false, false};
 
             // group
-            if(QTUtility.flagManager_Group.GetFlag(lstGroupItems) || lstRefreshRequired[ITEMINDEX_GROUP]) {
+            if(lstRefreshRequired[ITEMINDEX_GROUP]) {
                 lstRefreshRequired[ITEMINDEX_GROUP] = false;
 
                 // clear items
@@ -2212,25 +2102,9 @@ namespace QTTabBarLib {
 
                 if(Config_IncludeGroup) {
                     lst[ITEMINDEX_GROUP] = true;
-
-                    foreach(string groupName in QTUtility.dicGroups.Keys) {
-                        GroupItemInfo gi = QTUtility.dicGroups[groupName];
-                        if(gi.ItemCount == 0) {
-                            ToolStripSeparator tss = new ToolStripSeparator();
-                            tss.Name = TSS_NAME_GRP;
-                            lstGroupItems.Add(tss);
-                            continue;
-                        }
-
-                        QMenuItem qmi = new QMenuItem(groupName, MenuGenre.Group);
-                        qmi.SetImageReservationKey(gi.EnsurePath(0), null);
-                        qmi.GroupItemInfo = gi;
-
-                        if(QTUtility.lstStartUpGroups.Contains(groupName)) {
-                            MenuUtility.SetStartUpMenuFont(qmi);
-                        }
-
-                        lstGroupItems.Add(qmi);
+                    lstGroupItems = MenuUtility.CreateGroupItems(null);
+                    foreach(var tss in lstGroupItems.OfType<ToolStripSeparator>()) {
+                        tss.Name = TSS_NAME_GRP;
                     }
                 }
                 else {
@@ -2252,7 +2126,7 @@ namespace QTTabBarLib {
                 if(Config_IncludeRecentTab) {
                     lst[ITEMINDEX_RECENTTAB] = true;
 
-                    lstUndoClosedItems = MenuUtility.CreateRecentlyClosedItems(null, hwndShellTray);
+                    lstUndoClosedItems = MenuUtility.CreateUndoClosedItems(null);
                 }
                 else {
                     contextMenu.Items.Remove(tmiLabel_History);
@@ -2261,8 +2135,7 @@ namespace QTTabBarLib {
             }
 
             // application launcher
-            if(QTUtility.flagManager_AppLauncher.GetFlag(lstUserAppItems) ||
-                    lstRefreshRequired[ITEMINDEX_APPLAUNCHER]) {
+            if(lstRefreshRequired[ITEMINDEX_APPLAUNCHER]) {
                 lstRefreshRequired[ITEMINDEX_APPLAUNCHER] = false;
 
                 // clear items
@@ -2275,13 +2148,12 @@ namespace QTTabBarLib {
                     lst[ITEMINDEX_APPLAUNCHER] = true;
 
                     lstUserAppItems = MenuUtility.CreateAppLauncherItems(
-                        new EventPack(Handle,
-                            new ItemRightClickedEventHandler(dropDowns_ItemRightClicked),
-                            new EventHandler(directoryMenuItems_DoubleClick),
-                            null,
-                            new SubDirTipCreator(CreateSubDirTip),
-                            true),
-                            !Config_LockMenu);
+                            Handle,
+                            ShellBrowser,
+                            !Config_LockMenu,
+                            dropDowns_ItemRightClicked,
+                            directoryMenuItems_DoubleClick,
+                            true);
                 }
                 else {
                     contextMenu.Items.Remove(tmiLabel_UserApp);
@@ -2290,8 +2162,7 @@ namespace QTTabBarLib {
             }
 
             // recent file
-            if(QTUtility.flagManager_RecentFile.GetFlag(lstRecentFileItems) ||
-                    lstRefreshRequired[ITEMINDEX_RECENTFILE]) {
+            if(lstRefreshRequired[ITEMINDEX_RECENTFILE]) {
                 lstRefreshRequired[ITEMINDEX_RECENTFILE] = false;
 
                 // clear items
@@ -2303,7 +2174,7 @@ namespace QTTabBarLib {
                 if(Config_IncludeRecentFile) {
                     lst[ITEMINDEX_RECENTFILE] = true;
 
-                    lstRecentFileItems = MenuUtility.CreateRecentFilesItems(hwndShellTray);
+                    lstRecentFileItems = MenuUtility.CreateRecentFilesItems();
                 }
                 else {
                     contextMenu.Items.Remove(tmiLabel_RecentFile);
