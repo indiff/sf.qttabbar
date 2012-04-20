@@ -316,5 +316,14 @@ namespace QTTabBarLib {
                     new UserApp(Path.GetFileName(path), path, "", "", Keys.None)));
             SaveApps();
         }
+
+        public static void HandleReorder(IEnumerable<ToolStripItem> items) {
+            SetUserAppsFromNestedStructure(
+                    items.OfType<QMenuItem>(), // todo: separators
+                    item => item.MenuItemArguments.App,
+                    item => item.MenuItemArguments.App.IsFolder
+                        ? item.DropDown.Items.Cast<QMenuItem>()
+                        : null);
+        }
     }
 }

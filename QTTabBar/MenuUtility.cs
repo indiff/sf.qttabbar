@@ -91,25 +91,35 @@ namespace QTTabBarLib {
                         folderName, children, fReorderEnabled, ep)).ToList();
         }
 
-        public static void CreateGroupItems(ToolStripDropDownItem dropDownItem) {
-            DropDownMenuReorderable dropDown = (DropDownMenuReorderable)dropDownItem.DropDown;
-            while(dropDown.Items.Count > 0) {
-                dropDown.Items[0].Dispose();
+        public static List<ToolStripItem> CreateGroupItems(ToolStripDropDownItem dropDownItem) {
+            List<ToolStripItem> ret = new List<ToolStripItem>();
+            DropDownMenuReorderable dropDown = null;
+            if(dropDownItem != null) {
+                dropDown = (DropDownMenuReorderable)dropDownItem.DropDown;
+                while(dropDown.Items.Count > 0) {
+                    dropDown.Items[0].Dispose();
+                }
+                dropDown.ItemsClear();
             }
-            dropDown.ItemsClear();
             const string key = "groups";
             foreach(Group group in GroupsManager.Groups) {
                 if(group.Paths.Count == 0 || !QTUtility2.PathExists(group.Paths[0])) continue;
                 QMenuItem item = new QMenuItem(group.Name, MenuGenre.Group);
                 item.SetImageReservationKey(group.Paths[0], null);
-                dropDown.AddItem(item, key);
+                if(dropDown != null) {
+                    dropDown.AddItem(item, key);
+                }
+                ret.Add(item);
                 if(!group.Startup) continue;
                 if(StartUpTabFont == null) {
                     StartUpTabFont = new Font(item.Font, FontStyle.Underline);
                 }
                 item.Font = StartUpTabFont;
             }
-            dropDownItem.Enabled = dropDown.Items.Count > 0;
+            if(dropDownItem != null) {
+                dropDownItem.Enabled = dropDown.Items.Count > 0;
+            }
+            return ret;
         }
 
         public static QMenuItem CreateMenuItem(MenuItemArguments mia) {
@@ -187,6 +197,7 @@ namespace QTTabBarLib {
             };
         }
 
+        // todo: check vs quizo's
         public static List<ToolStripItem> CreateRecentFilesItems() {
             List<ToolStripItem> ret = new List<ToolStripItem>();
             List<string> toRemove = new List<string>();
@@ -209,6 +220,7 @@ namespace QTTabBarLib {
             return ret;
         }
 
+        // todo: check vs quizo's
         public static List<ToolStripItem> CreateUndoClosedItems(ToolStripDropDownItem dropDownItem) {
             List<ToolStripItem> ret = new List<ToolStripItem>();
             string[] reversedLog = StaticReg.ClosedTabHistoryList.Reverse().ToArray();
@@ -231,9 +243,7 @@ namespace QTTabBarLib {
                         if(dropDownItem != null) {
                             dropDownItem.DropDownItems.Add(item);
                         }
-                        else {
-                            ret.Add(item);
-                        }
+                        ret.Add(item);
                     }
                 }
             }
@@ -404,13 +414,7 @@ namespace QTTabBarLib {
                 if(!(next is ToolStripDropDownMenu)) break;
                 root = next;
             }
-
-            AppsManager.SetUserAppsFromNestedStructure(
-                    root.Items.Cast<QMenuItem>(),
-                    item => item.MenuItemArguments.App,
-                    item => item.MenuItemArguments.App.IsFolder 
-                        ? item.DropDown.Items.Cast<QMenuItem>()
-                        : null);
+            AppsManager.HandleReorder(root.Items.Cast<ToolStripItem>());
         }
     }
 
