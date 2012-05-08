@@ -3595,7 +3595,7 @@ namespace QTTabBarLib {
         }
 
         private void menuitemGroups_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            GroupsManager.HandleReorder(tsmiGroups.DropDownItems);
+            GroupsManager.HandleReorder(tsmiGroups.DropDownItems.Cast<ToolStripItem>());
             SyncTaskBarMenu();
         }
 
@@ -4212,7 +4212,7 @@ namespace QTTabBarLib {
             return false;
         }
 
-        private bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
+        internal bool OpenNewTab(IDLWrapper idlwGiven, bool blockSelecting = false, bool fForceNew = false) {
             // Check that the folder exists and is navigable.
             if(idlwGiven == null || !idlwGiven.Available || !idlwGiven.HasPath || !idlwGiven.IsReadyIfDrive || idlwGiven.IsLinkToDeadFolder) {
                 SystemSounds.Hand.Play();
