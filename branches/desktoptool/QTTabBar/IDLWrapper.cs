@@ -328,6 +328,12 @@ namespace QTTabBarLib {
             return true;
         }
 
+        public static byte[] PathToIDL(string path) {
+            using(IDLWrapper idlw = new IDLWrapper(path)) {
+                return idlw.IDL;
+            }
+        }
+
         private static void ReadCache() {
             using(RegistryKey key = Registry.CurrentUser.CreateSubKey(RegConst.Root)) {
                 if(key != null) {
