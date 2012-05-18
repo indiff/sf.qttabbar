@@ -113,7 +113,7 @@ namespace QTTabBarLib {
         // SETTINGS & FLAGS		
         private bool[] ExpandState = {false, false, false, false};
         private UniqueList<int> lstItemOrder = new UniqueList<int> {0, 1, 2, 3};
-        private List<bool> lstRefreshRequired = new List<bool> {false, false, false, false};
+        private List<bool> lstRefreshRequired = new List<bool> { true, true, true, true };
 
         private bool fCancelClosing;
         private bool fNowMouseHovering;
@@ -778,11 +778,11 @@ namespace QTTabBarLib {
                     slvDesktop.ShowThumbnailTooltipForSelectedItem();
                     return true;
                 }
-            } */
+            }
             else if(key == Config.Keys.Shortcuts[(int)BindAction.ItemDelete]) {
                 if(!fRepeat) ShellBrowser.DeleteSelection(false);
                 return true;
-            } /* todo
+            }
             else if(key == Config.Keys.Shortcuts[(int)BindAction.ItemDeleteNuke]) {
                 if(!fRepeat) ShellBrowser.DeleteSelection(true);
                 return true;
@@ -901,38 +901,37 @@ namespace QTTabBarLib {
             }
             // TODO: The tab bar reads the modkeys by itself.  But, it should use the ones already read if possible...
             // Hm...
+            List<byte[]> lstIDLs = new List<byte[]>();
+            List<string> lstFiles = new List<string>();
 
-            using(var lstPIDLs = new DisList<IDLWrapper>()) {
-                List<string> lstFiles = new List<string>();
-
-                foreach(IDLWrapper idlOrig in ShellBrowser.GetItems(true)) {
-                    using(IDLWrapper idlLink = idlOrig.ResolveTargetIfLink()) {
-                        IDLWrapper idlw = idlLink ?? idlOrig;
-                        if(!idlw.Available || !idlw.IsReadyIfDrive || idlw.IsLinkToDeadFolder) continue;
-                        if(idlw.IsFolder) {
-                            lstPIDLs.Add(idlw.Clone()); // <-- must clone, idlw will be Disposed.
-                        }
-                        if(fEnqExec) {
-                            if(idlw.HasPath) {
-                                lstFiles.Add(idlw.Path);
-                            }
+            foreach(IDLWrapper idlOrig in ShellBrowser.GetItems(true)) {
+                using(IDLWrapper idlLink = idlOrig.ResolveTargetIfLink()) {
+                    IDLWrapper idlw = idlLink ?? idlOrig;
+                    if(!idlw.Available || !idlw.IsReadyIfDrive || idlw.IsLinkToDeadFolder) continue;
+                    if(idlw.IsFolder) {
+                        lstIDLs.Add(idlw.IDL);
+                    }
+                    if(fEnqExec) {
+                        if(idlw.HasPath) {
+                            lstFiles.Add(idlw.Path);
                         }
                     }
-                }
-
-                if(lstPIDLs.Count == 0) {
-                    if(fEnqExec && lstFiles.Count > 0) {
-                        foreach(string path in lstFiles) {
-                            StaticReg.ExecutedPathsList.Add(path);
-                        }
-                    }
-                    return false;
-                }
-                else {
-                    OpenFolders(lstPIDLs);
-                    return true;
                 }
             }
+
+            if(lstIDLs.Count == 0) {
+                if(fEnqExec && lstFiles.Count > 0) {
+                    foreach(string path in lstFiles) {
+                        StaticReg.ExecutedPathsList.Add(path);
+                    }
+                }
+                return false;
+            }
+            else {
+                OpenFolders(lstIDLs);
+                return true;
+            }
+            
         }
 
         private bool ListView_MiddleClick(Point pt) {
@@ -1005,9 +1004,7 @@ namespace QTTabBarLib {
         private void subDirTip_MultipleMenuItemsClicked(object sender, EventArgs e) {
             List<string> paths = ((SubDirTipForm)sender).ExecutedDirectories;
             // TODO: IDLIFY, for the love of god!!
-            using(var list = new DisList<IDLWrapper>(paths.Select(p => new IDLWrapper(p)))) {
-                OpenFolders(list);
-            }
+            OpenFolders(paths.Select(IDLWrapper.PathToIDL).ToList());
         }
 
         private void subDirTip_MultipleMenuItemsRightClicked(object sender, ItemRightClickedEventArgs e) {
@@ -2392,23 +2389,28 @@ namespace QTTabBarLib {
         }
 
         private void OpenFolder(IDLWrapper pidl, bool fForceTab = false) {
-            OpenFolders(new List<IDLWrapper> { pidl }, fForceTab);
+            OpenFolders(new List<byte[]> { pidl.IDL }, fForceTab);
         }
 
-        private static void OpenFolders(IList<IDLWrapper> lstIDLs, bool fForceTab = false) {
+        private static void OpenFolders(List<byte[]> lstIDLs, bool fForceTab = false) {
             if(lstIDLs.Count == 0) return;
             if((fForceTab || Config.Window.CaptureNewWindows) && InstanceManager.GetTotalInstanceCount() > 0) {
                 InstanceManager.BeginInvokeMain(tabbar => {
                     bool first = true;
-                    foreach(IDLWrapper idlw in lstIDLs) {
-                        tabbar.OpenNewTab(idlw, first);
+                    foreach(byte[] idl in lstIDLs) {
+                        using(var idlw = new IDLWrapper(idl)) {
+                            tabbar.OpenNewTab(idlw, !first);    
+                        }
                         first = false;
+                        // todo: bring to front
                     }
                 });
             }
             else {
-                StaticReg.CreateWindowIDLs.Assign(lstIDLs.Skip(1).Select(idlw => idlw.IDL));
-                OpenWindow(lstIDLs[0]);
+                StaticReg.CreateWindowIDLs.Assign(lstIDLs.Skip(1));
+                using(IDLWrapper idlw = new IDLWrapper(lstIDLs[0])) {
+                    OpenWindow(idlw);
+                }
             }
         }
 

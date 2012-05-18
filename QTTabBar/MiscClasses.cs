@@ -399,7 +399,7 @@ namespace QTTabBarLib {
         }
     }
 
-
+    [Serializable]
     internal class DisList<T> : List<T>, IDisposable where T : IDisposable {
         public DisList() {
         }
