@@ -1772,7 +1772,7 @@ namespace QTTabBarLib {
         }
 
         private void dropDowns_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            // sicne menu is created on taskbar thread 
+            // since menu is created on taskbar thread 
             // this runs on the thread
 
             TitleMenuItem tmi = e.ClickedItem as TitleMenuItem;
@@ -2141,6 +2141,7 @@ namespace QTTabBarLib {
                 }
             }
             else {
+                ddmrUserapps.AddItemsRange(lstUserAppItems.ToArray(), MENUKEY_ITEM_USERAPP);
                 contextMenu.InsertItem(GetInsertionIndex(ITEMINDEX_APPLAUNCHER), tmiUserApp, MENUKEY_SUBMENUS);
             }
         }
