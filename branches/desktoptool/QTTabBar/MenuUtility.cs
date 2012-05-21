@@ -407,14 +407,7 @@ namespace QTTabBarLib {
         }
 
         private static void virtualDirectory_ReorderFinished(object sender, ToolStripItemClickedEventArgs e) {
-            DropDownMenuReorderable reorderable = (DropDownMenuReorderable)sender;
-            ToolStrip root = reorderable;
-            while(true) {
-                ToolStrip next = (root as ToolStripDropDownMenu).OwnerItem.Owner;
-                if(!(next is ToolStripDropDownMenu)) break;
-                root = next;
-            }
-            AppsManager.HandleReorder(root.Items.Cast<ToolStripItem>());
+            AppsManager.HandleReorder(((DropDownMenuReorderable)sender).Items.Cast<ToolStripItem>());
         }
     }
 
